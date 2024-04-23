@@ -1,34 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Conf.hpp                                           :+:      :+:    :+:   */
+/*   location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yloutfi <yloutfi@student.42.fr>            +#+  +:+       +#+        */
+/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/21 08:45:07 by yloutfi           #+#    #+#             */
-/*   Updated: 2024/04/21 08:48:50 by yloutfi          ###   ########.fr       */
+/*   Created: 2024/04/23 10:20:30 by soulang           #+#    #+#             */
+/*   Updated: 2024/04/23 10:20:43 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CONF_HPP
-#define CONF_HPP
+#include "location.hpp"
 
-class Conf
-{
-	private:
-		int line;
-		
-	public:
-		Conf();
-		~Conf();
-};
-
-Conf::Conf()
+Location::Location()
 {
 }
 
-Conf::~Conf()
+Location::Location(const Location& copy)
 {
+	(void)copy;
 }
 
-#endif
+Location& Location::operator=(const Location& src)
+{
+	(void)src;
+	return (*this);
+}
+
+Location::~Location()
+{
+}
