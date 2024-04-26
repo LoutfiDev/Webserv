@@ -6,13 +6,14 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 09:04:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/04/23 13:21:44 by soulang          ###   ########.fr       */
+/*   Updated: 2024/04/26 08:54:06 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "parser.hpp"
 
 int line = 1;
+int col = 1;
 
 Parser::Parser()
 {
@@ -31,19 +32,19 @@ Parser::Parser(std::string fileName)
 	
 	while (std::getline(inputFile, tmp))
 	{	
-		if (tmp == "")
+		if (tmp == "" && line++)
 			continue;
 		try
 		{
-			std::cout << tmp << "|" << std::endl;
 			std::string key;
+			std::string rest;
 			std::stringstream ss(tmp);
 			std::getline(ss,key,' ');
+			std::getline(ss,rest,'\n');
 			if (key == "server")
-				servers.push_back(Server(inputFile));
+				servers.push_back(Server(inputFile, rest));
 			else
 				throw 1;
-			line++;
 		}
 		catch(const int e)
 		{

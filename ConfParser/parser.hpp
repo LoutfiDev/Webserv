@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 08:45:07 by yloutfi           #+#    #+#             */
-/*   Updated: 2024/04/23 12:46:01 by soulang          ###   ########.fr       */
+/*   Updated: 2024/04/24 09:17:43 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@
 class Server;
 
 extern int line;
+extern int col;
 
 class Parser
 {

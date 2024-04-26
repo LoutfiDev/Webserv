@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 08:53:41 by soulang           #+#    #+#             */
-/*   Updated: 2024/04/23 11:44:09 by soulang          ###   ########.fr       */
+/*   Updated: 2024/04/26 11:44:40 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,6 @@ int main (int ac, char **av)
 	}
 	else 
 		std::cout << av[0] << \
-			" accept 1 param (Configuration file) only!" <<std::endl;
+			" accept 1 param (Configuration file) only!" << std::endl;
 	return (0);
 }
