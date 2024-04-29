@@ -1,0 +1,67 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   SedIsLoser.cpp                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/08/29 12:01:01 by yloutfi           #+#    #+#             */
+/*   Updated: 2024/04/27 10:21:58 by soulang          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "SedIsLoser.hpp"
+
+Sed::Sed()
+{
+}
+
+Sed::~Sed()
+{
+}
+
+void Sed::execute (std::string fileName, std::string s1, std::string s2, std::string s3)
+{
+	std::ifstream 	myFile(fileName.c_str());
+	std::ofstream 	myFileCopy("tmp.conf");
+	std::string		tmp;
+	std::size_t 	pos;
+	
+	if (!myFile.is_open() || !myFileCopy.is_open())
+	{
+		std::cout << "Error: open failed" << std::endl;
+		return ;
+	}
+	while (1)
+	{
+		pos = 0;
+		std::getline(myFile, tmp);
+		while (1) 
+		{
+			pos = tmp.find(s1, pos);
+			if (pos == std::string::npos)
+					break;
+			tmp.erase (pos, s1.length());
+			tmp.insert (pos, s3);
+			pos += s3.length();
+		}
+		
+		pos = 0;
+		while (1) 
+		{
+			pos = tmp.find(s2, pos);
+			if (pos == std::string::npos)
+					break;
+			tmp.erase (pos, s2.length());
+			tmp.insert (pos, s3);
+			pos += s3.length();
+		}
+		
+		myFileCopy << tmp << " ";
+		if (myFile.eof())
+			break;
+	}
+		
+	myFile.close();
+	myFileCopy.close();
+}

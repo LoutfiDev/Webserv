@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 09:04:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/04/26 08:54:06 by soulang          ###   ########.fr       */
+/*   Updated: 2024/04/29 10:14:03 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,8 @@ Parser::Parser()
 
 Parser::Parser(std::string fileName)
 {
-	std::ifstream 	inputFile(fileName.c_str());
+	Sed::execute(fileName, "	", "\n", " ");
+	std::ifstream 	inputFile("tmp.conf");
 	std::string tmp;
 	
 	if (!inputFile.is_open())
@@ -29,20 +30,16 @@ Parser::Parser(std::string fileName)
 		std::cout << "Error: opening Configuration file failed" << std::endl;
 		return ;
 	}
-	
-	while (std::getline(inputFile, tmp))
+	std::getline(inputFile, tmp);
+	std::stringstream ss(tmp);
+	while (std::getline(ss, tmp, ' '))
 	{	
-		if (tmp == "" && line++)
+		if (tmp.empty())
 			continue;
 		try
 		{
-			std::string key;
-			std::string rest;
-			std::stringstream ss(tmp);
-			std::getline(ss,key,' ');
-			std::getline(ss,rest,'\n');
-			if (key == "server")
-				servers.push_back(Server(inputFile, rest));
+			if (tmp == "server")
+				servers.push_back(Server(ss));
 			else
 				throw 1;
 		}
@@ -50,12 +47,29 @@ Parser::Parser(std::string fileName)
 		{
 			switch (e)
 			{
-				case 1:
-					error(fileName, line, "");
-					break;
-				
+				case 1: 
+					std::cout << "no server block" << std::endl;
+					exit(0);
+				case 2: 
+					std::cout << "open brace" << std::endl;
+					exit(0);
+				case 3: 
+					std::cout << "no matching directives" << std::endl;
+					exit(0);
+				case 4: 
+					std::cout << "close brace" << std::endl;
+					exit(0);
+				case 9: 
+					std::cout << "error in host" << std::endl;
+					exit(0);
+				case 7:
+					std::cout << "error in port" << std::endl;
+					exit(0);
+				case 8:
+					std::cout << "error in listen directive" << std::endl;
+					exit(0);
 				default:
-					break;
+					std::cout << "default" << std::endl;
 			}
 		}
 	}
