@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:19:40 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/06 15:54:21 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/11 11:13:23 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,101 +72,190 @@ std::string parse_port(std::string port) {
 	int nbr;
 	
 	nbr = strtod(port.c_str(), &rest);
-	if (rest[0] || !(nbr > 0 && nbr < 10000))
+	if (*rest)
+	{
+		while (*rest)
+		{
+			if (*rest != ' ')
+				return "";
+			rest++;
+		}
+	}
+	if (!(nbr > 0 && nbr < 10000))
 		return "";
 
 	return port;
 }
 
 void Server::set_listen(std::string& rest) {
-// 	std::string value;
-// 	std::string tmp;
-// 	char *rest;
-
-// 	while (!semi_colon && std::getline(ss, value, ' '))
-// 	{
-// 		if (value.empty())
-// 			continue;
-// 		else if (value == ";" && !host.empty() && port > 1)
-// 			return;
-// 		std::stringstream s(value);
-// 		while (std::getline(s, tmp, ':'))
-// 		{
-// 			if (host.empty())
-// 				host = parse_host(tmp);
-// 			else if (port == -1)
-// 			{
-// 				port = strtod(tmp.c_str(), &rest);
-// 				if ((!rest[0] && (port > 0 && port < 10000)) || 
-// 				    ((rest[0] && !strncmp(rest, ";", strlen(rest)) && !semi_colon && !semi_colon++) 
-// 				    && (port > 0 && port < 10000)))
-// 		            break;
-// 				else
-// 					throw 7;
-// 			}
-// 			else
-// 			    throw 8;
-// 		}
-// 	}
-	// std::string value;
-	// std::string rest;
-	// while (!semi_colon && std::getline(ss, value, ' '))
-	// {
-	// 	if (value.empty())
-	// 		continue;
-	// 	else if (value == ";" && !semi_colon && !semi_colon++)
-	// 		break;
-	// 	else if (value[0] == ';' && !semi_colon && !semi_colon++)
-	// 	{
-	// 		rest = value.erase(0);
-	// 		break;
-	// 	}
-	// 	else if (value[value.size() - 1] == ';' && !semi_colon && !semi_colon++)
-	// 		rest = value.erase(value.size() - 1);
-			
-	// 	std::stringstream s(value);
-	// 	while (std::getline(s, value, ':'))
-	// 	{
-	// 		if (host.empty())
-	// 			host = parse_host(value);
-	// 		else if (port.empty())
-	// 			port = parse_port(value);
-	// 		else
-	// 			throw 8;
-	// 	}	
-	// }
-	// if (host.empty() || port.empty())
-	// 	throw 33;
+	
+	std::string value;
+	    
+	while (!rest.empty())
+	{
+		while (rest[0] == ' ')
+			rest.erase(0, 1);
+		if (rest[0] == ';')
+		{
+			rest.erase(0, 1);
+			break;
+		}
+		std::stringstream s(rest);
+		std::getline(s, value, ';');
+		if (value.empty())
+			throw 44;
+		rest.erase(0, value.size());
+		std::stringstream ss(value);
+		while (std::getline(ss, value, ':'))
+		{
+			if (host.empty())
+				host = parse_host(value);
+			else if (port.empty())
+				port = parse_port(value);
+			else
+				throw 1;
+		}
+	}
+	if (host.empty() || port.empty())
+		throw 33;
 }
 
 void Server::set_server_names(std::string& rest) { 
-	(void)rest;
-	// std::string value;
-	// std::cout << "hello from server name" << std::endl;
-	// exit(0);
-	// int semi_colon = 0;
-	// while (!semi_colon && std::getline(ss, value, ' '))
-	// {
-	// 	if (value.empty())
-	// 		continue;
-	// 	else if (value == ";" && server_names.size() > 0)
-	// 		return;
-	// 	else if (*(--value.end()) == ';' && !semi_colon && !semi_colon++)
-	// 		server_names.push_back(value.erase(value.size() - 1));
-	// 	else
-	// 		server_names.push_back(value);
-	// }
-	// if (!semi_colon)
-	// 	throw 10;
+	
+	std::string value;
+	    
+	while (!rest.empty())
+	{
+		while (rest[0] == ' ')
+			rest.erase(0, 1);
+		if (rest[0] == ';')
+		{
+			rest.erase(0, 1);
+			break;
+		}
+		std::stringstream s(rest);
+		std::getline(s, value, ';');
+		if (value.empty())
+			throw 55;
+		rest.erase(0, value.size());
+		std::stringstream ss(value);
+		while (std::getline(ss, value, ' '))
+		{
+			if (value.empty())
+				continue;
+			else
+				server_names.push_back(value);
+		}
+	}
+	if (server_names.size() == 0)
+		throw 66;
 }
 
-void Server::set_error_pages(std::string& rest) { (void)rest; }
 
-void Server::set_max_body_size(std::string& rest) { (void)rest; }
+std::vector<std::string> is_status_code(std::vector<std::string> status_codes)
+{
+	char *rest;
+	int nb;
 
-void Server::set_root(std::string& rest) { (void)rest; } 
+	if (status_codes.size() < 2)
+		throw 90;
+	std::vector<std::string>::iterator it = status_codes.begin();
+	for (; it+1 != status_codes.end(); ++it)
+	{
+		nb = strtod((*it).c_str(), &rest);
+		if (rest[0])
+			throw 70;
+		else if (!(nb > 299 && nb < 600))
+			throw 80;
+	}
+	status_codes.erase(it);
+	return (status_codes);
+}
+void Server::set_error_pages(std::string& rest) { 
+	
+	std::string value;
+	std::vector<std::string>tmp;
+	    
+	while (!rest.empty())
+	{
+		while (rest[0] == ' ')
+			rest.erase(0, 1);
+		if (rest[0] == ';')
+		{
+			rest.erase(0, 1);
+			break;
+		}
+		std::stringstream s(rest);
+		std::getline(s, value, ';');
+		if (value.empty())
+			throw 55;
+		rest.erase(0, value.size());
+		std::stringstream ss(value);
+		while (std::getline(ss, value, ' '))
+		{
+			if (value.empty())
+				continue;
+			else
+				tmp.push_back(value);
+		}
+		error_pages[is_status_code(tmp)] = *tmp.rbegin();
+	}
+	if (error_pages.size() == 0)
+		throw 66;
+}
 
-void Server::set_locations(std::string& rest) { (void)rest; }
+std::string parse_max_body_size(std::string value)
+{
+	double nb;
+	char *rest;
+	
+	nb = strtod(value.c_str(), &rest);
+	if (rest[0])
+		throw 70;
+	else if (nb > std::numeric_limits<unsigned int>::max() || nb < 0)
+		throw 80;
+	return value;
+}
+
+void Server::set_max_body_size(std::string& rest) { 
+	std::string value;
+	    
+	while (!rest.empty())
+	{
+		while (rest[0] == ' ')
+			rest.erase(0, 1);
+		if (rest[0] == ';')
+		{
+			rest.erase(0, 1);
+			break;
+		}
+		std::stringstream s(rest);
+		std::getline(s, value, ';');
+		if (value.empty())
+			throw 50;
+		rest.erase(0, value.size());
+		std::stringstream ss(value);
+		while (std::getline(ss, value, ' '))
+		{
+			if (value.empty())
+				continue;
+			else if (max_body_size.empty())
+				max_body_size = parse_max_body_size(value);
+			else
+				throw 40;
+		}
+	}
+	if (max_body_size.empty())
+		throw 30;
+}
+
+void Server::set_root(std::string& rest) { 
+	(void)rest; std::cout << "hello from root" << std::endl;
+}	 
+
+void Server::set_locations(std::string& rest) { 
+	(void)rest; std::cout << "hello from location" << std::endl;
+}
 
 // Server getters
 std::string Server::get_host( void ) const { return host; }
@@ -183,13 +272,14 @@ std::string Server::get_server_names(const std::string& server_name) {
 }
 
 std::string Server::get_error_pages(const unsigned int error_code) {
+	(void)error_code;
 	std::string path = "";
-	if (error_pages.find(error_code) != error_pages.end())
-		path = error_pages[error_code];
+	// if (error_pages.find(error_code) != error_pages.end())
+	// 	path = error_pages[error_code];
 	return (path);
 }
 
-unsigned int Server::get_max_body_size( void ) const { return max_body_size; }
+std::string Server::get_max_body_size( void ) const { return max_body_size; }
 
 std::string Server::get_root( void ) const { return root;}
 

@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:17:16 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/06 15:51:30 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/11 10:35:03 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include <fstream>
 #include <sstream>
 #include <cstdlib>
+#include <limits>
 #include <map>
 #include <vector>
 
@@ -32,8 +33,8 @@ class Server
 		std::string host;
 		std::string port;
 		std::vector<std::string>server_names;
-		std::map<unsigned int, std::string> error_pages;
-		unsigned int max_body_size;
+		std::map<std::vector<std::string>, std::string> error_pages;
+		std::string max_body_size;
 		std::string root;
 		std::map<std::string, Location> locations;
 		
@@ -56,7 +57,7 @@ class Server
 		std::string get_port( void ) const;
 		std::string get_server_names(const std::string& server_name);
 		std::string get_error_pages(const unsigned int error_code);
-		unsigned int get_max_body_size( void ) const;
+		std::string get_max_body_size( void ) const;
 		std::string get_root( void ) const;
 		Location *get_locations(const std::string& path);
 
