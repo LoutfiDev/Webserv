@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 09:04:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/06 15:47:02 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/11 19:30:11 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ Parser::Parser(std::string fileName)
 			if (rest.substr(0, 6) == "server")
 			{
 				rest = rest.substr(6);
-
 				servers.push_back(Server(rest));
 			}
 			else

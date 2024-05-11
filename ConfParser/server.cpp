@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:19:40 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/11 11:13:23 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/11 19:57:52 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -250,11 +250,58 @@ void Server::set_max_body_size(std::string& rest) {
 }
 
 void Server::set_root(std::string& rest) { 
-	(void)rest; std::cout << "hello from root" << std::endl;
+	std::string value;
+	    
+	while (!rest.empty())
+	{
+		while (rest[0] == ' ')
+			rest.erase(0, 1);
+		if (rest[0] == ';')
+		{
+			rest.erase(0, 1);
+			break;
+		}
+		std::stringstream s(rest);
+		std::getline(s, value, ';');
+		if (value.empty())
+			throw 50;
+		rest.erase(0, value.size());
+		std::stringstream ss(value);
+		while (std::getline(ss, value, ' '))
+		{
+			if (value.empty())
+				continue;
+			else if (root.empty())
+				root = value;
+			else
+				throw 40;
+		}
+	}
+	if (root.empty())
+		throw 30;
 }	 
 
 void Server::set_locations(std::string& rest) { 
-	(void)rest; std::cout << "hello from location" << std::endl;
+	(void)rest;
+	std::cout << "hello from locations directives" << std::endl;
+	// 	int open_brace = 0, close_brace = 0;
+	
+	// while (!rest.empty())
+	// {
+	//     while (rest[0] == ' ')
+	// 		rest.erase(0,1);
+	// 	if (rest[0] == '{' && !open_brace && !open_brace++)
+	// 		rest.erase(0, 1);
+	// 	else if (rest[0] == '}' && open_brace && !close_brace)
+	// 	{
+	// 		rest.erase(0, 1);
+	// 		return ;
+	// 	}
+	// 	else if (open_brace)
+	// 	    pick_directive(rest);
+	// 	else
+	// 		throw 2;
+// }
 }
 
 // Server getters
@@ -278,7 +325,7 @@ std::string Server::get_error_pages(const unsigned int error_code) {
 	// 	path = error_pages[error_code];
 	return (path);
 }
-
+ 
 std::string Server::get_max_body_size( void ) const { return max_body_size; }
 
 std::string Server::get_root( void ) const { return root;}
