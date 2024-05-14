@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:20:30 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/14 12:54:12 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/14 12:58:32 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,9 +98,33 @@ void Location::set_auto_index(std::string& rest){
 }
 
 void Location::set_root(std::string& rest){
-	// 		std::cout << "hello" << std::endl;
-	// std::cout << "|" << rest << "|" << std::endl;
-	// exit(0);
+	std::string value;
+	    
+	while (!rest.empty())
+	{
+		while (rest[0] == ' ')
+			rest.erase(0, 1);
+		if (rest[0] == ';')
+		{
+			rest.erase(0, 1);
+			break;
+		}
+		std::stringstream s(rest);
+		std::getline(s, value, ';');
+		rest.erase(0, value.size());
+		std::stringstream ss(value);
+		while (std::getline(ss, value, ' '))
+		{
+			if (value.empty())
+				continue;
+			else if (root.empty())
+				root = value;
+			else
+				throw 40;
+		}
+	}
+	if (root.empty())
+		throw 30;
 }
 
 std::string parse_methods(std::vector<std::string>v, std::string value)
@@ -149,8 +173,11 @@ void Location::set_allow_methods(std::string& rest){
 	if (allow_methods.size() == 0)
 		throw 66;
 }
+	// 		std::cout << "hello" << std::endl;
+	// std::cout << "|" << rest << "|" << std::endl;
+	// exit(0);
 void Location::set_index(std::string& rest){
-	(void)rest;
+
 }
 void Location::set_upload_dir(std::string& rest){
 	(void)rest;
