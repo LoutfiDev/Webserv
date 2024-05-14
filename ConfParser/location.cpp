@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:20:30 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/14 13:24:12 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/14 15:04:54 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -231,13 +231,65 @@ void Location::set_upload_dir(std::string& rest){
 	if (upload_dir.empty())
 		throw 30;
 }
+
+	
+std::string	parse_extention(std::map<std::string, std::string> map, std::string value)
+{
+	std::string str[2] = {".php", ".py"};
+	std::string::iterator it = value.begin();
+	for(; it != value.end(); ++it) { *it =  std::tolower(*it); }
+	std::map<std::string, std::string>::iterator ite = map.begin();
+	for (; ite != map.end(); ++ite)
+	{
+		if (value == ite->first)
+			throw 70;
+	}
+	for (int i = 0; i < 2; i++)
+	{
+		if (str[i] == value)
+			return value;
+	}
+	throw 60;
+}
 void Location::set_cgi(std::string& rest){
+	std::string value;
+	std::string extention;
+	std::string path;
+	    
+	while (!rest.empty())
+	{
+		while (rest[0] == ' ')
+			rest.erase(0, 1);
+		if (rest[0] == ';')
+		{
+			rest.erase(0, 1);
+			break;
+		}
+		std::stringstream s(rest);
+		std::getline(s, value, ';');
+		rest.erase(0, value.size());
+		std::stringstream ss(value);
+		while (std::getline(ss, value, ' '))
+		{
+			if (value.empty())
+				continue;
+			else if (extention.empty())
+				extention = parse_extention(cgi, value);
+			else if (path.empty())
+				path = value;
+			else
+				throw 40;
+		}
+		if (!path.empty() && !extention.empty())
+			cgi[extention] = path;
+	}
+	if (cgi.size() == 0)
+		throw 50;
+}
+void Location::set_redirection(std::string& rest){
 	std::cout << "hello" << std::endl;
 	std::cout << "|" << rest << "|" << std::endl;
 	exit(0);
-}
-void Location::set_redirection(std::string& rest){
-	(void)rest;
 }
 
 
