@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:19:40 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/11 19:57:52 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/12 15:58:32 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -282,26 +282,35 @@ void Server::set_root(std::string& rest) {
 }	 
 
 void Server::set_locations(std::string& rest) { 
-	(void)rest;
-	std::cout << "hello from locations directives" << std::endl;
-	// 	int open_brace = 0, close_brace = 0;
+	std::string value;
+	std::string path;
 	
-	// while (!rest.empty())
-	// {
-	//     while (rest[0] == ' ')
-	// 		rest.erase(0,1);
-	// 	if (rest[0] == '{' && !open_brace && !open_brace++)
-	// 		rest.erase(0, 1);
-	// 	else if (rest[0] == '}' && open_brace && !close_brace)
-	// 	{
-	// 		rest.erase(0, 1);
-	// 		return ;
-	// 	}
-	// 	else if (open_brace)
-	// 	    pick_directive(rest);
-	// 	else
-	// 		throw 2;
-// }
+	while (!rest.empty())
+	{
+		while (rest[0] == ' ')
+		rest.erase(0,1);
+	
+		std::stringstream s(rest);
+		std::getline(s, value, '{');
+		rest.erase(0, value.size());
+		std::stringstream ss(value);
+		while (std::getline(ss, value, ' '))
+		{
+			if (value.empty())
+				continue;
+			else if (path.empty())
+				path = value;
+			else
+				throw 2;
+		}
+		if (path.empty())
+			throw 1;
+		else
+		{
+			locations[path] = Location(rest);
+			break;
+		}
+	}
 }
 
 // Server getters
