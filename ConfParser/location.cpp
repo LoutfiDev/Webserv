@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:20:30 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/14 12:58:32 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/14 13:24:12 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,17 +173,68 @@ void Location::set_allow_methods(std::string& rest){
 	if (allow_methods.size() == 0)
 		throw 66;
 }
-	// 		std::cout << "hello" << std::endl;
-	// std::cout << "|" << rest << "|" << std::endl;
-	// exit(0);
-void Location::set_index(std::string& rest){
 
+void Location::set_index(std::string& rest){
+	std::string value;
+	    
+	while (!rest.empty())
+	{
+		while (rest[0] == ' ')
+			rest.erase(0, 1);
+		if (rest[0] == ';')
+		{
+			rest.erase(0, 1);
+			break;
+		}
+		std::stringstream s(rest);
+		std::getline(s, value, ';');
+		rest.erase(0, value.size());
+		std::stringstream ss(value);
+		while (std::getline(ss, value, ' '))
+		{
+			if (value.empty())
+				continue;
+			else
+				index.push_back(value);
+		}
+	}
+	if (index.size() == 0)
+		throw 66;
 }
+
 void Location::set_upload_dir(std::string& rest){
-	(void)rest;
+	std::string value;
+	    
+	while (!rest.empty())
+	{
+		while (rest[0] == ' ')
+			rest.erase(0, 1);
+		if (rest[0] == ';')
+		{
+			rest.erase(0, 1);
+			break;
+		}
+		std::stringstream s(rest);
+		std::getline(s, value, ';');
+		rest.erase(0, value.size());
+		std::stringstream ss(value);
+		while (std::getline(ss, value, ' '))
+		{
+			if (value.empty())
+				continue;
+			else if (upload_dir.empty())
+				upload_dir = value;
+			else
+				throw 40;
+		}
+	}
+	if (upload_dir.empty())
+		throw 30;
 }
 void Location::set_cgi(std::string& rest){
-	(void)rest;
+	std::cout << "hello" << std::endl;
+	std::cout << "|" << rest << "|" << std::endl;
+	exit(0);
 }
 void Location::set_redirection(std::string& rest){
 	(void)rest;
