@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:20:30 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/14 15:04:54 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/14 15:55:58 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -286,10 +286,55 @@ void Location::set_cgi(std::string& rest){
 	if (cgi.size() == 0)
 		throw 50;
 }
+	// std::cout << "hello" << std::endl;
+	// std::cout << "|" << rest << "|" << std::endl;
+	// exit(0);
+std::string	parse_status_code(std::string value)
+{
+	char *rest;
+	int nb;
+	
+	nb = strtod(value.c_str(), &rest);
+	if (rest[0])
+		throw 70;
+	else if (!(nb > 299 && nb < 600))
+		throw 80;
+	return value;
+}
 void Location::set_redirection(std::string& rest){
-	std::cout << "hello" << std::endl;
-	std::cout << "|" << rest << "|" << std::endl;
-	exit(0);
+	std::string value;
+	std::string status_code;
+	std::string path;
+	    
+	while (!rest.empty())
+	{
+		while (rest[0] == ' ')
+			rest.erase(0, 1);
+		if (rest[0] == ';')
+		{
+			rest.erase(0, 1);
+			break;
+		}
+		std::stringstream s(rest);
+		std::getline(s, value, ';');
+		rest.erase(0, value.size());
+		std::stringstream ss(value);
+		while (std::getline(ss, value, ' '))
+		{
+			if (value.empty())
+				continue;
+			else if (status_code.empty())
+				status_code = parse_status_code(value);
+			else if (path.empty())
+				path = value;
+			else
+				throw 40;
+		}
+		if (!path.empty() && !status_code.empty())
+			redirection[status_code] = path;
+	}
+	if (redirection.size() == 0)
+		throw 50;
 }
 
 
