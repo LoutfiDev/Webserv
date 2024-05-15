@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 09:04:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/11 19:30:11 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/15 11:13:37 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,12 +35,15 @@ Parser::Parser(std::string fileName)
 	{
 		while(!rest.empty())
 		{
-			while (rest[0] == ' ')
+			if (rest[0] == ' ')
+			{
 				rest.erase(0,1);
-			if (rest.substr(0, 6) == "server")
+				continue;
+			}
+			else if (rest.substr(0, 6) == "server")
 			{
 				rest = rest.substr(6);
-				servers.push_back(Server(rest));
+				servers.push_back(new Server(rest));
 			}
 			else
 				throw 1;
@@ -53,10 +56,10 @@ Parser::Parser(std::string fileName)
 			case 1: 
 				std::cout << "no server block" << std::endl;
 				exit(0);
-			case 2: 
+			case 11: 
 				std::cout << "open brace" << std::endl;
 				exit(0);
-			case 3: 
+			case 111: 
 				std::cout << "no matching directives" << std::endl;
 				exit(0);
 			case 4: 
@@ -93,6 +96,12 @@ Parser& Parser::operator=(const Parser& src)
 Parser::~Parser()
 {
 }
+
+
+std::vector<Server*> Parser::get_servers( void ) {
+	return (servers);
+}
+
 
 void Parser::error(std::string fileName, int line, std::string msg)
 {

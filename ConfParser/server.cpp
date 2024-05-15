@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:19:40 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/12 15:58:32 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/15 11:37:52 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ Server& Server::operator=(const Server& src)
 }
 
 Server::~Server() {}
+
 
 // Server setters
 std::string parse_host(std::string host) {
@@ -113,7 +114,7 @@ void Server::set_listen(std::string& rest) {
 			else if (port.empty())
 				port = parse_port(value);
 			else
-				throw 1;
+				throw 11;
 		}
 	}
 	if (host.empty() || port.empty())
@@ -150,7 +151,6 @@ void Server::set_server_names(std::string& rest) {
 	if (server_names.size() == 0)
 		throw 66;
 }
-
 
 std::vector<std::string> is_status_code(std::vector<std::string> status_codes)
 {
@@ -304,47 +304,29 @@ void Server::set_locations(std::string& rest) {
 				throw 2;
 		}
 		if (path.empty())
-			throw 1;
+			throw 111;
 		else
 		{
-			locations[path] = Location(rest);
+			locations[path] = new Location(rest);
 			break;
 		}
 	}
 }
 
 // Server getters
-std::string Server::get_host( void ) const { return host; }
+// std::string Server::get_host( void ) const { return host; }
 
-std::string Server::get_port( void ) const {return port; }
+// std::string Server::get_port( void ) const {return port; }
 
-std::string Server::get_server_names(const std::string& server_name) {
-	std::vector<std::string>::iterator it = server_names.begin();
-	for(; it != server_names.end() && *it != server_name ; it++)
-		;
-	if (it == server_names.end())
-	    return ("");
-	return (*it);
-}
+// std::string Server::get_server_names(const std::string& server_name) {}
 
-std::string Server::get_error_pages(const unsigned int error_code) {
-	(void)error_code;
-	std::string path = "";
-	// if (error_pages.find(error_code) != error_pages.end())
-	// 	path = error_pages[error_code];
-	return (path);
-}
+// std::string Server::get_error_pages(const unsigned int error_code) {}
  
-std::string Server::get_max_body_size( void ) const { return max_body_size; }
+// std::string Server::get_max_body_size( void ) const { return max_body_size; }
 
-std::string Server::get_root( void ) const { return root;}
+// std::string Server::get_root( void ) const { return root;}
 
-Location *Server::get_locations(const std::string& path) {
-	Location *tmp = NULL;
-	if (locations.find(path) != locations.end())
-		*tmp = locations[path];
-	return (tmp);
-}
+// Location *Server::get_locations(const std::string& path) {}
 
 //Additional memberFunc
 void Server::pick_directive(std::string& rest)

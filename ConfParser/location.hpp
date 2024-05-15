@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:17:20 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/14 11:04:18 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/15 11:17:41 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ class Location
 		Location& operator=(const Location& src);
 		~Location();
 		
-		void set_auto_index(std::string& rest);
+		void set_autoindex(std::string& rest);
 		void set_root(std::string& rest);
 		void set_allow_methods(std::string& rest);
 		void set_index(std::string& rest);
@@ -51,6 +51,7 @@ class Location
 		void set_redirection(std::string& rest);
 		
 
+		bool get_autoindex( void );
 		void pick_directive(std::string& rest);
 };
 

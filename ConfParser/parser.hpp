@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 08:45:07 by yloutfi           #+#    #+#             */
-/*   Updated: 2024/05/02 11:32:39 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/15 11:06:47 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ extern int semi_colon;
 class Parser
 {
 	private:
-		std::vector<Server> servers;
+		std::vector<Server*> servers;
 		
 	public:
 		Parser();
@@ -41,6 +41,7 @@ class Parser
 		Parser& operator=(const Parser& src);
 		~Parser();
 		
+		std::vector<Server*> get_servers( void );
 		void error(std::string fileName, int line, std::string msg);
 };
 

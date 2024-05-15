@@ -6,16 +6,13 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:20:30 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/14 15:55:58 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/15 11:40:28 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "location.hpp"
 
-Location::Location()
-{
-}
-
+Location::Location() {}
 
 Location::Location(std::string& rest){
 	int open_brace = 0, close_brace = 0;
@@ -37,10 +34,7 @@ Location::Location(std::string& rest){
 	}
 }
 
-Location::Location(const Location& copy)
-{
-	(void)copy;
-}
+Location::Location(const Location& copy) { (void)copy; }
 
 Location& Location::operator=(const Location& src)
 {
@@ -48,11 +42,9 @@ Location& Location::operator=(const Location& src)
 	return (*this);
 }
 
-Location::~Location()
-{
-}
+Location::~Location() {}
 
-
+// Location setters
 int parse_value(std::string value)
 {
 	std::string::iterator it = value.begin();
@@ -65,7 +57,7 @@ int parse_value(std::string value)
 		throw 4;
 }
 
-void Location::set_auto_index(std::string& rest){
+void Location::set_autoindex(std::string& rest){
 	std::string value;
 	int nb = -1;
 
@@ -232,7 +224,6 @@ void Location::set_upload_dir(std::string& rest){
 		throw 30;
 }
 
-	
 std::string	parse_extention(std::map<std::string, std::string> map, std::string value)
 {
 	std::string str[2] = {".php", ".py"};
@@ -286,9 +277,7 @@ void Location::set_cgi(std::string& rest){
 	if (cgi.size() == 0)
 		throw 50;
 }
-	// std::cout << "hello" << std::endl;
-	// std::cout << "|" << rest << "|" << std::endl;
-	// exit(0);
+
 std::string	parse_status_code(std::string value)
 {
 	char *rest;
@@ -337,11 +326,16 @@ void Location::set_redirection(std::string& rest){
 		throw 50;
 }
 
+// Location getters
+bool Location::get_autoindex( void ){
+	return(autoindex);
+}
 
+//Additional memberFunc
 void Location::pick_directive(std::string& rest)
 {
 	std::string str[7] = {"autoindex", "root", "allow_methods", "index", "upload_dir", "cgi", "return"};
-	void (Location::* ptr[7]) (std::string &) = {&Location::set_auto_index, &Location::set_root, &Location::set_allow_methods \
+	void (Location::* ptr[7]) (std::string &) = {&Location::set_autoindex, &Location::set_root, &Location::set_allow_methods \
 		, &Location::set_index, &Location::set_upload_dir, &Location::set_cgi, &Location::set_redirection};
 	std::string tmp;
 	std::stringstream ss(rest);

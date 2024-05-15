@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:17:16 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/11 10:35:03 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/15 11:35:49 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ class Server
 		std::map<std::vector<std::string>, std::string> error_pages;
 		std::string max_body_size;
 		std::string root;
-		std::map<std::string, Location> locations;
+		std::map<std::string, Location*> locations;
 		
 	public:
 		Server();
@@ -53,13 +53,13 @@ class Server
 		void set_root(std::string& rest);
 		void set_locations(std::string& rest);
 		
-		std::string get_host( void ) const;
-		std::string get_port( void ) const;
-		std::string get_server_names(const std::string& server_name);
-		std::string get_error_pages(const unsigned int error_code);
-		std::string get_max_body_size( void ) const;
-		std::string get_root( void ) const;
-		Location *get_locations(const std::string& path);
+		// std::string get_host( void ) const;
+		// std::string get_port( void ) const;
+		// std::string get_server_names(const std::string& server_name);
+		// std::string get_error_pages(const unsigned int error_code);
+		// std::string get_max_body_size( void ) const;
+		// std::string get_root( void ) const;
+		// Location *get_locations(const std::string& path);
 
 
 		void pick_directive(std::string& key);
