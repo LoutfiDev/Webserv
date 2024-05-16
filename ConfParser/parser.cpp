@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 09:04:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/16 12:20:18 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/16 15:45:23 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,54 @@ Parser::Parser(std::string fileName)
 				exit(0);
 			case 9: 
 				error(fileName, rest, "invalid number of arguments in \"server_name\" directive");
+				exit(0);
+			case 10: 
+				error(fileName, rest, "invalid number of arguments in \"error_page\" directive");
+				exit(0);
+			case 11: 
+				error(fileName, rest, "invalid value in \"error_page\" directive");
+				exit(0);
+			case 12: 
+				error(fileName, rest, "invalid number of arguments in \"client_max_body_size\" directive");
+				exit(0);
+			case 13: 
+				error(fileName, rest, "invalid value in \"client_max_body_size\" directive");
+				exit(0);
+			case 14: 
+				error(fileName, rest, "invalid number of arguments in \"root\" directive");
+				exit(0);
+			case 15: 
+				error(fileName, rest, "invalid number of arguments in \"location\" directive");
+				exit(0);
+			case 16: 
+				error(fileName, rest, "invalid number of arguments in \"autoindex\" directive");
+				exit(0);
+			case 17: 
+				error(fileName, rest, "invalid value in \"autoindex\" directive");
+				exit(0);
+			case 18: 
+				error(fileName, rest, "invalid number of arguments in \"allowed_methods\" directive");
+				exit(0);
+			case 19: 
+				error(fileName, rest, "invalid value in \"allowed_methods\" directive");
+				exit(0);
+			case 20: 
+				error(fileName, rest, "invalid number of arguments in \"index\" directive");
+				exit(0);
+			case 21: 
+				error(fileName, rest, "invalid number of arguments in \"upload_dir\" directive");
+				exit(0);
+			case 22: 
+				error(fileName, rest, "invalid number of arguments in \"cgi\" directive");
+				exit(0);
+			case 23: 
+				error(fileName, rest, "invalid value in \"cgi\" directive");
+				exit(0);
+			case 24: 
+				error(fileName, rest, "invalid number of arguments in \"return\" directive");
+				exit(0);
+			case 25: 
+				error(fileName, rest, "invalid value in \"return\" directive");
 				exit(0);
 			default:
 				std::cout << "default" << std::endl;

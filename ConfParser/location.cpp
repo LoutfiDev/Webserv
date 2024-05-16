@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:20:30 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/16 11:58:12 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/16 15:46:04 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ int parse_value(std::string value)
 	else if (value == "off")
 		return (0);
 	else
-		throw 4;
+		throw 17;
 }
 
 void Location::set_autoindex(std::string& rest){
@@ -68,9 +68,12 @@ void Location::set_autoindex(std::string& rest){
 
 	while (!rest.empty())
 	{
-		while (rest[0] == ' ')
+		if (rest[0] == ' ')
+		{
 			rest.erase(0,1);
-		if (rest[0] == ';')
+			continue;
+		}
+		else if (rest[0] == ';')
 		{
 			rest.erase(0, 1);
 			break;
@@ -86,11 +89,11 @@ void Location::set_autoindex(std::string& rest){
 			else if (nb < 1)
 				nb = parse_value(value);
 			else
-				throw 2;
+				throw 16;
 		}
 	}
 	if (nb == -1)
-		throw 3;
+		throw 16;
 	autoindex = nb;
 }
 
@@ -99,9 +102,12 @@ void Location::set_root(std::string& rest){
 	    
 	while (!rest.empty())
 	{
-		while (rest[0] == ' ')
+		if (rest[0] == ' ')
+		{
 			rest.erase(0, 1);
-		if (rest[0] == ';')
+			continue;
+		}
+		else if (rest[0] == ';')
 		{
 			rest.erase(0, 1);
 			break;
@@ -117,11 +123,11 @@ void Location::set_root(std::string& rest){
 			else if (root.empty())
 				root = value;
 			else
-				throw 40;
+				throw 14;
 		}
 	}
 	if (root.empty())
-		throw 30;
+		throw 14;
 }
 
 std::string parse_methods(std::vector<std::string>v, std::string value)
@@ -133,14 +139,14 @@ std::string parse_methods(std::vector<std::string>v, std::string value)
 	for (; ite != v.end(); ++ite)
 	{
 		if (value == *ite)
-			throw 55;
+			throw 19;
 	}
 	for (int i = 0; i < 3; i++)
 	{
 		if (str[i] == value)
 			return (value);
 	}
-	throw 3;
+	throw 19;
 }
 
 void Location::set_allow_methods(std::string& rest){
@@ -148,9 +154,12 @@ void Location::set_allow_methods(std::string& rest){
 	    
 	while (!rest.empty())
 	{
-		while (rest[0] == ' ')
+		if (rest[0] == ' ')
+		{
 			rest.erase(0, 1);
-		if (rest[0] == ';')
+			continue;
+		}
+		else if (rest[0] == ';')
 		{
 			rest.erase(0, 1);
 			break;
@@ -168,7 +177,7 @@ void Location::set_allow_methods(std::string& rest){
 		}
 	}
 	if (allow_methods.size() == 0)
-		throw 66;
+		throw 18;
 }
 
 void Location::set_index(std::string& rest){
@@ -176,9 +185,12 @@ void Location::set_index(std::string& rest){
 	    
 	while (!rest.empty())
 	{
-		while (rest[0] == ' ')
+		if (rest[0] == ' ')
+		{
 			rest.erase(0, 1);
-		if (rest[0] == ';')
+			continue;
+		}
+		else if (rest[0] == ';')
 		{
 			rest.erase(0, 1);
 			break;
@@ -196,7 +208,7 @@ void Location::set_index(std::string& rest){
 		}
 	}
 	if (index.size() == 0)
-		throw 66;
+		throw 20;
 }
 
 void Location::set_upload_dir(std::string& rest){
@@ -204,9 +216,12 @@ void Location::set_upload_dir(std::string& rest){
 	    
 	while (!rest.empty())
 	{
-		while (rest[0] == ' ')
+		if (rest[0] == ' ')
+		{
 			rest.erase(0, 1);
-		if (rest[0] == ';')
+			continue;
+		}
+		else if (rest[0] == ';')
 		{
 			rest.erase(0, 1);
 			break;
@@ -222,11 +237,11 @@ void Location::set_upload_dir(std::string& rest){
 			else if (upload_dir.empty())
 				upload_dir = value;
 			else
-				throw 40;
+				throw 21;
 		}
 	}
 	if (upload_dir.empty())
-		throw 30;
+		throw 21;
 }
 
 std::string	parse_extention(std::map<std::string, std::string> map, std::string value)
@@ -238,14 +253,14 @@ std::string	parse_extention(std::map<std::string, std::string> map, std::string 
 	for (; ite != map.end(); ++ite)
 	{
 		if (value == ite->first)
-			throw 70;
+			throw 23;
 	}
 	for (int i = 0; i < 2; i++)
 	{
 		if (str[i] == value)
 			return value;
 	}
-	throw 60;
+	throw 23;
 }
 void Location::set_cgi(std::string& rest){
 	std::string value;
@@ -254,9 +269,12 @@ void Location::set_cgi(std::string& rest){
 	    
 	while (!rest.empty())
 	{
-		while (rest[0] == ' ')
+		if (rest[0] == ' ')
+		{
 			rest.erase(0, 1);
-		if (rest[0] == ';')
+			continue;
+		}
+		else if (rest[0] == ';')
 		{
 			rest.erase(0, 1);
 			break;
@@ -274,13 +292,13 @@ void Location::set_cgi(std::string& rest){
 			else if (path.empty())
 				path = value;
 			else
-				throw 40;
+				throw 22;
 		}
 		if (!path.empty() && !extention.empty())
 			cgi[extention] = path;
 	}
 	if (cgi.size() == 0)
-		throw 50;
+		throw 22;
 }
 
 std::string	parse_status_code(std::string value)
@@ -290,9 +308,9 @@ std::string	parse_status_code(std::string value)
 	
 	nb = strtod(value.c_str(), &rest);
 	if (rest[0])
-		throw 70;
+		throw 25;
 	else if (!(nb > 299 && nb < 600))
-		throw 80;
+		throw 25;
 	return value;
 }
 void Location::set_redirection(std::string& rest){
@@ -302,9 +320,12 @@ void Location::set_redirection(std::string& rest){
 	    
 	while (!rest.empty())
 	{
-		while (rest[0] == ' ')
+		if (rest[0] == ' ')
+		{
 			rest.erase(0, 1);
-		if (rest[0] == ';')
+			continue;
+		}
+		else if (rest[0] == ';')
 		{
 			rest.erase(0, 1);
 			break;
@@ -322,19 +343,17 @@ void Location::set_redirection(std::string& rest){
 			else if (path.empty())
 				path = value;
 			else
-				throw 40;
+				throw 24;
 		}
 		if (!path.empty() && !status_code.empty())
 			redirection[status_code] = path;
 	}
 	if (redirection.size() == 0)
-		throw 50;
+		throw 24;
 }
 
 // Location getters
-bool Location::get_autoindex( void ){
-	return(autoindex);
-}
+
 
 //Additional memberFunc
 void Location::pick_directive(std::string& rest)

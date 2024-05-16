@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:19:40 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/16 12:14:42 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/16 16:01:47 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,15 +165,15 @@ std::vector<std::string> is_status_code(std::vector<std::string> status_codes)
 	int nb;
 
 	if (status_codes.size() < 2)
-		throw 90;
+		throw 10;
 	std::vector<std::string>::iterator it = status_codes.begin();
 	for (; it+1 != status_codes.end(); ++it)
 	{
 		nb = strtod((*it).c_str(), &rest);
 		if (rest[0])
-			throw 70;
+			throw 11;
 		else if (!(nb > 299 && nb < 600))
-			throw 80;
+			throw 11;
 	}
 	status_codes.erase(it);
 	return (status_codes);
@@ -185,17 +185,18 @@ void Server::set_error_pages(std::string& rest) {
 	    
 	while (!rest.empty())
 	{
-		while (rest[0] == ' ')
+		if (rest[0] == ' ')
+		{
 			rest.erase(0, 1);
-		if (rest[0] == ';')
+			continue;
+		}
+		else if (rest[0] == ';')
 		{
 			rest.erase(0, 1);
 			break;
 		}
 		std::stringstream s(rest);
 		std::getline(s, value, ';');
-		if (value.empty())
-			throw 55;
 		rest.erase(0, value.size());
 		std::stringstream ss(value);
 		while (std::getline(ss, value, ' '))
@@ -208,7 +209,7 @@ void Server::set_error_pages(std::string& rest) {
 		error_pages[is_status_code(tmp)] = *tmp.rbegin();
 	}
 	if (error_pages.size() == 0)
-		throw 66;
+		throw 10;
 }
 
 std::string parse_max_body_size(std::string value)
@@ -218,9 +219,9 @@ std::string parse_max_body_size(std::string value)
 	
 	nb = strtod(value.c_str(), &rest);
 	if (rest[0])
-		throw 70;
+		throw 13;
 	else if (nb > std::numeric_limits<unsigned int>::max() || nb < 0)
-		throw 80;
+		throw 13;
 	return value;
 }
 
@@ -229,17 +230,18 @@ void Server::set_max_body_size(std::string& rest) {
 	    
 	while (!rest.empty())
 	{
-		while (rest[0] == ' ')
+		if (rest[0] == ' ')
+		{
 			rest.erase(0, 1);
-		if (rest[0] == ';')
+			continue;
+		}
+		else if (rest[0] == ';')
 		{
 			rest.erase(0, 1);
 			break;
 		}
 		std::stringstream s(rest);
 		std::getline(s, value, ';');
-		if (value.empty())
-			throw 50;
 		rest.erase(0, value.size());
 		std::stringstream ss(value);
 		while (std::getline(ss, value, ' '))
@@ -249,11 +251,11 @@ void Server::set_max_body_size(std::string& rest) {
 			else if (max_body_size.empty())
 				max_body_size = parse_max_body_size(value);
 			else
-				throw 40;
+				throw 12;
 		}
 	}
 	if (max_body_size.empty())
-		throw 30;
+		throw 12;
 }
 
 void Server::set_root(std::string& rest) { 
@@ -261,17 +263,18 @@ void Server::set_root(std::string& rest) {
 	    
 	while (!rest.empty())
 	{
-		while (rest[0] == ' ')
+		if (rest[0] == ' ')
+		{
 			rest.erase(0, 1);
-		if (rest[0] == ';')
+			continue;
+		}
+		else if (rest[0] == ';')
 		{
 			rest.erase(0, 1);
 			break;
 		}
 		std::stringstream s(rest);
 		std::getline(s, value, ';');
-		if (value.empty())
-			throw 50;
 		rest.erase(0, value.size());
 		std::stringstream ss(value);
 		while (std::getline(ss, value, ' '))
@@ -281,11 +284,11 @@ void Server::set_root(std::string& rest) {
 			else if (root.empty())
 				root = value;
 			else
-				throw 40;
+				throw 14;
 		}
 	}
 	if (root.empty())
-		throw 30;
+		throw 14;
 }	 
 
 void Server::set_locations(std::string& rest) { 
@@ -294,9 +297,11 @@ void Server::set_locations(std::string& rest) {
 	
 	while (!rest.empty())
 	{
-		while (rest[0] == ' ')
-		rest.erase(0,1);
-	
+		if (rest[0] == ' ')
+		{
+			rest.erase(0,1);
+			continue;
+		}
 		std::stringstream s(rest);
 		std::getline(s, value, '{');
 		rest.erase(0, value.size());
@@ -308,10 +313,10 @@ void Server::set_locations(std::string& rest) {
 			else if (path.empty())
 				path = value;
 			else
-				throw 2;
+				throw 15;
 		}
 		if (path.empty())
-			throw 111;
+			throw 15;
 		else
 		{
 			locations[path] = new Location(rest);
@@ -344,7 +349,6 @@ void Server::pick_directive(std::string& rest)
 	std::string tmp;
 	std::stringstream ss(rest);
     std::getline(ss, tmp, ' ');
-	std::cout << "|" << tmp << "|" << std::endl;
 	for (int i = 0; i < 6; i++)
 	{
 		if (str[i] == tmp)

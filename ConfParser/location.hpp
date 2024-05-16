@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:17:20 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/15 11:17:41 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/16 15:44:35 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,6 @@ class Location
 		void set_redirection(std::string& rest);
 		
 
-		bool get_autoindex( void );
 		void pick_directive(std::string& rest);
 };
 
