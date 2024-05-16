@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:19:40 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/15 11:37:52 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/16 12:14:42 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,12 @@ Server::Server(std::string& rest)
 	
 	while (!rest.empty())
 	{
-	    while (rest[0] == ' ')
+	    if (rest[0] == ' ')
+		{
 			rest.erase(0,1);
-		if (rest[0] == '{' && !open_brace && !open_brace++)
+			continue;
+		}
+		else if (rest[0] == '{' && !open_brace && !open_brace++)
 			rest.erase(0, 1);
 		else if (rest[0] == '}' && open_brace && !close_brace)
 		{
@@ -34,6 +37,8 @@ Server::Server(std::string& rest)
 		else
 			throw 2;
 	}
+	if (!close_brace)
+		throw 3;
 }
 
 Server::Server(const Server& copy) { (void)copy; }
@@ -60,7 +65,7 @@ std::string parse_host(std::string host) {
 	{
 		nbr = strtod(tmp.c_str(), &rest);
 		if (rest[0] || !(nbr >= 0 && nbr < 256) || i > 4)
-			return "";
+			throw 5;
 		i++;
 	}
 	
@@ -78,12 +83,12 @@ std::string parse_port(std::string port) {
 		while (*rest)
 		{
 			if (*rest != ' ')
-				return "";
+				throw 6;
 			rest++;
 		}
 	}
 	if (!(nbr > 0 && nbr < 10000))
-		return "";
+		throw 6;
 
 	return port;
 }
@@ -94,8 +99,11 @@ void Server::set_listen(std::string& rest) {
 	    
 	while (!rest.empty())
 	{
-		while (rest[0] == ' ')
+		if (rest[0] == ' ')
+		{
 			rest.erase(0, 1);
+			continue;
+		}
 		if (rest[0] == ';')
 		{
 			rest.erase(0, 1);
@@ -103,8 +111,6 @@ void Server::set_listen(std::string& rest) {
 		}
 		std::stringstream s(rest);
 		std::getline(s, value, ';');
-		if (value.empty())
-			throw 44;
 		rest.erase(0, value.size());
 		std::stringstream ss(value);
 		while (std::getline(ss, value, ':'))
@@ -114,11 +120,11 @@ void Server::set_listen(std::string& rest) {
 			else if (port.empty())
 				port = parse_port(value);
 			else
-				throw 11;
+				throw 7;
 		}
 	}
 	if (host.empty() || port.empty())
-		throw 33;
+		throw 8;
 }
 
 void Server::set_server_names(std::string& rest) { 
@@ -127,8 +133,11 @@ void Server::set_server_names(std::string& rest) {
 	    
 	while (!rest.empty())
 	{
-		while (rest[0] == ' ')
+		if (rest[0] == ' ')
+		{
 			rest.erase(0, 1);
+			continue;
+		}
 		if (rest[0] == ';')
 		{
 			rest.erase(0, 1);
@@ -136,8 +145,6 @@ void Server::set_server_names(std::string& rest) {
 		}
 		std::stringstream s(rest);
 		std::getline(s, value, ';');
-		if (value.empty())
-			throw 55;
 		rest.erase(0, value.size());
 		std::stringstream ss(value);
 		while (std::getline(ss, value, ' '))
@@ -149,7 +156,7 @@ void Server::set_server_names(std::string& rest) {
 		}
 	}
 	if (server_names.size() == 0)
-		throw 66;
+		throw 9;
 }
 
 std::vector<std::string> is_status_code(std::vector<std::string> status_codes)
@@ -337,6 +344,7 @@ void Server::pick_directive(std::string& rest)
 	std::string tmp;
 	std::stringstream ss(rest);
     std::getline(ss, tmp, ' ');
+	std::cout << "|" << tmp << "|" << std::endl;
 	for (int i = 0; i < 6; i++)
 	{
 		if (str[i] == tmp)
@@ -345,5 +353,5 @@ void Server::pick_directive(std::string& rest)
 			return ((this->*(ptr[i]))(rest));
 		}
 	}
-	throw 3;
+	throw 1;
 }

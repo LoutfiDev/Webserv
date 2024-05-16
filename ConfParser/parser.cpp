@@ -6,14 +6,11 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 09:04:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/15 11:13:37 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/16 12:20:18 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "parser.hpp"
-
-int line = 1;
-int semi_colon = 0;
 
 Parser::Parser()
 {
@@ -54,25 +51,31 @@ Parser::Parser(std::string fileName)
 		switch (e)
 		{
 			case 1: 
-				std::cout << "no server block" << std::endl;
+				error(fileName, rest, "unknown directive");
 				exit(0);
-			case 11: 
-				std::cout << "open brace" << std::endl;
+			case 2: 
+				error(fileName, rest, "directive \"server\" has no opening \"{\"");
 				exit(0);
-			case 111: 
-				std::cout << "no matching directives" << std::endl;
+			case 3: 
+				error(fileName, rest, "unexpected end of file, expecting \"}\"");
 				exit(0);
 			case 4: 
-				std::cout << "close brace" << std::endl;
+				error(fileName, rest, "directive \"location\" has no opening \"{\"");
+				exit(0);
+			case 5: 
+				error(fileName, rest, "host not found in \"listen\" directive");
+				exit(0);
+			case 6: 
+				error(fileName, rest, "port not found in \"listen\" directive");
+				exit(0);
+			case 7: 
+				error(fileName, rest, "invalid parameter in \"listen\" directive");
+				exit(0);
+			case 8: 
+				error(fileName, rest, "\"listen\" directive accept only [host:port] as parameter");
 				exit(0);
 			case 9: 
-				std::cout << "error in host" << std::endl;
-				exit(0);
-			case 7:
-				std::cout << "error in port" << std::endl;
-				exit(0);
-			case 8:
-				std::cout << "error in listen directive" << std::endl;
+				error(fileName, rest, "invalid number of arguments in \"server_name\" directive");
 				exit(0);
 			default:
 				std::cout << "default" << std::endl;
@@ -103,17 +106,20 @@ std::vector<Server*> Parser::get_servers( void ) {
 }
 
 
-void Parser::error(std::string fileName, int line, std::string msg)
+void Parser::error(std::string fileName, std::string rest, std::string msg)
 {
 	std::ifstream 	inputFile(fileName.c_str());
+	std::string value;
 	std::string tmp;
-	int i = 0;
-	
+	int line = 1;
+
+	std::stringstream ss(rest);
+	std::getline(ss, value, ' ');
 	while (std::getline(inputFile, tmp))
 	{
-		if (i++ != line)
-			continue;
+		if (tmp.find(value, 0) != std::string::npos)
+				break;
+		line++;
 	}
-	std::cout << fileName << ":" << line << ": error: " << msg << std::endl;
-	std::cout << "\t" << line << " |" << tmp << std::endl;
+	std::cout << "[error]: " << msg << " in ../" << fileName << ":" << line << std::endl;
 }
