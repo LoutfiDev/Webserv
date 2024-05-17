@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 08:45:07 by yloutfi           #+#    #+#             */
-/*   Updated: 2024/05/15 14:59:42 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/17 15:14:59 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ class Parser
 		~Parser();
 		
 		std::vector<Server*> get_servers( void );
-		void error(std::string fileName, std::string rest, std::string msg);
+		void error(std::string fileName, std::string msg);
 };
 
 #endif
