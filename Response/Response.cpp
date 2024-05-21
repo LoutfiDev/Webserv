@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/21 12:04:06 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/21 16:24:33 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 
 
-Response::Response() : method("GET"), path("../web_root/index.html"), http_v("HTTP/1.1"), status_code("200")
+Response::Response() : method("GET"), path("web_root/index.html"), http_v("HTTP/1.1"), status_code("200")
 {
 	fill_messages();
 	response = pick_method(method);
@@ -63,8 +63,8 @@ std::string Response::Get() {
 	}
 	return (form_response());
 }
-std::string Response::Post() {}
-std::string Response::Delete() {}
+std::string Response::Post() { return ""; }
+std::string Response::Delete() { return ""; }
 
 std::string Response::getMessage(std::string code)
 {
@@ -76,27 +76,29 @@ std::string Response::getMessage(std::string code)
 
 std::string Response::getContentLenght(std::string file)
 {
-	std::stringstream ss;  
 	std::string size;
-	std::ifstream in_file(file, std::ios::binary);
-	in_file.seekg(0, std::ios::end);
-	int file_size = in_file.tellg();
-	ss << file_size;  
-	ss >> size;
+	struct stat st;
+	stat(file.c_str(), &st);
+	long nb = st.st_size;
+	std::stringstream ss;  
+	ss << nb;  
+	ss >> size; 
 	return (size);
 }
 
 std::string Response::getContentType(std::string file)
 {
 	std::string tmp;
-	std::string extention(file);
-	extention.erase(0, extention.find('.') + 1);
-	std::ifstream 	inputFile("mime.types");
+	file.erase(0, file.find('.') + 1);
+	std::ifstream 	inputFile("Response/mime.types");
 	if (!inputFile.is_open())
-		throw 26;
+	{
+		std::cout << "Error: opening Configuration file failed" << std::endl;
+		exit(127);	
+	}
 	while(std::getline(inputFile, tmp))
 	{
-		if (tmp.find(extention) != std::string::npos)
+		if (tmp.find(file) != std::string::npos)
 		{
 			std::stringstream ss(tmp);
 			while(std::getline(ss, tmp, ' '))
@@ -113,12 +115,13 @@ std::string Response::form_response()
 {
 	// HTTP/1.1 200 OK\r\n
 	response += http_v + " " + status_code + " " + getMessage(status_code) + "\r\n"; 
-	// Content-Length: 55\r\n
-	response += "Content-Length: " + getContentLenght(path) + "\r\n"; 
 	// Content-Type: text/html\r\n
 	response += "Content-Type: " + getContentType(path) + "\r\n"; 
+	// Content-Length: 55\r\n
+	response += "Content-Length: " + getContentLenght(path) + "\r\n"; 
 	// \r\n
 	response += "\r\n";
+	response += "My First Heading";
 	return (response);
 }
 
@@ -149,4 +152,5 @@ std::string Response::pick_method(std::string method)
 		if (methods[i] == method)
 			return ((this->*(ptr[i]))());
 	}
+	return "";
 }

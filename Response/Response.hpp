@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:42 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/21 11:18:47 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/21 15:22:53 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 #include <netinet/in.h>
 #include <map>
 #include <vector>
+#include <sys/stat.h>
 
 #define PORT 8080
 
@@ -37,13 +38,13 @@ class Response
 		
 	public:
 		std::map<std::string, std::string>messages;
-		std::string status_code;
 		std::string response;
 		std::string body_path;
 		
 		std::string method;
 		std::string path;
 		std::string http_v;
+		std::string status_code;
 		
 		Response();
 		Response(const Response& copy);
