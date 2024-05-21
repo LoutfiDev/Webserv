@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 09:04:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/17 15:16:17 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/21 11:29:42 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,7 @@ Parser::Parser(std::string fileName)
 	std::string rest;
 	
 	if (!inputFile.is_open())
-	{
-		std::cout << "Error: opening Configuration file failed" << std::endl;
-		return ;
-	}
+		throw 26;
 	std::getline(inputFile, rest);	
 	try
 	{
@@ -124,6 +121,9 @@ Parser::Parser(std::string fileName)
 				exit(0);
 			case 25: 
 				error(fileName, "invalid value in \"return\" directive");
+				exit(0);
+			case 26: 
+				std::cout << "Error: opening Configuration file failed" << std::endl;
 				exit(0);
 			default:
 				std::cout << "default" << std::endl;

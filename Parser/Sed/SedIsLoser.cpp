@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/29 12:01:01 by yloutfi           #+#    #+#             */
-/*   Updated: 2024/04/27 10:21:58 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/21 11:33:52 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,7 @@ void Sed::execute (std::string fileName, std::string s1, std::string s2, std::st
 	std::size_t 	pos;
 	
 	if (!myFile.is_open() || !myFileCopy.is_open())
-	{
-		std::cout << "Error: open failed" << std::endl;
-		return ;
-	}
+		throw 26;
 	while (1)
 	{
 		pos = 0;

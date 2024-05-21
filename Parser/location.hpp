@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:17:20 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/17 15:10:43 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/20 09:17:47 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,9 @@ class Location
 {
 	private:
 	
+		
+	public:
+	
 		bool autoindex;
 		std::vector<std::string>allow_methods;
 		std::string root;
@@ -34,8 +37,6 @@ class Location
 		std::map<std::string, std::string>cgi;
 		std::map<std::string, std::string>redirection;
 		
-	public:
-	
 		Location();
 		Location(std::string& rest);
 		Location(const Location& copy);

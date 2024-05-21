@@ -6,11 +6,12 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 08:53:41 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/15 11:41:14 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/20 11:46:46 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ConfParser/parser.hpp"
+#include "Parser/parser.hpp"
+#include "Response/Response.hpp"
 
 
 int main (int ac, char **av)
@@ -19,6 +20,7 @@ int main (int ac, char **av)
 	{
 		std::string fileName = av[1];
 		Parser parser(fileName);
+		Response response;
 	}
 	else 
 		std::cout << av[0] << \

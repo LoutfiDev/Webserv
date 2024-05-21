@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:17:16 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/15 11:35:49 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/20 09:17:18 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,8 @@ class Location;
 class Server
 {
 	private:
+		
+	public:
 		std::string host;
 		std::string port;
 		std::vector<std::string>server_names;
@@ -38,7 +40,6 @@ class Server
 		std::string root;
 		std::map<std::string, Location*> locations;
 		
-	public:
 		Server();
 		Server(std::string& rest);
 		Server(const Server& copy);
