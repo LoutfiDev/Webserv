@@ -6,17 +6,19 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/21 16:24:33 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/23 22:56:50 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 
 
-
+// you can pass a request object as param to the constructer
+// Response::Response(Request req) : status_code("200")
 Response::Response() : method("GET"), path("web_root/index.html"), http_v("HTTP/1.1"), status_code("200")
 {
 	fill_messages();
+	//you can pass req.method to this funct to call the method and form the response 
 	response = pick_method(method);
 }
 
@@ -31,40 +33,10 @@ Response& Response::operator=(const Response& src)
 Response::~Response() {}
 
 std::string Response::Get() {
-	if (opendir(path.c_str()))
-	{
-		if (path[path.size()] != '/')
-		{
-			// path.append("/");
-			// status_code = 301;
-		}
-		else
-		{
-			// if (location.index)
-			// {
-			// 	//append index to path
-			// 	return(form_response());
-			// }
-			// if (location.autoindex)
-			// 	//list all files
-			// else
-			// 	status_code = 403;
-		}
-	}
-	else
-	{
-		if (access(path.c_str(), F_OK) == 0)
-		{
-			if (access(path.c_str(), R_OK) != 0)
-				status_code = "403";
-		}
-		else
-			status_code = "404";
-	}
-	return (form_response());
+	return form_response();
 }
-std::string Response::Post() { return ""; }
-std::string Response::Delete() { return ""; }
+std::string Response::Post() { return form_response(); }
+std::string Response::Delete() { return form_response(); }
 
 std::string Response::getMessage(std::string code)
 {
@@ -115,12 +87,13 @@ std::string Response::form_response()
 {
 	// HTTP/1.1 200 OK\r\n
 	response += http_v + " " + status_code + " " + getMessage(status_code) + "\r\n"; 
+	// Content-Length: 55\r\n
+	response += "Content-Length: " + getContentLenght(path) + "\r\n";
 	// Content-Type: text/html\r\n
 	response += "Content-Type: " + getContentType(path) + "\r\n"; 
-	// Content-Length: 55\r\n
-	response += "Content-Length: " + getContentLenght(path) + "\r\n"; 
 	// \r\n
 	response += "\r\n";
+	//for the body just use this msg as the body
 	response += "My First Heading";
 	return (response);
 }
