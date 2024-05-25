@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
+/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:42 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/25 19:42:41 by anaji            ###   ########.fr       */
+/*   Updated: 2024/05/25 11:28:36 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include <cstdlib>
 #include <limits>
 #include <sys/socket.h>
+#include <algorithm>
 #include <dirent.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -30,7 +31,8 @@
 #include <vector>
 #include <sys/stat.h>
 
-#include "../AI_part/Request.hpp"
+
+#include "../Parser/parser.hpp"
 
 #define PORT 8080
 
@@ -49,22 +51,25 @@ class Response
 		std::string status_code;
 		
 		Response();
+		Response(Location *location);
 		Response(const Response& copy);
 		Response& operator=(const Response& src);
 		~Response();
 		
 
-		std::string Get();
-		std::string Post();
-		std::string Delete();
+		void Get(Location *location);
+		void Post(Location *location);
+		void Delete(Location *location);
 		
 		
+		void fill_messages( void );		
+		void pick_method(Location *location);
+		void send_response( void );
+	
+		void Delete_folder(std::string path);
 		std::string getMessage(std::string code);
 		std::string getContentLenght(std::string file);
 		std::string getContentType(std::string file);
-		std::string pick_method(std::string method);
-		std::string form_response( void );
-		void fill_messages( void );		
 };
 
 #endif

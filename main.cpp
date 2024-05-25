@@ -3,19 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
+/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 08:53:41 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/25 01:32:03 by anaji            ###   ########.fr       */
+/*   Updated: 2024/05/25 19:33:08 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Parser/parser.hpp"
-#include "Parser/server.hpp"
 #include "Response/Response.hpp"
-#include "./AI_part/ServerManager.hpp"
-#include <iostream>
-
 
 
 #define PORT 8080
@@ -25,21 +21,7 @@ int main (int ac, char **av)
 	{
 		std::string fileName = av[1];
 		Parser parser(fileName);
-		ServerManager nginx(parser);
-		nginx.start();
-	}
-	else 
-		std::cout << av[0] << \
-			" accept 1 param (Configuration file) only!" << std::endl;
-	// std::string port = "5001";
-	// Worker srv = Worker(port.c_str());
 
-	return (0);
-}
-	
-	
-	
-	
 		// int server_fd, new_socket;
 		// struct sockaddr_in address;
 		// int addrlen = sizeof(address);
@@ -80,10 +62,15 @@ int main (int ac, char **av)
 		// 	char buffer[30000] = {0};
 		// 	read( new_socket , buffer, 30000);
 		// 	printf("%s\n",buffer);
-		// 	// char response[100] = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 12\r\n\r\nHello world!";
-		// 	// write(new_socket, response, strlen(response));
-		// 	Response res;
+		// 	Response res(parser.get_servers()[0]->locations[0]);
 		// 	write(new_socket, res.response.c_str(), strlen(res.response.c_str()));
 		// 	// printf("------------------Hello message sent-------------------");
 		// 	close(new_socket);
 		// }
+
+	}
+	else 
+		std::cout << av[0] << \
+			" accept 1 param (Configuration file) only!" << std::endl;
+	return (0);
+}

@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:19:40 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/16 16:01:47 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/25 11:40:56 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ Server::Server() {}
 Server::Server(std::string& rest)
 {
 	int open_brace = 0, close_brace = 0;
+	set_default_error_pages();
 	
 	while (!rest.empty())
 	{
@@ -51,7 +52,21 @@ Server& Server::operator=(const Server& src)
 
 Server::~Server() {}
 
-
+void Server::set_default_error_pages( void ){
+	default_error_pages["201"] = "error_pages/201.html";
+	default_error_pages["204"] = "error_pages/204.html";
+	default_error_pages["400"] = "error_pages/400.html";
+	default_error_pages["403"] = "error_pages/403.html";
+	default_error_pages["404"] = "error_pages/404.html";
+	default_error_pages["405"] = "error_pages/405.html";
+	default_error_pages["408"] = "error_pages/408.html";
+	default_error_pages["413"] = "error_pages/413.html";
+	default_error_pages["414"] = "error_pages/414.html";
+	default_error_pages["415"] = "error_pages/415.html";
+	default_error_pages["500"] = "error_pages/500.html";
+	default_error_pages["501"] = "error_pages/501.html";
+	default_error_pages["505"] = "error_pages/505.html";
+}
 // Server setters
 std::string parse_host(std::string host) {
 	
@@ -320,6 +335,8 @@ void Server::set_locations(std::string& rest) {
 		else
 		{
 			locations[path] = new Location(rest);
+			if (locations[path]->root.empty())
+				locations[path]->root = root;
 			break;
 		}
 	}

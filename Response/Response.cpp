@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
+/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/25 19:42:55 by anaji            ###   ########.fr       */
+/*   Updated: 2024/05/25 11:36:18 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,16 @@
 
 
 // you can pass a request object as param to the constructer
-// Response::Response(Request &req) : status_code("200")
-Response::Response() : method("GET"), path("web_root/index.html"), http_v("HTTP/1.1"), status_code("200")
+// Response::Response(Request req) : status_code("200")
+
+Response::Response() {}
+
+Response::Response(Location *location) : method("GET"), path("web_root/index.html"), http_v("HTTP/1.1"), status_code("200")
 {
 	fill_messages();
 	//you can pass req.method to this funct to call the method and form the response 
-	response = pick_method(method);
+	pick_method(location);
+	send_response();
 }
 
 Response::Response(const Response& copy) { (void)copy; }
@@ -32,11 +36,120 @@ Response& Response::operator=(const Response& src)
 
 Response::~Response() {}
 
-std::string Response::Get() {
-	return form_response();
+void Response::Get(Location *location) {
+	DIR *dir;
+	
+	if ((dir = opendir(path.c_str())))
+	{
+		if (path[path.size() - 1] != '/')
+		{
+			path.append("/");
+			status_code = "301";
+		}
+		else
+		{
+			if (location->index.size())
+			{
+				//append index to path
+				std::string tmp;
+				std::vector<std::string>::iterator it = location->index.begin();
+				for (; it != location->index.end(); ++it)
+				{
+					tmp = path + *it;
+					if (access(tmp.c_str(), F_OK) == 0)
+					{
+						path.append(*it);
+						status_code = "301";
+						return ;
+					}
+				}
+				status_code = "403";
+			}
+			else if (location->autoindex)
+			{
+				struct dirent *dent;
+				while((dent=readdir(dir)))
+				{
+					struct stat st_buf;
+					stat (dent->d_name, &st_buf);
+					// //  if (stat (dent->d_name, &st_buf) != 0) no_such_file
+					if (std::string(dent->d_name) == ".." || std::string(dent->d_name) == ".")
+						continue;
+					if (S_ISDIR (st_buf.st_mode))
+						std::cout << dent->d_name << "\t DIRECTORY\n";
+					else if (S_ISREG (st_buf.st_mode)) 
+						std::cout << dent->d_name << "\t FILE\n";
+				}
+			}
+			else
+				status_code = "403";
+		}
+		closedir(dir);
+	}
+	else
+	{
+		if (access(path.c_str(), F_OK) == 0)
+		{
+			if (access(path.c_str(), R_OK) != 0)
+				status_code = "403";
+		}
+		else
+			status_code = "404";
+	}
 }
-std::string Response::Post() { return form_response(); }
-std::string Response::Delete() { return form_response(); }
+
+void Response::Post(Location *location) { (void)location; }
+
+void Response::Delete_folder(std::string path)
+{
+	DIR *dir;
+	dir=opendir(path.c_str());
+	
+	struct dirent *dent;
+	while((dent=readdir(dir)) && status_code == "200")
+	{
+		struct stat st_buf;
+		stat (dent->d_name, &st_buf);
+		// //  if (stat (dent->d_name, &st_buf) != 0) no_such_file
+		if (std::string(dent->d_name) == ".." || std::string(dent->d_name) == ".")
+			continue;
+		if (S_ISDIR (st_buf.st_mode))
+			Delete_folder(path + "/" + dent->d_name);
+		else if (S_ISREG (st_buf.st_mode)) 
+		{
+			if (access(path.c_str(), R_OK) != 0)
+				status_code = "403";
+			else 
+				remove(path.c_str());
+		}
+	}
+	closedir(dir);
+}
+
+void Response::Delete(Location *location) 
+{ 
+	(void)location;
+	DIR *dir;
+	//path now it's temporary
+
+	if((dir=opendir(path.c_str())))
+	{
+		Delete_folder(path);
+		closedir(dir);
+	}
+	else
+	{
+		if (access(path.c_str(), F_OK) == 0)
+		{
+			if (access(path.c_str(), R_OK) != 0)
+				status_code = "403";
+			else 
+				remove(path.c_str());
+		}
+		else
+			status_code = "404";
+	}
+}
 
 std::string Response::getMessage(std::string code)
 {
@@ -83,11 +196,13 @@ std::string Response::getContentType(std::string file)
 	}
 	return ("");
 }
-std::string Response::form_response()
+void Response::send_response()
 {
 	// HTTP/1.1 200 OK\r\n
 	response += http_v + " " + status_code + " " + getMessage(status_code) + "\r\n"; 
 	// Content-Length: 55\r\n
+	// if (status_code != "200")
+		// path = getPath(status_code);
 	response += "Content-Length: " + getContentLenght(path) + "\r\n";
 	// Content-Type: text/html\r\n
 	response += "Content-Type: " + getContentType(path) + "\r\n"; 
@@ -95,7 +210,6 @@ std::string Response::form_response()
 	response += "\r\n";
 	//for the body just use this msg as the body
 	response += "My First Heading";
-	return (response);
 }
 
 void Response::fill_messages( void )
@@ -116,14 +230,17 @@ void Response::fill_messages( void )
 	messages["505"] = "HTTP Version Not Supported";
 }
 
-std::string Response::pick_method(std::string method)
+void Response::pick_method(Location *location)
 {
 	std::string methods[3] = {"GET", "POST", "DELETE"};
-	std::string (Response::* ptr[3]) (void) = {&Response::Get, &Response::Post, &Response::Delete};
+	void (Response::* ptr[3]) (Location *location) = {&Response::Get, &Response::Post, &Response::Delete};
 	for (int i = 0; i < 3; i++)
 	{
 		if (methods[i] == method)
-			return ((this->*(ptr[i]))());
+		{
+			if (std::find(location->allow_methods.begin(), location->allow_methods.end(), method) != location->allow_methods.end())
+				return ((this->*(ptr[i]))(location));
+			status_code = "405";
+		}
 	}
-	return "";
 }
