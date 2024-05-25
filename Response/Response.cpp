@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/23 22:56:50 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/25 19:42:55 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 
 // you can pass a request object as param to the constructer
-// Response::Response(Request req) : status_code("200")
+// Response::Response(Request &req) : status_code("200")
 Response::Response() : method("GET"), path("web_root/index.html"), http_v("HTTP/1.1"), status_code("200")
 {
 	fill_messages();

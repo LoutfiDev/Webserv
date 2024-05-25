@@ -3,15 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 08:53:41 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/23 22:58:02 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/25 01:32:03 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Parser/parser.hpp"
+#include "Parser/server.hpp"
 #include "Response/Response.hpp"
+#include "./AI_part/ServerManager.hpp"
+#include <iostream>
+
 
 
 #define PORT 8080
@@ -21,12 +25,15 @@ int main (int ac, char **av)
 	{
 		std::string fileName = av[1];
 		Parser parser(fileName);
-
-
+		ServerManager nginx(parser);
+		nginx.start();
 	}
 	else 
 		std::cout << av[0] << \
 			" accept 1 param (Configuration file) only!" << std::endl;
+	// std::string port = "5001";
+	// Worker srv = Worker(port.c_str());
+
 	return (0);
 }
 	
