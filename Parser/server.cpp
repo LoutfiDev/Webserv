@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:19:40 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/25 11:40:56 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/25 23:48:50 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,11 +42,20 @@ Server::Server(std::string& rest)
 		throw 3;
 }
 
-Server::Server(const Server& copy) { (void)copy; }
+Server::Server(const Server& copy) { *this = copy; }
 
 Server& Server::operator=(const Server& src)
 {
-	(void)src;
+	if (this == &src)
+		return (*this);
+	host = src.host;
+	port = src.port;
+	server_names = src.server_names;
+ 	default_error_pages = src.default_error_pages;
+	error_pages = src.error_pages;
+	max_body_size = src.max_body_size;
+	root = src.root;
+	locations = src.locations;
 	return (*this);
 }
 

@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:20:30 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/16 20:19:08 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/25 23:44:56 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,12 +39,20 @@ Location::Location(std::string& rest){
 		throw 3;
 }
 
-Location::Location(const Location& copy) { (void)copy; }
+Location::Location(const Location& copy) { *this = copy; }
 
 Location& Location::operator=(const Location& src)
 {
-	(void)src;
-	return (*this);
+	if (this == &src)
+		return (*this);
+	autoindex = src.autoindex;
+	allow_methods = src.allow_methods;
+	root = src.root;
+	index = src.index;
+	upload_dir = src.upload_dir;
+	cgi = src.cgi;
+	redirection = src.redirection;
+	return *this;
 }
 
 Location::~Location() {}

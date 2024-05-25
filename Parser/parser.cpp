@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 09:04:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/21 11:29:42 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/25 23:49:36 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,12 +135,14 @@ Parser::Parser(std::string fileName)
 
 Parser::Parser(const Parser& copy)
 {
-	(void)copy;
+	*this = copy;
 }
 
 Parser& Parser::operator=(const Parser& src)
 {
-	(void)src;
+	if (this == &src)
+		return (*this);
+	servers = src.servers;
 	return (*this);
 }
 
