@@ -1,4 +1,5 @@
 #include "utils.hpp"
+#include <cctype>
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
@@ -24,9 +25,15 @@ std::string trim(const std::string& str)
     return str.substr(first, last - first + 1);
 }
 
+void toLower(std::string &str)
+{
+	for (size_t i = 0; i < str.length(); i++) {
+		str[i] = std::tolower(str[i]);
+	}
+}
+
 long generateNum()
 {
-	// srand((unsigned) time(NULL));
 	long num = rand();
 	return num;
 }

@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <exception>
+#include <iomanip>
 #include <ios>
 #include <iostream>
 #include <map>
@@ -25,16 +26,38 @@ Request::Request() {
 	contentLengthCheck = false;
 	contentTypeCheck = false;
 	chunk_length = 0;
+	host =  "";
 }
 
 Request::Request(const Request& obj) {
-	(void)obj;
+	*this = obj;
 }
 
 Request &Request::operator=(const Request& obj)
 {
 	if (this == &obj)
 		return (*this);
+	request_code = obj.request_code;
+	response_code = obj.response_code;
+	had_request_line = obj.had_request_line;
+	headers = obj.headers;
+	method_name = obj.method_name;
+	path = obj.path;
+	http_version = obj.http_version;
+	body = obj.body;
+	bodyLength = obj.bodyLength;
+	bodyLength_CPY = obj.bodyLength_CPY;
+	chunk_length = obj.chunk_length;
+	tmp_body = obj.tmp_body;
+	bodyCount = obj.bodyCount;
+	host = obj.host;
+
+	transferEncodingCheck = obj.transferEncodingCheck;
+	contentLengthCheck = obj.contentLengthCheck;
+	contentTypeCheck = obj.contentTypeCheck;
+
+	requested_location = obj.requested_location;
+	requestedServer = obj.requestedServer;
 	return (*this);
 }
 
@@ -83,6 +106,11 @@ Location &Request::getRequestedLocation()
 	return requested_location;
 }
 
+const std::string &Request::getHost()
+{
+	return host;
+}
+
 void Request::setChunkLength(std::string token)
 {
 	std::istringstream num(token);
@@ -107,9 +135,35 @@ void Request::setBodyLength(std::string &number)
 	bodyLength_CPY = bodyLength;
 }
 
-void setRequestedLocation(std::string &uri)
+void Request::setRequestedServer(std::vector<Server *> &servers)
 {
-	uri = uri;	
+	requestedServer = *servers[0];
+	for (size_t i = 0; i < servers.size(); i++) {
+		if (servers[i]->host == host)
+		{
+			requestedServer = *servers[i];
+			return;
+		}
+	}
+}
+
+void Request::setRequestedLocation(std::string &uri)
+{
+	std::map<std::string, Location *> l = requestedServer.locations;
+	Location *test = NULL;
+	std::map<std::string, Location *>::iterator beg = l.begin();
+
+	l[uri] = test;
+	requested_location = *(beg->second);
+	while (beg != l.end())
+	{
+		if (beg->first == uri)
+		{
+			requested_location = *(--beg)->second;
+			return;
+		}
+		beg++;
+	}
 }
 
 /*
@@ -131,6 +185,7 @@ void Request::checkRequestLine(std::vector<std::string> &attrs)
 	method_name = attrs[0];
 	path = attrs[1];
 	http_version = attrs[2];
+	setRequestedLocation(path);
 
 	if (method_name != "GET" && method_name != "POST" && method_name != "DELETE")
 	{
@@ -160,7 +215,6 @@ void Request::processRequestLine(std::string token)
 	while (getline(strm, chunk, ' '))
 		strs.push_back(chunk);
 	had_request_line = true;
-	// setRequestedLocation(path);
 	checkRequestLine(strs);
 }
 
@@ -171,7 +225,7 @@ void Request::processRequestLine(std::string token)
  * @return int 0 : succes | 1 : error on the request so end the parsing here
  */
 
-void Request::addHeader(std::string token)
+int Request::addHeader(std::string token)
 {
 	size_t found;
 	std::string key, value;
@@ -185,7 +239,7 @@ void Request::addHeader(std::string token)
 		{
 			response_code = "400";
 			request_code = 400;
-			return;
+			return 0;
 		}
 		key = trim(token.substr(0, found));
 		value = trim(token.substr(found + 1));
@@ -193,12 +247,20 @@ void Request::addHeader(std::string token)
 		{
 			response_code = "400";
 			request_code = 400;
-			return;
+			return 0;
 		}
+		toLower(key);
+		toLower(value);
 		headers[key] = value;
-		if (key == "Content-Length")
+		if (key == "content-length")
 			setBodyLength(value);
+		if (key == "host")
+		{
+			host = value;
+			return HOST_EXIST;
+		}
 	}
+	return 0;
 }
 
 int Request::addBody(std::string token)
@@ -379,7 +441,7 @@ const std::string &Request::getContentType()
 {
 	std::map<std::string, std::string>::iterator value;
 
-	value = headers.find("Content-Type");
+	value = headers.find("content-type");
 	if (value == headers.end())
 		throw NOTEXIST;
 	return (value->second);
@@ -389,7 +451,7 @@ const std::string &Request::getTransferEncoding()
 {
 	std::map<std::string, std::string>::iterator value;
 
-	value = headers.find("Transfer-Encoding");
+	value = headers.find("transfer-encoding");
 	if (value == headers.end())
 		throw NOTEXIST;
 	try {

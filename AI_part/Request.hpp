@@ -14,6 +14,8 @@
 #define NOTEXIST 1
 #define UNKNOWN_TRANSFER 2
 
+#define HOST_EXIST 1
+
 class Client;
 class Request {
 	public:
@@ -37,8 +39,9 @@ class Request {
 		Location &getRequestedLocation();
 		void setRequestedLocation(std::string &); // the location will sets after
 												  // the paresing of the request line
+		void setRequestedServer(std::vector<Server *> &);
 
-		void addHeader(std::string );
+		int addHeader(std::string );
 		int  addBody(std::string );
 
 		void showHeaders();
@@ -57,6 +60,7 @@ class Request {
 		const std::string &getContentLength();
 		const std::string &getTransferEncoding();
 		const std::string &getContentType();
+		const std::string &getHost();
 		int getBodyCount() const;
 
 	private:
@@ -68,11 +72,11 @@ class Request {
 		std::string response_code;	// status code for the response
 		bool had_request_line;
 		std::map<std::string, std::string> headers;
-		std::map<int, int>test;
 		std::string method_name;
 		std::string path;
 		std::string http_version;
 		std::string body;
+		std::string host;
 		long long bodyLength;
 		long long bodyLength_CPY;
 		int chunk_length;
@@ -80,7 +84,8 @@ class Request {
 
 
 		size_t bodyCount;				// to check if it is more then max_size
-									// on config file
+										// on config file
+
 		// to performe only the check of these attribute only once
 	private:
 		bool transferEncodingCheck;
@@ -90,6 +95,7 @@ class Request {
 	// attribute for the request location 
 	private:
 		Location requested_location;
+		Server requestedServer;
 
 };
 

@@ -4,19 +4,16 @@
 #include <exception>
 #include <iostream>
 #include <string>
+#include <vector>
 
-
-
-Client::Client(int _fd) {
+Client::Client(int _fd, std::vector<Server *> data) {
 	fd = _fd;
+	dataServer = data;
 	isHeaderPartDone = 0;
 }
 
 Client::Client(const Client& obj) {
-	fd = obj.fd;
-	request = obj.request;
-	buffer = obj.buffer;
-	isHeaderPartDone = obj.isHeaderPartDone;
+	*this = obj;	
 }
 
 Client &Client::operator=(const Client& obj)
@@ -25,6 +22,7 @@ Client &Client::operator=(const Client& obj)
 		return (*this);
 	fd = obj.fd;
 	request = obj.request;
+	response = obj.response;
 	buffer = obj.buffer;
 	isHeaderPartDone = obj.isHeaderPartDone;
 	return (*this);
@@ -45,6 +43,10 @@ int Client::getFd() const
 	return fd;
 }
 
+std::vector<Server *> Client::getDataServer()
+{
+	return dataServer;
+}
 
 /*
  * @description read bytes sended by the client (request) to buffer and parse it
@@ -69,11 +71,14 @@ int Client::readBuffer(char *buf)
 		{
 			if (found == std::string::npos)
 				break ;
-			request.addHeader(buffer.substr(0, found));
+			if (request.addHeader(buffer.substr(0, found)) == HOST_EXIST)
+				request.setRequestedServer(dataServer);
 			buffer = buffer.substr(found + 2);
 		}
 		else
 		{
+			if (request.getHost().length() == 0)
+				return 400;
 			if (request.addBody(buffer) == -1)
 			{
 				std::cout << request.getBodyCount() << "\n";

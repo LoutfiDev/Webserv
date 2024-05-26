@@ -5,18 +5,20 @@
 #include "../Response/Response.hpp"
 #include <sstream>
 #include <string>
+#include <vector>
 
 #define HEADERISDONE 1
 
 class Client {
 	public:
-		Client(int);
+		Client(int, std::vector<Server *>);
 		Client(const Client &);
 		Client &operator=(const Client &);
 
 		const Request &getRequest() const;
 		void setRequest(Request &);
 		int getFd() const;
+		std::vector<Server *> getDataServer();
 
 		int readBuffer(char *);
 		void showrequest();
@@ -33,6 +35,7 @@ class Client {
 		int isHeaderPartDone;   // to check if the haeders id done
 		// bool canParseBody;		// if method is POST then go and parse body else don't 
 		// int bodyLength;
+		std::vector<Server *> dataServer;
 
 };
 

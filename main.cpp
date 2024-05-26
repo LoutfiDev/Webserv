@@ -3,15 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 08:53:41 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/25 19:33:08 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/26 06:04:45 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Parser/parser.hpp"
 #include "Response/Response.hpp"
+#include "./AI_part/ServerManager.hpp"
+#include <cstdio>
+#include <cstdlib>
 
 
 #define PORT 8080
@@ -21,6 +24,8 @@ int main (int ac, char **av)
 	{
 		std::string fileName = av[1];
 		Parser parser(fileName);
+		ServerManager server;
+		server.start(parser);
 
 		// int server_fd, new_socket;
 		// struct sockaddr_in address;

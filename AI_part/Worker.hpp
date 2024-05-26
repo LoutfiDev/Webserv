@@ -1,44 +1,48 @@
 #ifndef WRKR
 #define WRKR
 
+#include <string>
 #include <vector>
+#include <sys/epoll.h>
+
 #include "Client.hpp"
 
 #define NUMCONNECTION 10
 
 // macros for reading from the client fd
-#define READINGISDONE 2			//read return -1 with errno set to 11(EAGAIN)
+#define READINGISDONE 2
 #define ERRORINREADING 1		// error on the data that comes from the user
 
-#define HEADERISDONE 1
+// #define HEADERISDONE 1
 
-#define READBUFFER 10000
+#define READBUFFER 1024
+
+#define READ 0
+#define WRITE 1
 
 class Worker {
 	public:
-		Worker(const char *);
+		Worker();
 		Worker(const Worker &);
 		Worker &operator=(const Worker &);
 
-		void init_server(const char *);
-		void multiplixer();
-		void makeListen();
-		void init_epoll();
 		void showClients();
 
-		int getSocketFd();
-		int getEpollFd();
+		void setServerNames(std::vector<std::string> &);
+		std::vector<std::string> getServerNames();
+
+		void add(int, std::vector<Server *>);
+		int serve(int, int);
 
 		void dropClientConnection(std::vector<Client>::iterator );
 		~Worker();
 
 	private:
-		int socket_fd;
-		int epoll_fd;
-		// int server_port;
 		std::vector<Client> clients;
 
 };
 
 
+std::vector<Client>::iterator writeToClient(int fd, std::vector<Client> &_clients);
+int readFromClient(int fd, std::vector<Client> &_clients);
 #endif //!WRKR
