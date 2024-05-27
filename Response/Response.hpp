@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:42 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/25 11:28:36 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/26 16:36:24 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,8 @@
 #include "../Parser/parser.hpp"
 
 #define PORT 8080
+#define INHEADER 1
+#define INBODY 2
 
 class Response
 {
@@ -44,6 +46,10 @@ class Response
 		std::map<std::string, std::string>messages;
 		std::string response;
 		std::string body_path;
+		int STATE;
+		
+		char buffer[1024];
+		unsigned int index;
 		
 		std::string method;
 		std::string path;

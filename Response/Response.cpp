@@ -6,11 +6,19 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/25 11:36:18 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/27 11:38:57 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
+
+//******************TO DO**********************//
+// x- list files while autoIndex is on         //
+// x- create a buffer to write response        //
+// x- create FLAGS to protect overwrite        //
+// v- Add location header to response if "301" // 
+// x- ask for default index directive          //
+//*********************************************//
 
 
 // you can pass a request object as param to the constructer
@@ -18,11 +26,12 @@
 
 Response::Response() {}
 
-Response::Response(Location *location) : method("GET"), path("web_root/index.html"), http_v("HTTP/1.1"), status_code("200")
+Response::Response(Location *location) : STATE(-1) ,method("GET"), path("web_root/index.html"), http_v("HTTP/1.1"), status_code("200")
 {
 	fill_messages();
 	//you can pass req.method to this funct to call the method and form the response 
-	pick_method(location);
+	if (status_code == "200")
+		pick_method(location);
 	send_response();
 }
 
@@ -198,18 +207,48 @@ std::string Response::getContentType(std::string file)
 }
 void Response::send_response()
 {
-	// HTTP/1.1 200 OK\r\n
-	response += http_v + " " + status_code + " " + getMessage(status_code) + "\r\n"; 
-	// Content-Length: 55\r\n
-	// if (status_code != "200")
-		// path = getPath(status_code);
-	response += "Content-Length: " + getContentLenght(path) + "\r\n";
-	// Content-Type: text/html\r\n
-	response += "Content-Type: " + getContentType(path) + "\r\n"; 
-	// \r\n
-	response += "\r\n";
-	//for the body just use this msg as the body
-	response += "My First Heading";
+	if (STATE < INHEADER)
+	{
+		response += http_v + " " + status_code + " " + getMessage(status_code) + "\r\n"; 
+		if (status_code != "200")
+		{
+			if (status_code == "301")
+				response += "Location: " + path + "\r\n";
+			// path = getPath(status_code); > if (status_code.exist) : html.page ? "";
+		}
+		if (!path.empty())
+		{
+			response += "Content-Length: " + getContentLenght(path) + "\r\n";
+			response += "Content-Type: " + getContentType(path) + "\r\n";
+			response += "\r\n";
+		}
+		STATE += 1;
+	}
+	else if (STATE < INBODY)
+	{
+			memset(buffer, 0, 1024);
+			std::ifstream is (path.c_str(), std::ifstream::binary);
+			if (is) 
+			{
+				is.seekg (index, is.beg);
+				is.read (buffer,1024);
+				if (is)
+				{
+					// write(fd, buffer , 1024);
+					index += 1024;
+				}
+				else
+				{
+					if (is.gcount() == 0)
+						return ;
+					// write(fd, buffer , is.gcount());
+					index += is.gcount();
+				}	
+				is.close();
+			}
+			else
+				throw 2;
+	}
 }
 
 void Response::fill_messages( void )
