@@ -6,19 +6,24 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/27 11:38:57 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/27 20:05:01 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 
-//******************TO DO**********************//
-// x- list files while autoIndex is on         //
-// x- create a buffer to write response        //
-// x- create FLAGS to protect overwrite        //
-// v- Add location header to response if "301" // 
-// x- ask for default index directive          //
-//*********************************************//
+//******************TO DO***************************//
+// x- list files while autoIndex is on              //
+// v- create a buffer to write response             //
+// v- create FLAGS to protect overwrite             //
+// v- Add location header to response if "301"      // 
+// v- ask for text/html resp if "301"               //
+// v- set index.html as default index directive     //
+// x- set index to 0 after sending the body         //
+// x- set Response constructed by def constructor   //
+// x- Add location* server* as atrrib to response   //
+// x- set an int in send_response as return         //
+//**************************************************//
 
 
 // you can pass a request object as param to the constructer
@@ -26,7 +31,7 @@
 
 Response::Response() {}
 
-Response::Response(Location *location) : STATE(-1) ,method("GET"), path("web_root/index.html"), http_v("HTTP/1.1"), status_code("200")
+Response::Response(Location *location) : STAGE(0), index(0), method("GET"), path("web_root/index.html"), http_v("HTTP/1.1"), status_code("200")
 {
 	fill_messages();
 	//you can pass req.method to this funct to call the method and form the response 
@@ -75,21 +80,7 @@ void Response::Get(Location *location) {
 				status_code = "403";
 			}
 			else if (location->autoindex)
-			{
-				struct dirent *dent;
-				while((dent=readdir(dir)))
-				{
-					struct stat st_buf;
-					stat (dent->d_name, &st_buf);
-					// //  if (stat (dent->d_name, &st_buf) != 0) no_such_file
-					if (std::string(dent->d_name) == ".." || std::string(dent->d_name) == ".")
-						continue;
-					if (S_ISDIR (st_buf.st_mode))
-						std::cout << dent->d_name << "\t DIRECTORY\n";
-					else if (S_ISREG (st_buf.st_mode)) 
-						std::cout << dent->d_name << "\t FILE\n";
-				}
-			}
+				send_response();
 			else
 				status_code = "403";
 		}
@@ -207,7 +198,7 @@ std::string Response::getContentType(std::string file)
 }
 void Response::send_response()
 {
-	if (STATE < INHEADER)
+	if (STAGE < HEADERISSENT)
 	{
 		response += http_v + " " + status_code + " " + getMessage(status_code) + "\r\n"; 
 		if (status_code != "200")
@@ -218,36 +209,79 @@ void Response::send_response()
 		}
 		if (!path.empty())
 		{
-			response += "Content-Length: " + getContentLenght(path) + "\r\n";
-			response += "Content-Type: " + getContentType(path) + "\r\n";
-			response += "\r\n";
-		}
-		STATE += 1;
-	}
-	else if (STATE < INBODY)
-	{
-			memset(buffer, 0, 1024);
-			std::ifstream is (path.c_str(), std::ifstream::binary);
-			if (is) 
+			if (path[path.size() - 1] == '/')
+				response += "Content-Type: text/html\r\n\r\n";
+			else
 			{
-				is.seekg (index, is.beg);
-				is.read (buffer,1024);
-				if (is)
-				{
-					// write(fd, buffer , 1024);
-					index += 1024;
-				}
-				else
-				{
-					if (is.gcount() == 0)
-						return ;
-					// write(fd, buffer , is.gcount());
-					index += is.gcount();
-				}	
-				is.close();
+				response += "Content-Length: " + getContentLenght(path) + "\r\n";
+				response += "Content-Type: " + getContentType(path) + "\r\n";
+				response += "\r\n";
+			}
+		}
+		else
+			response += "Content-Type: text/html\r\n\r\n";
+		// write(fd, response.c_str() , response.size());
+			
+		STAGE += 1;
+	}
+	else if (STAGE < BODYISSENT)
+	{
+			// <html>
+			// <head><title>Index of /</title></head>
+			// <body>
+			// <h1>Index of /</h1><hr><pre><a href="../">../</a>
+			// <a href="web/">web/</a>                                                    
+			// <a href="home.html">home.html</a>                                              
+			// <a href="profile.html">profile.html</a>                                    
+			// </pre><hr></body>
+			// </html>
+				
+			DIR *dir;
+			memset(buffer, 0, 1024);
+			if((dir=opendir(path.c_str())))
+			{
+				int portion = 0;
+				response.clear();
+				response += "";
+				// while((dent=readdir(dir)) || portion < 3)
+				// {
+				// 	struct stat st_buf;
+				// 	stat (dent->d_name, &st_buf);
+				// 	// //  if (stat (dent->d_name, &st_buf) != 0) no_such_file
+				// 	if (std::string(dent->d_name) == ".." || std::string(dent->d_name) == ".")
+				// 		continue;
+				// 	if (S_ISDIR (st_buf.st_mode))
+				// 		std::cout << dent->d_name << "\t DIRECTORY\n";
+				// 	else if (S_ISREG (st_buf.st_mode)) 
+				// 		std::cout << dent->d_name << "\t FILE\n";
+				//	portion++;
+				// }
+				closedir(dir);
 			}
 			else
-				throw 2;
+			{
+				std::ifstream is (path.c_str(), std::ifstream::binary);
+				if (is) 
+				{
+					is.seekg (index, is.beg);
+					is.read (buffer,1024);
+					if (is)
+					{
+						// write(fd, buffer , 1024);
+						index += 1024;
+					}
+					else
+					{
+						if (is.gcount() == 0)
+							return ;
+						// write(fd, buffer , is.gcount());
+						index += is.gcount();
+					}	
+					is.close();
+				}
+				else
+					throw 2;
+			}
 	}
 }
 

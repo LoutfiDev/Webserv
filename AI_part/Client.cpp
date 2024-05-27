@@ -75,6 +75,7 @@ int Client::readBuffer(char *buf)
 			{
 				request.setRequestedServer(dataServer);
 				request.setRequestedLocation(request.getPath());
+				
 			}
 			buffer = buffer.substr(found + 2);
 		}

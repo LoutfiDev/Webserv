@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:20:30 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/25 23:44:56 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/27 13:09:58 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,8 @@
 
 Location::Location() {}
 
-Location::Location(std::string& rest){
+Location::Location(std::string& rest)
+{
 	int open_brace = 0, close_brace = 0;
 	while (!rest.empty())
 	{

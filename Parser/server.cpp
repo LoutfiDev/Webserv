@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:19:40 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/25 23:48:50 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/27 13:12:46 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -346,6 +346,8 @@ void Server::set_locations(std::string& rest) {
 			locations[path] = new Location(rest);
 			if (locations[path]->root.empty())
 				locations[path]->root = root;
+			if (locations[path]->index.size() == 0)
+				locations[path]->index.push_back("index.html");
 			break;
 		}
 	}
