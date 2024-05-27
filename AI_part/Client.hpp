@@ -35,7 +35,10 @@ class Client {
 		int isHeaderPartDone;   // to check if the haeders id done
 		// bool canParseBody;		// if method is POST then go and parse body else don't 
 		// int bodyLength;
+	public:
 		std::vector<Server *> dataServer;
+
+
 
 };
 

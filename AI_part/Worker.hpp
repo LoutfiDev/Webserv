@@ -31,8 +31,11 @@ class Worker {
 		void setServerNames(std::vector<std::string> &);
 		std::vector<std::string> getServerNames();
 
-		void add(int, std::vector<Server *>);
+		void add(int, std::vector<Server *> &);
 		int serve(int, int);
+
+		std::vector<Client>::iterator writeToClient(int fd);
+		int readFromClient(int fd);
 
 		void dropClientConnection(std::vector<Client>::iterator );
 		~Worker();
@@ -43,6 +46,4 @@ class Worker {
 };
 
 
-std::vector<Client>::iterator writeToClient(int fd, std::vector<Client> &_clients);
-int readFromClient(int fd, std::vector<Client> &_clients);
 #endif //!WRKR

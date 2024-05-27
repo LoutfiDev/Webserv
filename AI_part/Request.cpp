@@ -135,8 +135,9 @@ void Request::setBodyLength(std::string &number)
 	bodyLength_CPY = bodyLength;
 }
 
-void Request::setRequestedServer(std::vector<Server *> &servers)
+void Request::setRequestedServer(std::vector<Server *> servers)
 {
+	std::cout << servers.size() <<"\n";
 	requestedServer = *servers[0];
 	for (size_t i = 0; i < servers.size(); i++) {
 		if (servers[i]->host == host)
@@ -147,12 +148,19 @@ void Request::setRequestedServer(std::vector<Server *> &servers)
 	}
 }
 
-void Request::setRequestedLocation(std::string &uri)
+void Request::setRequestedLocation(std::string uri)
 {
 	std::map<std::string, Location *> l = requestedServer.locations;
 	Location *test = NULL;
-	std::map<std::string, Location *>::iterator beg = l.begin();
+	std::map<std::string, Location *>::iterator beg;
 
+	beg = l.find(uri);
+	if (beg != l.end())
+	{
+		requested_location = *beg->second;
+		return;
+	}
+	beg = l.begin();
 	l[uri] = test;
 	requested_location = *(beg->second);
 	while (beg != l.end())
@@ -185,7 +193,6 @@ void Request::checkRequestLine(std::vector<std::string> &attrs)
 	method_name = attrs[0];
 	path = attrs[1];
 	http_version = attrs[2];
-	setRequestedLocation(path);
 
 	if (method_name != "GET" && method_name != "POST" && method_name != "DELETE")
 	{

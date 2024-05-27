@@ -20,12 +20,14 @@
  * @return int 0 = raed is done | -1 = error
  *
  */
-int readFromClient(int fd, std::vector<Client> &_clients)
+int Worker::readFromClient(int fd)
 {
 	int request_res;
-	for (size_t i = 0; i < _clients.size(); i++)
+
+	for (size_t i = 0; i < clients.size(); i++)
 	{
-		if (_clients[i].getFd() == fd)
+		std::cout << "size => " << clients[i].dataServer.size() << "\n";
+		if (clients[i].getFd() == fd)
 		{
 			int read_size;
 			char buf[READBUFFER];
@@ -40,8 +42,8 @@ int readFromClient(int fd, std::vector<Client> &_clients)
 			}
 			if (read_size == 0)
 				return (std::cout << "request is done\n", 2);
-			request_res = _clients[i].readBuffer(buf);
-			// std::cout << "request_res => " << request_res << "\n";
+			request_res = clients[i].readBuffer(buf);
+			std::cout << "request_res => " << request_res << "\n";
 			if (request_res > 0)
 			{
 				std::cout << "error in the request\n";
@@ -64,14 +66,14 @@ int readFromClient(int fd, std::vector<Client> &_clients)
  *
  */
 
-std::vector<Client>::iterator writeToClient(int fd, std::vector<Client> &_clients)
+std::vector<Client>::iterator Worker::writeToClient(int fd)
 {
-	std::vector<Client>::iterator c_beg = _clients.begin();
+	std::vector<Client>::iterator c_beg = clients.begin();
 	int status;
 	// static int len = 60;
 	// static int offset = 0;
 
-	while (c_beg != _clients.end())
+	while (c_beg != clients.end())
 	{
 		if (c_beg->getFd() == fd)
 		{
@@ -91,7 +93,7 @@ std::vector<Client>::iterator writeToClient(int fd, std::vector<Client> &_client
 		}
 		c_beg++;
 	}
-	return _clients.end();
+	return clients.end();
 }
 
 void Worker::dropClientConnection(std::vector<Client>::iterator client)
@@ -101,11 +103,11 @@ void Worker::dropClientConnection(std::vector<Client>::iterator client)
 	clients.erase(client);
 }
 
-void Worker::add(int connection, std::vector<Server *> prerquisite)
+void Worker::add(int connection, std::vector<Server *> &prerquisite)
 {
 	clients.push_back(Client(connection, prerquisite));
 	for (size_t i = 0; i < clients.size(); i++) {
-		std::cout << clients[i].getFd() << "\n";
+		std::cout << "c-FD => " << clients[i].getFd() << "\n";
 	}
 }
 
@@ -114,10 +116,10 @@ int Worker::serve(int fd, int state)
 	std::vector<Client>::iterator cli;
 
 	if (state == READ)
-		return readFromClient(fd, clients);
+		return readFromClient(fd);
 	else
 	{
-		cli = writeToClient(fd, clients);
+		cli = writeToClient(fd);
 		if (cli != clients.end())
 			dropClientConnection(cli);
 		return 0;

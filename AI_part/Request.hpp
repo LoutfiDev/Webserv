@@ -5,6 +5,7 @@
 #include <map>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <vector>
 #include "utils.hpp"
 #include <climits>
@@ -37,9 +38,9 @@ class Request {
 		std::string getBody() const;
 
 		Location &getRequestedLocation();
-		void setRequestedLocation(std::string &); // the location will sets after
-												  // the paresing of the request line
-		void setRequestedServer(std::vector<Server *> &);
+		void setRequestedLocation(std::string );
+
+		void setRequestedServer(std::vector<Server *> );
 
 		int addHeader(std::string );
 		int  addBody(std::string );

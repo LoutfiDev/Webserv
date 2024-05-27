@@ -8,7 +8,11 @@
 
 Client::Client(int _fd, std::vector<Server *> data) {
 	fd = _fd;
-	dataServer = data;
+	std::cout << data.size() <<"\n";
+	for (size_t i = 0; i < data.size(); i++) {
+		dataServer.push_back(data[i]);
+	}
+	std::cout << "size dataServer => " << dataServer.size() <<"\n";
 	isHeaderPartDone = 0;
 }
 
@@ -72,7 +76,10 @@ int Client::readBuffer(char *buf)
 			if (found == std::string::npos)
 				break ;
 			if (request.addHeader(buffer.substr(0, found)) == HOST_EXIST)
+			{
 				request.setRequestedServer(dataServer);
+				request.setRequestedLocation(request.getPath());
+			}
 			buffer = buffer.substr(found + 2);
 		}
 		else
