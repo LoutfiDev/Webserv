@@ -23,13 +23,13 @@
 int Worker::readFromClient(int fd)
 {
 	int request_res;
+	int read_size;
+	char buf[READBUFFER];
 
 	for (size_t i = 0; i < clients.size(); i++)
 	{
 		if (clients[i]->getFd() == fd)
 		{
-			int read_size;
-			char buf[READBUFFER];
 			std::memset(buf, '\0', READBUFFER - 1);
 			read_size = read(fd, buf, READBUFFER - 2);
 			buf[READBUFFER - 1] = '\0';
@@ -42,7 +42,6 @@ int Worker::readFromClient(int fd)
 			if (read_size == 0)
 				return (std::cout << "request is done\n", 2);
 			request_res = clients[i]->readBuffer(buf);
-			std::cout << "request_res => " << request_res << "\n";
 			if (request_res > 0)
 			{
 				std::cout << "error in the request\n";
@@ -105,9 +104,6 @@ void Worker::dropClientConnection(std::vector<Client *>::iterator client)
 void Worker::add(int connection, std::vector<Server *> &prerquisite)
 {
 	clients.push_back(new Client(connection, prerquisite));
-	for (size_t i = 0; i < clients.size(); i++) {
-		std::cout << "c-FD => " << clients[i]->getFd() << "\n";
-	}
 }
 
 int Worker::serve(int fd, int state)

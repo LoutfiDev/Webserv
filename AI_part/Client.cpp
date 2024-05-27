@@ -84,7 +84,7 @@ int Client::readBuffer(char *buf)
 				return 400;
 			if (request.addBody(buffer) == -1)
 			{
-				std::cout << request.getBodyCount() << "\n";
+				// std::cout << request.getBodyCount() << "\n";
 				return -1;
 			}
 			if (request.getBodyLength() < 0)
@@ -94,15 +94,12 @@ int Client::readBuffer(char *buf)
 			}
 			buffer.clear();
 		}
-		// std::cout << "RQ => " << request.getRequestCode() <<"\n";
 		if (request.getRequestCode())
 		{
 			std::cerr << "pass to the response with <" << request.getRequestCode() << ">\n";
 			return request.getRequestCode();
 		}
 	}
-	// if (isHeaderPartDone == 1)
-		// std::cout << "isheaderdone = " << isHeaderPartDone << "\n";
 	return 0;
 }
 

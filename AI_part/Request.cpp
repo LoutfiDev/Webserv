@@ -137,7 +137,6 @@ void Request::setBodyLength(std::string &number)
 
 void Request::setRequestedServer(std::vector<Server *> servers)
 {
-	std::cout << servers.size() <<"\n";
 	requestedServer = *servers[0];
 	for (size_t i = 0; i < servers.size(); i++) {
 		if (servers[i]->host == host)
@@ -158,6 +157,7 @@ void Request::setRequestedLocation(std::string uri)
 	if (beg != l.end())
 	{
 		requested_location = *beg->second;
+		std::cout << "Location rot => " << requested_location.root << "\n";
 		return;
 	}
 	beg = l.begin();
@@ -168,6 +168,7 @@ void Request::setRequestedLocation(std::string uri)
 		if (beg->first == uri)
 		{
 			requested_location = *(--beg)->second;
+			std::cout << "Location rot => " << requested_location.root << "\n";
 			return;
 		}
 		beg++;
@@ -185,7 +186,6 @@ void Request::checkRequestLine(std::vector<std::string> &attrs)
 {
 	if (attrs.size() != 3)
 	{
-		// std::cout << attrs[0] << "\n";
 		response_code = "400";
 		request_code = 400;
 		return;
@@ -438,7 +438,7 @@ const std::string &Request::getContentLength()
 {
 	std::map<std::string, std::string>::iterator value;
 
-	value = headers.find("Content-Length");
+	value = headers.find("content-length");
 	if (value == headers.end())
 		throw NOTEXIST;
 	return (value->second);
