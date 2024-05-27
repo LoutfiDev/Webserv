@@ -34,14 +34,14 @@ class Worker {
 		void add(int, std::vector<Server *> &);
 		int serve(int, int);
 
-		std::vector<Client>::iterator writeToClient(int fd);
+		std::vector<Client *>::iterator writeToClient(int fd);
 		int readFromClient(int fd);
 
-		void dropClientConnection(std::vector<Client>::iterator );
+		void dropClientConnection(std::vector<Client *>::iterator );
 		~Worker();
 
 	private:
-		std::vector<Client> clients;
+		std::vector<Client *> clients;
 
 };
 

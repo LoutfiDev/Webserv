@@ -8,11 +8,7 @@
 
 Client::Client(int _fd, std::vector<Server *> data) {
 	fd = _fd;
-	std::cout << data.size() <<"\n";
-	for (size_t i = 0; i < data.size(); i++) {
-		dataServer.push_back(data[i]);
-	}
-	std::cout << "size dataServer => " << dataServer.size() <<"\n";
+	dataServer = data;
 	isHeaderPartDone = 0;
 }
 

@@ -26,8 +26,7 @@ int Worker::readFromClient(int fd)
 
 	for (size_t i = 0; i < clients.size(); i++)
 	{
-		std::cout << "size => " << clients[i].dataServer.size() << "\n";
-		if (clients[i].getFd() == fd)
+		if (clients[i]->getFd() == fd)
 		{
 			int read_size;
 			char buf[READBUFFER];
@@ -42,7 +41,7 @@ int Worker::readFromClient(int fd)
 			}
 			if (read_size == 0)
 				return (std::cout << "request is done\n", 2);
-			request_res = clients[i].readBuffer(buf);
+			request_res = clients[i]->readBuffer(buf);
 			std::cout << "request_res => " << request_res << "\n";
 			if (request_res > 0)
 			{
@@ -66,16 +65,16 @@ int Worker::readFromClient(int fd)
  *
  */
 
-std::vector<Client>::iterator Worker::writeToClient(int fd)
+std::vector<Client *>::iterator Worker::writeToClient(int fd)
 {
-	std::vector<Client>::iterator c_beg = clients.begin();
+	std::vector<Client *>::iterator c_beg = clients.begin();
 	int status;
 	// static int len = 60;
 	// static int offset = 0;
 
 	while (c_beg != clients.end())
 	{
-		if (c_beg->getFd() == fd)
+		if ((*c_beg)->getFd() == fd)
 		{
 			// c_beg->showrequest();
 			char resp[61] = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello, world!\r\n";
@@ -96,24 +95,24 @@ std::vector<Client>::iterator Worker::writeToClient(int fd)
 	return clients.end();
 }
 
-void Worker::dropClientConnection(std::vector<Client>::iterator client)
+void Worker::dropClientConnection(std::vector<Client *>::iterator client)
 {
 	std::cout << "Dropping Client\n";
-	close(client->getFd());
+	close((*client)->getFd());
 	clients.erase(client);
 }
 
 void Worker::add(int connection, std::vector<Server *> &prerquisite)
 {
-	clients.push_back(Client(connection, prerquisite));
+	clients.push_back(new Client(connection, prerquisite));
 	for (size_t i = 0; i < clients.size(); i++) {
-		std::cout << "c-FD => " << clients[i].getFd() << "\n";
+		std::cout << "c-FD => " << clients[i]->getFd() << "\n";
 	}
 }
 
 int Worker::serve(int fd, int state)
 {
-	std::vector<Client>::iterator cli;
+	std::vector<Client *>::iterator cli;
 
 	if (state == READ)
 		return readFromClient(fd);
@@ -130,7 +129,7 @@ void Worker::showClients()
 {
 	for (size_t i = 0; i < clients.size(); i++)
 	{
-		clients[i].showrequest();
+		clients[i]->showrequest();
 	}
 }
 
