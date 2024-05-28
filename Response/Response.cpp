@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/27 20:05:01 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/28 03:01:18 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 // x- set Response constructed by def constructor   //
 // x- Add location* server* as atrrib to response   //
 // x- set an int in send_response as return         //
+// x- default server Configuration					//
 //**************************************************//
 
 
@@ -240,7 +241,7 @@ void Response::send_response()
 			memset(buffer, 0, 1024);
 			if((dir=opendir(path.c_str())))
 			{
-				int portion = 0;
+				// int portion = 0;
 				response.clear();
 				response += "";
 				// while((dent=readdir(dir)) || portion < 3)

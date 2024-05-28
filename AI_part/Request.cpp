@@ -22,7 +22,7 @@ Request::Request() {
 	bodyLength = 0;
 	response_code = "200";
 	bodyCount = 0;
-	transferEncodingCheck = false;
+	// transferEncodingCheck = false;
 	contentLengthCheck = false;
 	contentTypeCheck = false;
 	chunk_length = 0;
@@ -52,7 +52,7 @@ Request &Request::operator=(const Request& obj)
 	bodyCount = obj.bodyCount;
 	host = obj.host;
 
-	transferEncodingCheck = obj.transferEncodingCheck;
+	// transferEncodingCheck = obj.transferEncodingCheck;
 	contentLengthCheck = obj.contentLengthCheck;
 	contentTypeCheck = obj.contentTypeCheck;
 
@@ -147,32 +147,25 @@ void Request::setRequestedServer(std::vector<Server *> servers)
 	}
 }
 
-void Request::setRequestedLocation(std::string uri)
+void Request::setRequestedLocation()
 {
+	std::string uri;
 	std::map<std::string, Location *> l = requestedServer.locations;
-	Location *test = NULL;
 	std::map<std::string, Location *>::iterator beg;
+	bool not_found = true;
 
-	beg = l.find(uri);
-	if (beg != l.end())
-	{
-		requested_location = *beg->second;
-		std::cout << "Location rot => " << requested_location.root << "\n";
-		return;
-	}
-	beg = l.begin();
-	l[uri] = test;
-	requested_location = *(beg->second);
-	while (beg != l.end())
-	{
-		if (beg->first == uri)
+	uri = path;
+	for (beg = l.begin(); beg != l.end(); beg++) {
+		if (uri.compare(0, beg->first.length(), beg->first) == 0)
 		{
-			requested_location = *(--beg)->second;
-			std::cout << "Location rot => " << requested_location.root << "\n";
-			return;
+			requested_location = *beg->second;
+			not_found = false;
 		}
-		beg++;
 	}
+	if (not_found)
+		std::cout << "location Not found\n";
+	else
+	std::cout << requested_location.root << "\n";
 }
 
 /*
@@ -276,6 +269,8 @@ int Request::addBody(std::string token)
 		if (!transferEncodingCheck)
 		{
 			getTransferEncoding();
+			if (request_code)
+				return request_code;
 			transferEncodingCheck = true;
 		}
 		if (readTransferEncodingBody(token) == -1)
@@ -331,7 +326,6 @@ int Request::readTransferEncodingBody(std::string token)
 {
 	size_t line;
 	tmp_body += token;
-	std::cout << token << "\n=> "<< token.length() << "\n";
 
 	while (tmp_body.length())
 	{

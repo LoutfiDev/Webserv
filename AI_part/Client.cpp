@@ -74,8 +74,7 @@ int Client::readBuffer(char *buf)
 			if (request.addHeader(buffer.substr(0, found)) == HOST_EXIST)
 			{
 				request.setRequestedServer(dataServer);
-				request.setRequestedLocation(request.getPath());
-				
+				request.setRequestedLocation();
 			}
 			buffer = buffer.substr(found + 2);
 		}
@@ -97,7 +96,7 @@ int Client::readBuffer(char *buf)
 		}
 		if (request.getRequestCode())
 		{
-			std::cerr << "pass to the response with <" << request.getRequestCode() << ">\n";
+			std::cout << "pass to the response with <" << request.getRequestCode() << ">\n";
 			return request.getRequestCode();
 		}
 	}

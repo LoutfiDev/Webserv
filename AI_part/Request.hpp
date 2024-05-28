@@ -38,7 +38,7 @@ class Request {
 		std::string getBody() const;
 
 		Location &getRequestedLocation();
-		void setRequestedLocation(std::string );
+		void setRequestedLocation();
 
 		void setRequestedServer(std::vector<Server *> );
 
