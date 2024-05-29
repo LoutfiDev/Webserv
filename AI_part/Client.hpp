@@ -29,6 +29,8 @@ class Client {
 
 		~Client();
 
+		Response response;
+		
 	private:
 		int fd;
 		Request request;
