@@ -101,7 +101,7 @@ int Request::getBodyLength()
 	return bodyLength;
 }
 
-Location &Request::getRequestedLocation()
+Location Request::getRequestedLocation()
 {
 	return requested_location;
 }

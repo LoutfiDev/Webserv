@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:42 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/27 19:37:14 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/28 23:42:42 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,12 +45,14 @@ class Response
 	public:
 		std::map<std::string, std::string>messages;
 		std::string response;
-		std::string body_path;
-		int STAGE;
+		Location *location;
+		Server *server;
+		int socket;
 		
+		DIR *dir;
 		char buffer[1024];
+		int STAGE;
 		unsigned int index;
-		struct dirent *dent;
 		
 		std::string method;
 		std::string path;
@@ -58,20 +60,20 @@ class Response
 		std::string status_code;
 		
 		Response();
-		Response(Location *location);
 		Response(const Response& copy);
 		Response& operator=(const Response& src);
 		~Response();
 		
 
-		void Get(Location *location);
-		void Post(Location *location);
-		void Delete(Location *location);
+		void Get( void );
+		void Post( void );
+		void Delete( void );
 		
 		
-		void fill_messages( void );		
+		void fill_messages( void );	
+		std::string getPath ( void );	
 		void pick_method(Location *location);
-		void send_response( void );
+		int send_response( void );
 	
 		void Delete_folder(std::string path);
 		std::string getMessage(std::string code);

@@ -3,26 +3,26 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
+/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/28 03:01:18 by anaji            ###   ########.fr       */
+/*   Updated: 2024/05/29 10:37:05 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 
 //******************TO DO***************************//
-// x- list files while autoIndex is on              //
+// v- list files while autoIndex is on              //
 // v- create a buffer to write response             //
 // v- create FLAGS to protect overwrite             //
 // v- Add location header to response if "301"      // 
 // v- ask for text/html resp if "301"               //
 // v- set index.html as default index directive     //
-// x- set index to 0 after sending the body         //
-// x- set Response constructed by def constructor   //
-// x- Add location* server* as atrrib to response   //
-// x- set an int in send_response as return         //
+// v- set index to 0 after sending the body         //
+// v- set Response constructed by def constructor   //
+// v- Add location* server* as atrrib to response   //
+// v- set an int in send_response as return         //
 // x- default server Configuration					//
 //**************************************************//
 
@@ -30,9 +30,7 @@
 // you can pass a request object as param to the constructer
 // Response::Response(Request req) : status_code("200")
 
-Response::Response() {}
-
-Response::Response(Location *location) : STAGE(0), index(0), method("GET"), path("web_root/index.html"), http_v("HTTP/1.1"), status_code("200")
+Response::Response() : STAGE(0), index(0), method("GET"), path("web_root/index.html"), http_v("HTTP/1.1"), status_code("200")
 {
 	fill_messages();
 	//you can pass req.method to this funct to call the method and form the response 
@@ -51,10 +49,10 @@ Response& Response::operator=(const Response& src)
 
 Response::~Response() {}
 
-void Response::Get(Location *location) {
-	DIR *dir;
+void Response::Get() {
+	DIR *directory;
 	
-	if ((dir = opendir(path.c_str())))
+	if ((directory = opendir(path.c_str())))
 	{
 		if (path[path.size() - 1] != '/')
 		{
@@ -85,7 +83,7 @@ void Response::Get(Location *location) {
 			else
 				status_code = "403";
 		}
-		closedir(dir);
+		closedir(directory);
 	}
 	else
 	{
@@ -99,15 +97,15 @@ void Response::Get(Location *location) {
 	}
 }
 
-void Response::Post(Location *location) { (void)location; }
+void Response::Post() { return; }
 
 void Response::Delete_folder(std::string path)
 {
-	DIR *dir;
+	DIR *directory;
 	dir=opendir(path.c_str());
 	
 	struct dirent *dent;
-	while((dent=readdir(dir)) && status_code == "200")
+	while((dent=readdir(directory)) && status_code == "200")
 	{
 		struct stat st_buf;
 		stat (dent->d_name, &st_buf);
@@ -124,19 +122,19 @@ void Response::Delete_folder(std::string path)
 				remove(path.c_str());
 		}
 	}
-	closedir(dir);
+	closedir(directory);
 }
 
-void Response::Delete(Location *location) 
+void Response::Delete() 
 { 
 	(void)location;
-	DIR *dir;
+	DIR *directory;
 	//path now it's temporary
 
-	if((dir=opendir(path.c_str())))
+	if((directory=opendir(path.c_str())))
 	{
 		Delete_folder(path);
-		closedir(dir);
+		closedir(directory);
 	}
 	else
 	{
@@ -197,17 +195,45 @@ std::string Response::getContentType(std::string file)
 	}
 	return ("");
 }
-void Response::send_response()
+std::string Response::getPath( void )
+{
+	// std::map<std::string, std::string> default_error_pages;
+	// std::map<std::vector<std::string>, std::string> error_pages;
+	// std::string tmp;
+	
+	// std::map<std::vector<std::string>, std::string>::iterator it = server->error_pages.begin();
+	// for (; it != server->error_pages.end(); ++it)
+	// {
+	// 	std::vector<std::string>::iterator ite = it->first.begin();
+		// for (; it != location->index.end(); ++it)
+		// {
+	// }
+	// std::vector<std::string>::iterator it = location->index.begin();
+	// for (; it != location->index.end(); ++it)
+	// {
+	// 	tmp = path + *it;
+	// 	if (access(tmp.c_str(), F_OK) == 0)
+	// 	{
+	// 		path.append(*it);
+	// 		status_code = "301";
+	// 		return ;
+	// 	}
+	// }
+}
+
+int Response::send_response()
 {
 	if (STAGE < HEADERISSENT)
 	{
-		response += http_v + " " + status_code + " " + getMessage(status_code) + "\r\n"; 
+		response += http_v + " " + status_code + " " + getMessage(status_code) + "\r\n";
 		if (status_code != "200")
 		{
 			if (status_code == "301")
 				response += "Location: " + path + "\r\n";
-			// path = getPath(status_code); > if (status_code.exist) : html.page ? "";
+			path = getPath();
 		}
+		
+
 		if (!path.empty())
 		{
 			if (path[path.size() - 1] == '/')
@@ -221,43 +247,43 @@ void Response::send_response()
 		}
 		else
 			response += "Content-Type: text/html\r\n\r\n";
-		// write(fd, response.c_str() , response.size());
+		write(socket, response.c_str() , response.size());
 			
 		STAGE += 1;
 	}
 	else if (STAGE < BODYISSENT)
-	{
-			// <html>
-			// <head><title>Index of /</title></head>
-			// <body>
-			// <h1>Index of /</h1><hr><pre><a href="../">../</a>
-			// <a href="web/">web/</a>                                                    
-			// <a href="home.html">home.html</a>                                              
-			// <a href="profile.html">profile.html</a>                                    
-			// </pre><hr></body>
-			// </html>
-				
-			DIR *dir;
+	{			
 			memset(buffer, 0, 1024);
 			if((dir=opendir(path.c_str())))
 			{
-				// int portion = 0;
-				response.clear();
-				response += "";
-				// while((dent=readdir(dir)) || portion < 3)
-				// {
-				// 	struct stat st_buf;
-				// 	stat (dent->d_name, &st_buf);
-				// 	// //  if (stat (dent->d_name, &st_buf) != 0) no_such_file
-				// 	if (std::string(dent->d_name) == ".." || std::string(dent->d_name) == ".")
-				// 		continue;
-				// 	if (S_ISDIR (st_buf.st_mode))
-				// 		std::cout << dent->d_name << "\t DIRECTORY\n";
-				// 	else if (S_ISREG (st_buf.st_mode)) 
-				// 		std::cout << dent->d_name << "\t FILE\n";
-				//	portion++;
-				// }
+				int portion = 1;
+				struct dirent *dent;
+				if (portion == 1)
+				{
+					response.clear();
+					response += "<html><head><title>Index of /</title></head><body><h1>Index of /</h1><hr><pre>";	
+				}
+				while((dent=readdir(dir)) || (portion % 4))
+				{
+					struct stat st_buf;
+					stat (dent->d_name, &st_buf);
+					// //  if (stat (dent->d_name, &st_buf) != 0) no_such_file
+					if (std::string(dent->d_name) == ".." || std::string(dent->d_name) == ".")
+						continue;
+					if (S_ISDIR (st_buf.st_mode))
+						response += "<a href=\"" + std::string(dent->d_name) + "/\">" + std::string(dent->d_name) + "/</a></br>";
+					else if (S_ISREG (st_buf.st_mode)) 
+						response += "<a href=\"" + std::string(dent->d_name) + "\">" + std::string(dent->d_name) + "</a></br>";
+					portion++;
+				}
 				closedir(dir);
+				if(!dent)
+				{
+					response += "</pre><hr></body></html>";
+					write(socket, response.c_str() , response.size());
+					return -1;
+				}
+				write(socket, response.c_str() , response.size());
 			}
 			else
 			{
@@ -268,20 +294,20 @@ void Response::send_response()
 					is.read (buffer,1024);
 					if (is)
 					{
-						// write(fd, buffer , 1024);
+						write(socket, buffer , 1024);
 						index += 1024;
 					}
 					else
 					{
 						if (is.gcount() == 0)
-							return ;
-						// write(fd, buffer , is.gcount());
+							return -1;
+						write(socket, buffer , is.gcount());
 						index += is.gcount();
 					}	
 					is.close();
 				}
 				else
-					throw 2;
+					return -1;
 			}
 	}
 }
@@ -307,13 +333,13 @@ void Response::fill_messages( void )
 void Response::pick_method(Location *location)
 {
 	std::string methods[3] = {"GET", "POST", "DELETE"};
-	void (Response::* ptr[3]) (Location *location) = {&Response::Get, &Response::Post, &Response::Delete};
+	void (Response::* ptr[3]) ( void ) = {&Response::Get, &Response::Post, &Response::Delete};
 	for (int i = 0; i < 3; i++)
 	{
 		if (methods[i] == method)
 		{
 			if (std::find(location->allow_methods.begin(), location->allow_methods.end(), method) != location->allow_methods.end())
-				return ((this->*(ptr[i]))(location));
+				return ((this->*(ptr[i]))());
 			status_code = "405";
 		}
 	}

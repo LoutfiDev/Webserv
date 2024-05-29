@@ -77,7 +77,7 @@ std::vector<Client *>::iterator Worker::writeToClient(int fd)
 		{
 			// c_beg->showrequest();
 			char resp[61] = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello, world!\r\n";
-			status = write(fd, resp , std::strlen(resp));
+			status = (*c_beg)->response.send_response();
 			if (status == -1)
 			{
 				std::cerr << "Client has closed the Connection\n";

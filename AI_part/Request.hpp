@@ -37,7 +37,7 @@ class Request {
 		int getBodyLength();
 		std::string getBody() const;
 
-		Location &getRequestedLocation();
+		Location getRequestedLocation();
 		void setRequestedLocation();
 
 		void setRequestedServer(std::vector<Server *> );
@@ -96,8 +96,8 @@ class Request {
 	// attribute for the request location 
 	private:
 		Location requested_location;
+	public:
 		Server requestedServer;
-
 };
 
 

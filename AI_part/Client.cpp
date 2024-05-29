@@ -10,6 +10,7 @@ Client::Client(int _fd, std::vector<Server *> data) {
 	fd = _fd;
 	dataServer = data;
 	isHeaderPartDone = 0;
+	response.socket = _fd;
 }
 
 Client::Client(const Client& obj) {
@@ -75,6 +76,8 @@ int Client::readBuffer(char *buf)
 			{
 				request.setRequestedServer(dataServer);
 				request.setRequestedLocation();
+				response.location = &request.getRequestedLocation();
+				response.server = &request.requestedServer;
 			}
 			buffer = buffer.substr(found + 2);
 		}

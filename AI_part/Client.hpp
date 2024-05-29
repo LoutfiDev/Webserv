@@ -25,10 +25,11 @@ class Client {
 
 		~Client();
 
+		Response response;
+		
 	private:
 		int fd;
 		Request request;
-		Response response;
 		std::string buffer;
 		std::string leftOver;	//this attribute for the remaining of the 
 								//request see readToBuffer()
