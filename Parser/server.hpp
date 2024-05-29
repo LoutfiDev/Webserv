@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:17:16 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/24 10:28:18 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/29 12:47:55 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,7 @@ class Server
 		std::string host;
 		std::string port;
 		std::vector<std::string>server_names;
-		std::map<std::string, std::string> default_error_pages;
-		std::map<std::vector<std::string>, std::string> error_pages;
+		std::map<std::string, std::string> error_pages;
 		std::string max_body_size;
 		std::string root;
 		std::map<std::string, Location*> locations;

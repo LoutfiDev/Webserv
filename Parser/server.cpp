@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:19:40 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/27 13:12:46 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/29 12:46:23 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,7 @@ Server::Server() {}
 Server::Server(std::string& rest)
 {
 	int open_brace = 0, close_brace = 0;
-	set_default_error_pages();
-	
+
 	while (!rest.empty())
 	{
 	    if (rest[0] == ' ')
@@ -51,7 +50,6 @@ Server& Server::operator=(const Server& src)
 	host = src.host;
 	port = src.port;
 	server_names = src.server_names;
- 	default_error_pages = src.default_error_pages;
 	error_pages = src.error_pages;
 	max_body_size = src.max_body_size;
 	root = src.root;
@@ -62,20 +60,21 @@ Server& Server::operator=(const Server& src)
 Server::~Server() {}
 
 void Server::set_default_error_pages( void ){
-	default_error_pages["201"] = "error_pages/201.html";
-	default_error_pages["204"] = "error_pages/204.html";
-	default_error_pages["400"] = "error_pages/400.html";
-	default_error_pages["403"] = "error_pages/403.html";
-	default_error_pages["404"] = "error_pages/404.html";
-	default_error_pages["405"] = "error_pages/405.html";
-	default_error_pages["408"] = "error_pages/408.html";
-	default_error_pages["413"] = "error_pages/413.html";
-	default_error_pages["414"] = "error_pages/414.html";
-	default_error_pages["415"] = "error_pages/415.html";
-	default_error_pages["500"] = "error_pages/500.html";
-	default_error_pages["501"] = "error_pages/501.html";
-	default_error_pages["505"] = "error_pages/505.html";
+	error_pages["201"] = "error_pages/201.html";
+	error_pages["204"] = "error_pages/204.html";
+	error_pages["400"] = "error_pages/400.html";
+	error_pages["403"] = "error_pages/403.html";
+	error_pages["404"] = "error_pages/404.html";
+	error_pages["405"] = "error_pages/405.html";
+	error_pages["408"] = "error_pages/408.html";
+	error_pages["413"] = "error_pages/413.html";
+	error_pages["414"] = "error_pages/414.html";
+	error_pages["415"] = "error_pages/415.html";
+	error_pages["500"] = "error_pages/500.html";
+	error_pages["501"] = "error_pages/501.html";
+	error_pages["505"] = "error_pages/505.html";
 }
+
 // Server setters
 std::string parse_host(std::string host) {
 	
@@ -183,30 +182,24 @@ void Server::set_server_names(std::string& rest) {
 		throw 9;
 }
 
-std::vector<std::string> is_status_code(std::vector<std::string> status_codes)
+std::string is_status_code(std::string status_code)
 {
 	char *rest;
 	int nb;
-
-	if (status_codes.size() < 2)
-		throw 10;
-	std::vector<std::string>::iterator it = status_codes.begin();
-	for (; it+1 != status_codes.end(); ++it)
-	{
-		nb = strtod((*it).c_str(), &rest);
+		nb = strtod(status_code.c_str(), &rest);
 		if (rest[0])
 			throw 11;
 		else if (!(nb > 299 && nb < 600))
 			throw 11;
-	}
-	status_codes.erase(it);
-	return (status_codes);
+	return (status_code);
 }
 void Server::set_error_pages(std::string& rest) { 
 	
 	std::string value;
 	std::vector<std::string>tmp;
-	    
+	std::map<std::string, std::string> tmp_error_pages;
+	
+	set_default_error_pages();
 	while (!rest.empty())
 	{
 		if (rest[0] == ' ')
@@ -230,10 +223,17 @@ void Server::set_error_pages(std::string& rest) {
 			else
 				tmp.push_back(value);
 		}
-		error_pages[is_status_code(tmp)] = *tmp.rbegin();
+		if (tmp.size() < 2)
+			throw 10;
+		std::vector<std::string>::iterator it = tmp.begin();
+		for (; it+1 != tmp.end(); ++it)
+			tmp_error_pages[is_status_code(*it)] = *tmp.rbegin();
 	}
-	if (error_pages.size() == 0)
+	if (tmp_error_pages.size() == 0)
 		throw 10;
+	std::map<std::string, std::string>::iterator ite = tmp_error_pages.begin();
+	for (; ite != tmp_error_pages.end(); ++ite)
+		error_pages[ite->first] = ite->second;
 }
 
 std::string parse_max_body_size(std::string value)

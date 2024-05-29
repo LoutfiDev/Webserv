@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:42 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/29 10:53:33 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/29 15:54:22 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,11 +68,11 @@ class Response
 		
 
 		void Get( void );
+		//Post Defintion at AI_Part/utils.cpp
+		std::string responseBody;
 		void Post( void );
 		void Delete( void );
 		
-		//Post Defintion at AI_Part/utils.cpp
-		void Post();
 		
 		void fill_messages( void );	
 		std::string getPath ( void );	
@@ -84,11 +84,7 @@ class Response
 		std::string getContentLenght(std::string file);
 		std::string getContentType(std::string file);
 
-		// AI changes
-		int socket;
-		Location *location;
-		Server *server;
-		std::string responseBody;
+
 };
 
 #endif

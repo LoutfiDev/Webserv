@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 08:53:41 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/29 10:55:31 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/29 15:46:15 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,14 @@
 #define PORT 8080
 int main (int ac, char **av)
 {
-	if (ac == 2)
+	std::string fileName = "Conf/default.conf";
+	if (ac <= 2)
 	{
-		std::string fileName = av[1];
+		if (av[1])
+			fileName = av[1];
 		Parser parser(fileName);
-		ServerManager server;
-		server.start(parser);
+		// ServerManager server;
+		// server.start(parser);
 
 		// int server_fd, new_socket;
 		// struct sockaddr_in address;
@@ -78,8 +80,10 @@ int main (int ac, char **av)
 		// }
 
 	}
-	else 
+	else
+	{
 		std::cout << av[0] << \
 			" accept 1 param (Configuration file) only!" << std::endl;
+	}
 	return (0);
 }

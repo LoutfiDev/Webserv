@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/29 10:54:48 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/29 15:54:48 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 // v- set Response constructed by def constructor   //
 // v- Add location* server* as atrrib to response   //
 // v- set an int in send_response as return         //
-// x- default server Configuration					//
+// v- default server Configuration					//
 //**************************************************//
 
 
@@ -38,7 +38,7 @@ Response::Response() : STAGE(0), index(0), method("GET"), path("web_root/index.h
 	//you can pass req.method to this funct to call the method and form the response 
 	if (status_code == "200")
 		pick_method(location);
-	send_response();
+	// int i = send_response();
 }
 
 Response::Response(const Response& copy) { (void)copy; }
@@ -65,7 +65,6 @@ void Response::Get() {
 		{
 			if (location->index.size())
 			{
-				//append index to path
 				std::string tmp;
 				std::vector<std::string>::iterator it = location->index.begin();
 				for (; it != location->index.end(); ++it)
@@ -104,7 +103,7 @@ void Response::Post() { return; }
 void Response::Delete_folder(std::string path)
 {
 	DIR *directory;
-	dir=opendir(path.c_str());
+	directory=opendir(path.c_str());
 	
 	struct dirent *dent;
 	while((dent=readdir(directory)) && status_code == "200")
@@ -129,9 +128,7 @@ void Response::Delete_folder(std::string path)
 
 void Response::Delete() 
 { 
-	(void)location;
 	DIR *directory;
-	//path now it's temporary
 
 	if((directory=opendir(path.c_str())))
 	{
@@ -199,28 +196,9 @@ std::string Response::getContentType(std::string file)
 }
 std::string Response::getPath( void )
 {
-	// std::map<std::string, std::string> default_error_pages;
-	// std::map<std::vector<std::string>, std::string> error_pages;
-	// std::string tmp;
-	
-	// std::map<std::vector<std::string>, std::string>::iterator it = server->error_pages.begin();
-	// for (; it != server->error_pages.end(); ++it)
-	// {
-	// 	std::vector<std::string>::iterator ite = it->first.begin();
-		// for (; it != location->index.end(); ++it)
-		// {
-	// }
-	// std::vector<std::string>::iterator it = location->index.begin();
-	// for (; it != location->index.end(); ++it)
-	// {
-	// 	tmp = path + *it;
-	// 	if (access(tmp.c_str(), F_OK) == 0)
-	// 	{
-	// 		path.append(*it);
-	// 		status_code = "301";
-	// 		return ;
-	// 	}
-	// }
+	if (server->error_pages.find(status_code) != server->error_pages.end())
+		return server->error_pages[status_code];
+	return "";
 }
 
 int Response::send_response()
@@ -312,6 +290,7 @@ int Response::send_response()
 					return -1;
 			}
 	}
+	return 0;
 }
 
 void Response::fill_messages( void )

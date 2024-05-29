@@ -28,8 +28,6 @@ class Client {
 		void showrequest();
 
 		~Client();
-
-		Response response;
 		
 	private:
 		int fd;
