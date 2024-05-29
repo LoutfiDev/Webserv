@@ -1,10 +1,13 @@
 #include "utils.hpp"
+#include "../Response/Response.hpp"
 #include <cctype>
+#include <cstddef>
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <sys/stat.h>
 #include <unistd.h>
 
 
@@ -49,7 +52,7 @@ char randomChar(int old)
 	return (charset[character]);
 }
 
-std::string fileName()
+std::string generateFileName()
 {
 	srand((unsigned) time(NULL));
 	std::string name;
@@ -61,6 +64,46 @@ std::string fileName()
 	return name;	
 }
 
+std::string removeLastChar(std::string filename) // remove last '/'
+{
+	size_t i = filename.size();
+
+	if (filename[i] == '/')
+		i--;
+	filename = filename.substr(0, i);
+	return filename;
+}
+
+std::string getFileName(std::string &filename)
+{
+	size_t i = filename.size();
+	std::string name;
+
+	if (filename[i] == '/')
+		i--;
+	while (i >= 0)
+	{
+		if (filename[i] == '/')
+			break;
+		i--;
+	}
+	
+	name = filename.substr(0, i);
+	return name;
+}
+
+std::string getUri(std::string &requestedUri, std::string &locationName)
+{
+	size_t pos;
+	std::string uri;
+
+	pos = requestedUri.find(locationName);
+	if (pos == std::string::npos)
+		return requestedUri;
+	uri = requestedUri.substr(pos + locationName.length());
+	return uri;
+}
+
 /*
  * @Description : Post method
  * @param none 
@@ -69,17 +112,118 @@ std::string fileName()
  *
  */
 
-// std::string Post(Client client)
-// {
-// 	Request req;
-// 	std::string post_response;
-// 	std::fstream file;
-//
-// 	req = client.getRequest();
-//
-// 	if (req.getBodyLength() > 0)
-// 	{
-// 		post_response = req.getBody();
-// 	}
-// 	return "";
-// }
+void Response::Post()
+{
+	// path = "/nfs/homes/anaji/Desktop/webServer/web_root/index.html";
+	std::string requestedfile = path; //this is the end path after the location matching ends see subject example(https://cdn.intra.42.fr/pdf/pdf/109738/en.subject.pdf#page=8)
+	struct stat st_stat;
+	std::string pathname;
+	std::string path_dir;
+	std::string line;
+
+	// std::cout << requestedfile << "\n";
+	return;
+	if (access(requestedfile.c_str(), F_OK) == -1)
+	{
+		status_code = "404";
+		send_response();
+		return;
+	}
+	stat(requestedfile.c_str(), &st_stat);
+	if (st_stat.st_mode & S_IFDIR)
+	{
+		if (location->upload_dir.length())
+		{
+			if (access(location->upload_dir.c_str(), F_OK) == -1)
+			{
+				status_code = "404";
+				send_response();
+				return;
+			}
+			if (access(location->upload_dir.c_str(), W_OK) == -1)
+			{
+				status_code = "403";
+				send_response();
+				return;
+			}
+			path_dir = removeLastChar(location->upload_dir);
+			pathname = path_dir + "/" + generateFileName();
+		}
+		else if (location->root.length())
+		{
+			if (access(location->root.c_str(), F_OK) == -1)
+			{
+				status_code = "404";
+				send_response();
+				return;
+			}
+			if (access(location->root.c_str(), W_OK) == -1)
+			{
+				status_code = "403";
+				send_response();
+				return;
+			}
+			path_dir = removeLastChar(location->root);
+			pathname = path_dir + "/" + generateFileName();
+		}
+		else
+		{
+			status_code = "404";
+			send_response();
+			return;
+
+		}
+		std::ofstream outfile(pathname.c_str());
+		outfile << responseBody;
+	}
+	else if (st_stat.st_mode & S_IFREG)
+	{
+		if (location->upload_dir.length())
+		{
+			if (access(location->upload_dir.c_str(), F_OK) == -1)
+			{
+				status_code = "404";
+				send_response();
+				return;
+			}
+			if (access(location->upload_dir.c_str(), W_OK) == -1)
+			{
+				status_code = "403";
+				send_response();
+				return;
+			}
+			path_dir = removeLastChar(location->upload_dir);
+			pathname = path_dir + "/" + generateFileName();
+		}
+		else if (location->root.length())
+		{
+			if (access(location->root.c_str(), F_OK) == -1)
+			{
+				status_code = "404";
+				send_response();
+				return;
+			}
+			if (access(location->root.c_str(), W_OK) == -1)
+			{
+				status_code = "403";
+				send_response();
+				return;
+			}
+			path_dir = removeLastChar(location->root);
+			pathname = path_dir + "/" + generateFileName();
+		}
+		else
+		{
+			status_code = "404";
+			send_response();
+			return;
+
+		}
+		std::ifstream infile(requestedfile.c_str());
+		std::ofstream outfile(pathname.c_str());
+		while (std::getline(infile, line))
+			outfile << line;
+
+		// i think in case of a regular file that can pass throught CGI we need to call GET method (arabic : dakchi li galina youssef l2ostora)
+	}
+}

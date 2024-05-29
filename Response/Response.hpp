@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:42 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/27 19:37:14 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/29 03:58:03 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include <sstream>
 #include <cstdlib>
 #include <limits>
+#include <string>
 #include <sys/socket.h>
 #include <algorithm>
 #include <dirent.h>
@@ -56,6 +57,7 @@ class Response
 		std::string path;
 		std::string http_v;
 		std::string status_code;
+
 		
 		Response();
 		Response(Location *location);
@@ -64,10 +66,13 @@ class Response
 		~Response();
 		
 
+
 		void Get(Location *location);
 		void Post(Location *location);
 		void Delete(Location *location);
 		
+		//Post Defintion at AI_Part/utils.cpp
+		void Post();
 		
 		void fill_messages( void );		
 		void pick_method(Location *location);
@@ -77,6 +82,12 @@ class Response
 		std::string getMessage(std::string code);
 		std::string getContentLenght(std::string file);
 		std::string getContentType(std::string file);
+
+		// AI changes
+		int socket;
+		Location *location;
+		Server *server;
+		std::string responseBody;
 };
 
 #endif

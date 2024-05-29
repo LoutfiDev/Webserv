@@ -35,23 +35,24 @@ int Worker::readFromClient(int fd)
 			buf[READBUFFER - 1] = '\0';
 			if (read_size == -1)
 			{
-				std::cerr << "Connection is Closed by peer\n";
+				std::cerr << "Connection Closed by peer\n";
 				close(fd);
-				return -1;
+				return CONNECTIONCLOSED;
 			}
 			if (read_size == 0)
-				return (std::cout << "request is done\n", 2);
+				continue;
 			request_res = clients[i]->readBuffer(buf);
-			if (request_res > 0)
+			if (request_res == -1)
 			{
 				std::cout << "error in the request\n";
-				return 0;
+				return ERRORINREADING;
 			}
-			if (request_res == -1)
-				return 2;
+			if (request_res == 0)
+				return READINGISDONE;
+			break ;
 		}
 	}
-	return 3;
+	return 0;
 }
 
 /*
@@ -67,7 +68,8 @@ int Worker::readFromClient(int fd)
 std::vector<Client *>::iterator Worker::writeToClient(int fd)
 {
 	std::vector<Client *>::iterator c_beg = clients.begin();
-	int status;
+	static int status = 0;
+	int read;
 	// static int len = 60;
 	// static int offset = 0;
 
@@ -75,19 +77,29 @@ std::vector<Client *>::iterator Worker::writeToClient(int fd)
 	{
 		if ((*c_beg)->getFd() == fd)
 		{
-			// c_beg->showrequest();
+			// (*c_beg)->getResponse()->send_response();
+			// while (1) ;
+			(*c_beg)->getResponse()->Post();	
+			// if (!status)	
+			// 	(*c_beg)->showrequest();
 			char resp[61] = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello, world!\r\n";
-			status = write(fd, resp , std::strlen(resp));
+			read = write(fd, resp , strlen(resp));
+			status += read;
+			return c_beg;
 			if (status == -1)
 			{
 				std::cerr << "Client has closed the Connection\n";
 				return c_beg;
 			}
-			return c_beg;
-			// if (status)
-			// 	break;
-			// if (status == 0)
-			// 	return c_beg;
+			std::cout << status << "\n";
+			if (status == 61)
+			{
+				std::cout << "status is maxed" << status << "\n";
+				return c_beg;
+			}
+			if (read == 0)
+				return c_beg;
+			break;
 		}
 		c_beg++;
 	}

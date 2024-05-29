@@ -33,13 +33,15 @@ class Request {
 		std::string getMethodName() const;
 		std::string getPath() const;
 		std::string getHttpVersion() const;
+		std::string getMatchedLocation() const;
 
 		int getBodyLength();
 		std::string getBody() const;
 
-		Location &getRequestedLocation();
+		Location *getRequestedLocation();
 		void setRequestedLocation();
 
+		Server *getRequestedServer();
 		void setRequestedServer(std::vector<Server *> );
 
 		int addHeader(std::string );
@@ -74,7 +76,7 @@ class Request {
 		bool had_request_line;
 		std::map<std::string, std::string> headers;
 		std::string method_name;
-		std::string path;
+		// std::string path;
 		std::string http_version;
 		std::string body;
 		std::string host;
@@ -95,8 +97,12 @@ class Request {
 	
 	// attribute for the request location 
 	private:
-		Location requested_location;
-		Server requestedServer;
+		std::string location_name;
+		Location *requested_location;
+		Server *requestedServer;
+	
+	public:
+		std::string path;
 
 };
 

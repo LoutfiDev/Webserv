@@ -1,7 +1,9 @@
 #include "ServerManager.hpp"
 #include "Worker.hpp"
+#include "utils.hpp"
 #include <cerrno>
 #include <cstddef>
+#include <fcntl.h>
 #include <iostream>
 #include <map>
 #include <unistd.h>
@@ -193,12 +195,12 @@ void ServerManager::multiplixer()
 				if (epl_evt[i].events & EPOLLIN)
 				{
 					test = worker.serve(epl_evt[i].data.fd, READ);
-					if (test == ERRORINREADING)
+					if (test == CONNECTIONCLOSED)
 					{
 						std::cerr << "error while reading request\n";
 						close(epl_evt[i].data.fd);
 					}
-					if (test == READINGISDONE || test == 0)
+					if (test == READINGISDONE  || test == ERRORINREADING)
 					{
 						ev.data.fd = epl_evt[i].data.fd;
 						ev.events = EPOLLOUT;

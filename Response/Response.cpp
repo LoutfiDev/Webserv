@@ -6,11 +6,12 @@
 /*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/28 03:01:18 by anaji            ###   ########.fr       */
+/*   Updated: 2024/05/29 05:49:09 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
+#include <netdb.h>
 
 //******************TO DO***************************//
 // x- list files while autoIndex is on              //
@@ -32,7 +33,7 @@
 
 Response::Response() {}
 
-Response::Response(Location *location) : STAGE(0), index(0), method("GET"), path("web_root/index.html"), http_v("HTTP/1.1"), status_code("200")
+Response::Response(Location *location) : STAGE(0), index(0), method("GET"), path("/nfs/homes/anaji/Desktop/webServer/web_root/index.html"), http_v("HTTP/1.1"), status_code("200")
 {
 	fill_messages();
 	//you can pass req.method to this funct to call the method and form the response 
@@ -221,7 +222,7 @@ void Response::send_response()
 		}
 		else
 			response += "Content-Type: text/html\r\n\r\n";
-		// write(fd, response.c_str() , response.size());
+		write(socket, response.c_str() , response.size());
 			
 		STAGE += 1;
 	}

@@ -10,8 +10,9 @@
 #define NUMCONNECTION 10
 
 // macros for reading from the client fd
-#define READINGISDONE 2
+#define CONNECTIONCLOSED -1		// connection closed
 #define ERRORINREADING 1		// error on the data that comes from the user
+#define READINGISDONE 2			// no error found
 
 // #define HEADERISDONE 1
 

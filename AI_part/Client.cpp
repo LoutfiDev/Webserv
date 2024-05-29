@@ -7,9 +7,11 @@
 #include <vector>
 
 Client::Client(int _fd, std::vector<Server *> data) {
+	response = new Response();
 	fd = _fd;
 	dataServer = data;
 	isHeaderPartDone = 0;
+	response->socket = _fd;
 }
 
 Client::Client(const Client& obj) {
@@ -28,14 +30,23 @@ Client &Client::operator=(const Client& obj)
 	return (*this);
 }
 
-const Request &Client::getRequest() const
+Request Client::getRequest() const
 {
 	return (request);
 }
+Response *Client::getResponse() const
+{
+	return response;
+}
 
-void Client::setRequest(Request &rq)
+void Client::setRequest(const Request &rq)
 {
 	request = rq;
+}
+
+void Client::setResponse(Response *res)
+{
+	response = res;
 }
 
 int Client::getFd() const
@@ -75,29 +86,37 @@ int Client::readBuffer(char *buf)
 			{
 				request.setRequestedServer(dataServer);
 				request.setRequestedLocation();
+
+				// sets the response attribute
+				response->location = request.getRequestedLocation();
+				response->server = request.getRequestedServer();
+				response->method = request.getMethodName();
+				response->http_v = request.getHttpVersion();
+				response->status_code = request.getRequestCode();
+				// response->path = request.getPath();
 			}
 			buffer = buffer.substr(found + 2);
 		}
 		else
 		{
 			if (request.getHost().length() == 0)
-				return 400;
+				return -1;
 			if (request.addBody(buffer) == -1)
 			{
-				// std::cout << request.getBodyCount() << "\n";
-				return -1;
+				response->responseBody = request.getBody();
+				return 0;
 			}
 			if (request.getBodyLength() < 0)
 			{
 				std::cout << "Lengh = "<< request.getBodyLength() << "\n";
-				return 402;
+				return -1;
 			}
 			buffer.clear();
 		}
 		if (request.getRequestCode())
 		{
 			std::cout << "pass to the response with <" << request.getRequestCode() << ">\n";
-			return request.getRequestCode();
+			return -1;
 		}
 	}
 	return 0;
@@ -111,4 +130,5 @@ void Client::showrequest()
 }
 
 Client::~Client() {
+	delete response;
 }

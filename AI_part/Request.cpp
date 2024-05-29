@@ -81,6 +81,11 @@ std::string  Request::getPath() const
 	return path;
 }
 
+std::string Request::getMatchedLocation() const
+{
+	return location_name;
+}
+
 std::string  Request::getHttpVersion() const
 {
 	return http_version;
@@ -98,16 +103,31 @@ int Request::getBodyCount() const
 
 int Request::getBodyLength()
 {
+	if (bodyLength < 0)
+	{
+		request_code = 402;
+		response_code = "402";
+	}
 	return bodyLength;
 }
 
-Location &Request::getRequestedLocation()
+Location *Request::getRequestedLocation()
 {
 	return requested_location;
 }
 
+Server *Request::getRequestedServer()
+{
+	return requestedServer;
+}
+
 const std::string &Request::getHost()
 {
+	if (host.length() == 0)
+	{
+		request_code = 400;
+		response_code = "400";
+	}
 	return host;
 }
 
@@ -137,11 +157,11 @@ void Request::setBodyLength(std::string &number)
 
 void Request::setRequestedServer(std::vector<Server *> servers)
 {
-	requestedServer = *servers[0];
+	requestedServer = servers[0];
 	for (size_t i = 0; i < servers.size(); i++) {
 		if (servers[i]->host == host)
 		{
-			requestedServer = *servers[i];
+			requestedServer = servers[i];
 			return;
 		}
 	}
@@ -150,22 +170,29 @@ void Request::setRequestedServer(std::vector<Server *> servers)
 void Request::setRequestedLocation()
 {
 	std::string uri;
-	std::map<std::string, Location *> l = requestedServer.locations;
+	std::map<std::string, Location *> l = requestedServer->locations;
 	std::map<std::string, Location *>::iterator beg;
-	bool not_found = true;
+	std::string finale_path;
 
 	uri = path;
-	for (beg = l.begin(); beg != l.end(); beg++) {
+	for (beg = l.begin(); beg != l.end(); beg++)
+	{
 		if (uri.compare(0, beg->first.length(), beg->first) == 0)
 		{
-			requested_location = *beg->second;
-			not_found = false;
+			requested_location = beg->second;
+			location_name = beg->first;
 		}
 	}
-	if (not_found)
+	if (location_name.length() == 0)
+	{
 		std::cout << "location Not found\n";
-	else
-	std::cout << requested_location.root << "\n";
+		return;
+	}
+	uri = getUri(uri, location_name);
+	finale_path = requested_location->root + uri;
+	std::cout << "requested uri => " << finale_path << "\n";
+	// else
+	// std::cout << "location= "<< matched_location << "\n";
 }
 
 /*

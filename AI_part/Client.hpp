@@ -15,8 +15,12 @@ class Client {
 		Client(const Client &);
 		Client &operator=(const Client &);
 
-		const Request &getRequest() const;
-		void setRequest(Request &);
+		Request getRequest() const;
+		void setRequest(const Request &);
+
+		Response *getResponse() const;
+		void setResponse(Response *);
+
 		int getFd() const;
 		std::vector<Server *> getDataServer();
 
@@ -28,14 +32,13 @@ class Client {
 	private:
 		int fd;
 		Request request;
-		Response response;
+		Response *response;
 		std::string buffer;
 		std::string leftOver;	//this attribute for the remaining of the 
 								//request see readToBuffer()
 		int isHeaderPartDone;   // to check if the haeders id done
 		// bool canParseBody;		// if method is POST then go and parse body else don't 
 		// int bodyLength;
-	public:
 		std::vector<Server *> dataServer;
 
 

@@ -13,17 +13,17 @@
  *
  */
 
-std::string Post(Client client)
-{
-	Request req;
-	std::string post_response;
-	std::fstream file(fileName().c_str());
-
-	req = client.getRequest();
-
-	if (req.getBodyLength() > 0)
-	{
-		file << req.getBody();
-	}
-	return "201";
-}
+// std::string Post(Client client)
+// {
+// 	Request req;
+// 	std::string post_response;
+// 	std::fstream file(fileName().c_str());
+//
+// 	req = client.getRequest();
+//
+// 	if (req.getBodyLength() > 0)
+// 	{
+// 		file << req.getBody();
+// 	}
+// 	return "201";
+// }
