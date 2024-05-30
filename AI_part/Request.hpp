@@ -25,13 +25,14 @@ class Request {
 		Request &operator=(const Request &);
 
 		int getRequestCode() const;
-		std::string getRsponseCode() const;
+		std::string getResponseCode() const;
 
 		std::string& getRequestLine() const;
 		std::map<std::string, std::string>& getHeaders() const;
 
 		std::string getMethodName() const;
 		std::string getPath() const;
+		void setPath(std::string);
 		std::string getHttpVersion() const;
 		std::string getMatchedLocation() const;
 

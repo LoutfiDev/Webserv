@@ -68,7 +68,7 @@ int Worker::readFromClient(int fd)
 std::vector<Client *>::iterator Worker::writeToClient(int fd)
 {
 	std::vector<Client *>::iterator c_beg = clients.begin();
-	static int status = 0;
+	// static int status = 0;
 	int read;
 	// static int len = 60;
 	// static int offset = 0;
@@ -77,29 +77,39 @@ std::vector<Client *>::iterator Worker::writeToClient(int fd)
 	{
 		if ((*c_beg)->getFd() == fd)
 		{
-			// (*c_beg)->getResponse()->send_response();
-			// while (1) ;
-			(*c_beg)->getResponse()->Post();	
-			// if (!status)	
-			// 	(*c_beg)->showrequest();
-			char resp[61] = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello, world!\r\n";
-			read = write(fd, resp , strlen(resp));
-			status += read;
-			return c_beg;
-			if (status == -1)
+			while ((read = (*c_beg)->getResponse()->send_response()) != -1);
+
+			if(read == -1)
 			{
+				if (errno == 11)
+					return c_beg;
 				std::cerr << "Client has closed the Connection\n";
 				return c_beg;
 			}
-			std::cout << status << "\n";
-			if (status == 61)
-			{
-				std::cout << "status is maxed" << status << "\n";
-				return c_beg;
-			}
-			if (read == 0)
-				return c_beg;
-			break;
+			return c_beg;
+			
+			// while (1) ;
+			// (*c_beg)->getResponse()->Post();	
+			// if (!status)	
+			// 	(*c_beg)->showrequest();
+			// char resp[61] = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello, world!\r\n";
+			// read = write(fd, resp , strlen(resp));
+			// status += read;
+			// return c_beg;
+			// if (status == -1)
+			// {
+			// 	std::cerr << "Client has closed the Connection\n";
+			// 	return c_beg;
+			// }
+			// std::cout << status << "\n";
+			// if (status == 61)
+			// {
+			// 	std::cout << "status is maxed" << status << "\n";
+			// 	return c_beg;
+			// }
+			// if (read == 0)
+			// 	return c_beg;
+			// break;
 		}
 		c_beg++;
 	}

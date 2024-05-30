@@ -22,7 +22,7 @@ Request::Request() {
 	bodyLength = 0;
 	response_code = "200";
 	bodyCount = 0;
-	// transferEncodingCheck = false;
+	transferEncodingCheck = false;
 	contentLengthCheck = false;
 	contentTypeCheck = false;
 	chunk_length = 0;
@@ -52,7 +52,7 @@ Request &Request::operator=(const Request& obj)
 	bodyCount = obj.bodyCount;
 	host = obj.host;
 
-	// transferEncodingCheck = obj.transferEncodingCheck;
+	transferEncodingCheck = obj.transferEncodingCheck;
 	contentLengthCheck = obj.contentLengthCheck;
 	contentTypeCheck = obj.contentTypeCheck;
 
@@ -66,7 +66,7 @@ int Request::getRequestCode() const
 	return request_code;
 }
 
-std::string Request::getRsponseCode() const
+std::string Request::getResponseCode() const
 {
 	return response_code;
 }
@@ -79,6 +79,22 @@ std::string  Request::getMethodName() const
 std::string  Request::getPath() const
 {
 	return path;
+}
+
+void Request::setPath(std::string uri)
+{
+	size_t pos;
+	std::string tmp;
+	
+	while ((pos = uri.find("//")) != std::string::npos)
+	{
+		tmp = uri.substr(0, pos);
+		uri = uri.substr(pos + 1, uri.length());
+		tmp += uri;
+		uri = tmp;
+	}
+	path = uri;
+
 }
 
 std::string Request::getMatchedLocation() const
@@ -134,7 +150,7 @@ const std::string &Request::getHost()
 void Request::setChunkLength(std::string token)
 {
 	std::istringstream num(token);
-	
+
 	num >> std::hex >> chunk_length;
 	if (chunk_length == 0)
 		chunk_length = -1;
@@ -190,7 +206,8 @@ void Request::setRequestedLocation()
 	}
 	uri = getUri(uri, location_name);
 	finale_path = requested_location->root + uri;
-	std::cout << "requested uri => " << finale_path << "\n";
+	path = finale_path;
+	// std::cout << "requested uri => " << finale_path << "\n";
 	// else
 	// std::cout << "location= "<< matched_location << "\n";
 }
@@ -211,7 +228,7 @@ void Request::checkRequestLine(std::vector<std::string> &attrs)
 		return;
 	}
 	method_name = attrs[0];
-	path = attrs[1];
+	setPath(attrs[1]);
 	http_version = attrs[2];
 
 	if (method_name != "GET" && method_name != "POST" && method_name != "DELETE")
@@ -249,7 +266,7 @@ void Request::processRequestLine(std::string token)
  * @description get each line and parse it 
  *
  * @param token the line (end's with \r\n) that i read from the client
- * @return int 0 : succes | 1 : error on the request so end the parsing here
+ * @return int 0 : succes | 1 : if host haeder is exist
  */
 
 int Request::addHeader(std::string token)

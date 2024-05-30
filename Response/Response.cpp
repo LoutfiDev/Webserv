@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/29 15:54:48 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/30 03:03:50 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 #include <netdb.h>
+#include <string>
 
 //******************TO DO***************************//
 // v- list files while autoIndex is on              //
@@ -31,15 +32,19 @@
 // you can pass a request object as param to the constructer
 // Response::Response(Request req) : status_code("200")
 
-
-Response::Response() : STAGE(0), index(0), method("GET"), path("web_root/index.html"), http_v("HTTP/1.1"), status_code("200")
+Response::Response() : STAGE(0), index(0), http_v("HTTP/1.1"), status_code("200")
 {
 	fill_messages();
-	//you can pass req.method to this funct to call the method and form the response 
-	if (status_code == "200")
-		pick_method(location);
-	// int i = send_response();
 }
+
+// Response::Response() : STAGE(0), index(0), method("GET"), path("web_root/index.html"), http_v("HTTP/1.1"), status_code("200")
+// {
+// 	fill_messages();
+// 	//you can pass req.method to this funct to call the method and form the response 
+// 	if (status_code == "200")
+// 		pick_method(location);
+// 	// int i = send_response();
+// }
 
 Response::Response(const Response& copy) { (void)copy; }
 
@@ -98,7 +103,7 @@ void Response::Get() {
 	}
 }
 
-void Response::Post() { return; }
+// void Response::Post() { return; }
 
 void Response::Delete_folder(std::string path)
 {
@@ -311,15 +316,22 @@ void Response::fill_messages( void )
 	messages["505"] = "HTTP Version Not Supported";
 }
 
+#include "../AI_part/utils.hpp"
+
+// location.allow_methods are in lower case try cout << location.allow_methods[0]
+
 void Response::pick_method(Location *location)
 {
+	std::string tmp_method = method;
+
+	toLower(tmp_method); //from utils.cpp
 	std::string methods[3] = {"GET", "POST", "DELETE"};
 	void (Response::* ptr[3]) ( void ) = {&Response::Get, &Response::Post, &Response::Delete};
 	for (int i = 0; i < 3; i++)
 	{
 		if (methods[i] == method)
 		{
-			if (std::find(location->allow_methods.begin(), location->allow_methods.end(), method) != location->allow_methods.end())
+			if (std::find(location->allow_methods.begin(), location->allow_methods.end(), tmp_method) != location->allow_methods.end())
 				return ((this->*(ptr[i]))());
 			status_code = "405";
 		}

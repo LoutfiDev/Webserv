@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>
+#include <ctime>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -17,10 +18,10 @@ void handleError(const char *errorName, int errorCode)
 	std::exit(errorCode);
 }
 
-std::string trim(const std::string& str)
+std::string trim(const std::string& str, std::string toTrim)
 {
-    size_t first = str.find_first_not_of(" \t\n\r");
-    size_t last = str.find_last_not_of(" \t\n\r");
+    size_t first = str.find_first_not_of(toTrim);
+    size_t last = str.find_last_not_of(toTrim);
 
     if (first == std::string::npos || last == std::string::npos)
         return "";
@@ -37,24 +38,23 @@ void toLower(std::string &str)
 
 long generateNum()
 {
+	srand((unsigned) time(NULL) + clock());
 	long num = rand();
 	return num;
 }
 
 char randomChar(int old)
 {
-	long character = rand() * old;
+	long character = generateNum() * old;
 	char charset[54] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\0";
 	character *= rand();
 	if (character < 0)
 		character *= -1;
-	character %= 54;
-	return (charset[character]);
+	return (charset[character %= 54]);
 }
 
 std::string generateFileName()
 {
-	srand((unsigned) time(NULL));
 	std::string name;
 	int len = generateNum() % 20 + 10;
 	for (int i = 1; i <= len; i++) {
@@ -69,8 +69,10 @@ std::string removeLastChar(std::string filename) // remove last '/'
 	size_t i = filename.size();
 
 	if (filename[i] == '/')
+	{
 		i--;
-	filename = filename.substr(0, i);
+		filename = filename.substr(0, i);
+	}
 	return filename;
 }
 
@@ -97,6 +99,8 @@ std::string getUri(std::string &requestedUri, std::string &locationName)
 	size_t pos;
 	std::string uri;
 
+	if (locationName == "/\0")
+		return requestedUri;
 	pos = requestedUri.find(locationName);
 	if (pos == std::string::npos)
 		return requestedUri;
@@ -115,14 +119,12 @@ std::string getUri(std::string &requestedUri, std::string &locationName)
 void Response::Post()
 {
 	// path = "/nfs/homes/anaji/Desktop/webServer/web_root/index.html";
-	std::string requestedfile = path; //this is the end path after the location matching ends see subject example(https://cdn.intra.42.fr/pdf/pdf/109738/en.subject.pdf#page=8)
+	std::string requestedfile = path;
 	struct stat st_stat;
 	std::string pathname;
 	std::string path_dir;
 	std::string line;
 
-	// std::cout << requestedfile << "\n";
-	return;
 	if (access(requestedfile.c_str(), F_OK) == -1)
 	{
 		status_code = "404";
@@ -132,6 +134,7 @@ void Response::Post()
 	stat(requestedfile.c_str(), &st_stat);
 	if (st_stat.st_mode & S_IFDIR)
 	{
+		std::cout << location->upload_dir << " " << location->root << "\n";
 		if (location->upload_dir.length())
 		{
 			if (access(location->upload_dir.c_str(), F_OK) == -1)
@@ -147,7 +150,7 @@ void Response::Post()
 				return;
 			}
 			path_dir = removeLastChar(location->upload_dir);
-			pathname = path_dir + "/" + generateFileName();
+			pathname = path_dir + '/' + generateFileName();
 		}
 		else if (location->root.length())
 		{
@@ -164,17 +167,18 @@ void Response::Post()
 				return;
 			}
 			path_dir = removeLastChar(location->root);
-			pathname = path_dir + "/" + generateFileName();
+			pathname = path_dir + '/' + generateFileName();
 		}
 		else
 		{
 			status_code = "404";
 			send_response();
 			return;
-
 		}
 		std::ofstream outfile(pathname.c_str());
 		outfile << responseBody;
+		status_code = "201";
+		send_response();
 	}
 	else if (st_stat.st_mode & S_IFREG)
 	{
@@ -193,7 +197,7 @@ void Response::Post()
 				return;
 			}
 			path_dir = removeLastChar(location->upload_dir);
-			pathname = path_dir + "/" + generateFileName();
+			pathname = path_dir + '/' + generateFileName();
 		}
 		else if (location->root.length())
 		{
@@ -210,7 +214,7 @@ void Response::Post()
 				return;
 			}
 			path_dir = removeLastChar(location->root);
-			pathname = path_dir + "/" + generateFileName();
+			pathname = path_dir + '/' + generateFileName();
 		}
 		else
 		{
@@ -222,8 +226,12 @@ void Response::Post()
 		std::ifstream infile(requestedfile.c_str());
 		std::ofstream outfile(pathname.c_str());
 		while (std::getline(infile, line))
-			outfile << line;
+			outfile << line << "\n";
+		status_code = "201";
+		send_response();
 
 		// i think in case of a regular file that can pass throught CGI we need to call GET method (arabic : dakchi li galina youssef l2ostora)
 	}
+	else
+		std::cout << "ALO\n";
 }

@@ -92,8 +92,9 @@ int Client::readBuffer(char *buf)
 				response->server = request.getRequestedServer();
 				response->method = request.getMethodName();
 				response->http_v = request.getHttpVersion();
-				response->status_code = request.getRequestCode();
-				// response->path = request.getPath();
+				response->status_code = request.getResponseCode();
+				response->path = request.getPath();
+				response->pick_method(response->location);
 			}
 			buffer = buffer.substr(found + 2);
 		}

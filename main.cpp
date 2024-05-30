@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 08:53:41 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/29 15:46:15 by soulang          ###   ########.fr       */
+/*   Updated: 2024/05/29 23:53:48 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,8 @@ int main (int ac, char **av)
 		if (av[1])
 			fileName = av[1];
 		Parser parser(fileName);
-		// ServerManager server;
-		// server.start(parser);
+		ServerManager server;
+		server.start(parser);
 
 		// int server_fd, new_socket;
 		// struct sockaddr_in address;
