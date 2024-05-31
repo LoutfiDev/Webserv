@@ -35,6 +35,7 @@ class ServerManager {
 		bool isNewConnection(int);
 
 		void insert_alredy_known_server(Server );
+		void signal_handler();
 
 		~ServerManager();
 

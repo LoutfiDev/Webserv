@@ -6,20 +6,22 @@
 /*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 08:53:41 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/29 23:53:48 by anaji            ###   ########.fr       */
+/*   Updated: 2024/05/31 03:08:00 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Parser/parser.hpp"
 #include "Response/Response.hpp"
 #include "./AI_part/ServerManager.hpp"
+#include <csignal>
 #include <cstdio>
 #include <cstdlib>
 
-// NOTE: set the path for your response on the AI_part/Client.cpp:96
-// check the value of requested path in Ai_part/request.cpp:192 (variable named finale_path). is this the value that you want use in your response constructor?
-// i did make my path attribute public so just change the value of it to use it in the Client class
-// POST almost done (i think)
+// NOTE: if double free occure then check Client.cpp:14 (copy vector Server) Client.cpp:152 (delete Server)
+// NOTE: the closing of sockets when user press CTR-C (swl kamal ila ban lik)
+// NOTE: DELETE aborts sometimes.
+// QUESTION: do we need a body when showing and error (like 404 NOT found), because you are just setting that on headers only
+// NOTE: do some test too
 
 #define PORT 8080
 int main (int ac, char **av)

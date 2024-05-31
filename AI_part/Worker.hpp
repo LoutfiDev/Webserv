@@ -13,13 +13,11 @@
 #define CONNECTIONCLOSED -1		// connection closed
 #define ERRORINREADING 1		// error on the data that comes from the user
 #define READINGISDONE 2			// no error found
+#define NOTHING 0
 
 // #define HEADERISDONE 1
 
 #define READBUFFER 1024
-
-#define READ 0
-#define WRITE 1
 
 class Worker {
 	public:
@@ -33,13 +31,17 @@ class Worker {
 		std::vector<std::string> getServerNames();
 
 		void add(int, std::vector<Server *> &);
-		int serve(int, int);
-
-		std::vector<Client *>::iterator writeToClient(int fd);
-		int readFromClient(int fd);
+		int serve(int);
+		void setClientResponse(int);
 
 		void dropClientConnection(std::vector<Client *>::iterator );
+
 		~Worker();
+	
+		//utils functions no need for others to acces them
+	private:
+		bool writeToClient(std::vector<Client *>::iterator);
+		int readFromClient(int, std::vector<Client *>::iterator);
 
 	private:
 		std::vector<Client *> clients;

@@ -176,32 +176,32 @@ bool ServerManager::isNewConnection(int fd)
 void ServerManager::multiplixer()
 {
 	struct epoll_event epl_evt[NUMCONNECTION], ev;
-	int num_client;
+	int num_event;
+	int state;
 
 	while (1)
 	{
-		num_client = epoll_wait(epoll_fd, epl_evt, NUMCONNECTION, -1);
-		if (num_client == -1)
+		num_event = epoll_wait(epoll_fd, epl_evt, NUMCONNECTION, -1);
+		if (num_event == -1)
 		{
 			this->~ServerManager();
 			handleError("epoll_event", errno);
 		}
-		for (int i = 0; i < num_client; i++)
+		for (int i = 0; i < num_event; i++)
 		{
 			if (!isNewConnection(epl_evt[i].data.fd))
 			{
-				int test = 0;
-				std::vector<Client>::iterator cli;
 				if (epl_evt[i].events & EPOLLIN)
 				{
-					test = worker.serve(epl_evt[i].data.fd, READ);
-					if (test == CONNECTIONCLOSED)
+					state = worker.serve(epl_evt[i].data.fd);
+					if (state == CONNECTIONCLOSED)
 					{
 						std::cerr << "error while reading request\n";
 						close(epl_evt[i].data.fd);
 					}
-					if (test == READINGISDONE  || test == ERRORINREADING)
+					else if (state == READINGISDONE  || state == ERRORINREADING)
 					{
+						worker.setClientResponse(epl_evt[i].data.fd);
 						ev.data.fd = epl_evt[i].data.fd;
 						ev.events = EPOLLOUT;
 						epoll_ctl(epoll_fd, EPOLL_CTL_MOD, epl_evt[i].data.fd, &ev);
@@ -211,7 +211,7 @@ void ServerManager::multiplixer()
 				}
 				else if (epl_evt[i].events & EPOLLOUT)
 				{
-					worker.serve(epl_evt[i].data.fd, WRITE);
+					worker.serve(epl_evt[i].data.fd);
 				}
 			}
 		}

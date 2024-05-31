@@ -125,6 +125,7 @@ void Response::Post()
 	std::string path_dir;
 	std::string line;
 
+	std::cout << requestedfile << "\n";
 	if (access(requestedfile.c_str(), F_OK) == -1)
 	{
 		status_code = "404";
@@ -234,4 +235,14 @@ void Response::Post()
 	}
 	else
 		std::cout << "ALO\n";
+}
+
+void Response::send_errorResponse()
+{
+	response += http_v + " " + status_code + " " + getMessage(status_code) + "\r\n";
+	// response += "Content-Length: " + getMessage(status_code).length() + "\r\n";
+	response += "Content-Type: text/html\r\n\r\n";
+	response += getMessage(status_code) + "\r\n";
+	std::cout << response;
+	write(socket, response.c_str(), response.length());
 }

@@ -9,6 +9,10 @@
 
 #define HEADERISDONE 1
 
+#define READ 0
+#define WRITE 1
+#define ERROR 2
+
 class Client {
 	public:
 		Client(int, std::vector<Server *>);
@@ -21,16 +25,20 @@ class Client {
 		Response *getResponse() const;
 		void setResponse(Response *);
 
+		int getState() const;
+		void setState(int);
+
 		int getFd() const;
 		std::vector<Server *> getDataServer();
 
-		int readBuffer(char *);
+		void readBuffer(char *);
 		void showrequest();
 
 		~Client();
 		
 	private:
 		int fd;
+		int state;
 		Request request;
 		Response *response;
 		std::string buffer;
