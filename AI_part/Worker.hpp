@@ -31,6 +31,7 @@ class Worker {
 		void add(int, std::vector<Server *> &);
 		int serve(int);
 		void setClientResponse(int);
+		void checkClientTimeout();
 
 		void dropClientConnection(std::vector<Client *>::iterator );
 

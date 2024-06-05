@@ -98,6 +98,7 @@ void Worker::dropClientConnection(std::vector<Client *>::iterator client)
 {
 	std::cout << "Dropping Client\n";
 	close((*client)->getFd());
+	// delete *client;
 	clients.erase(client);
 }
 
@@ -170,6 +171,22 @@ void Worker::showClients()
 {
 	for (size_t i = 0; i < clients.size(); i++)
 		std::cout << clients[i]->getFd() << "\n";
+}
+
+void Worker::checkClientTimeout()
+{
+	std::vector<Client *>::iterator client = clients.begin();
+
+	while (client != clients.end())
+	{
+		if ((*client)->istimeOut())
+		{
+			(*client)->getResponse()->send_errorResponse();
+			dropClientConnection(client);
+			break;
+		}
+		client++;
+	}
 }
 
 Worker::~Worker() {

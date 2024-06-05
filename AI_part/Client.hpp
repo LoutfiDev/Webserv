@@ -13,7 +13,7 @@
 #define WRITE 1
 #define ERROR 2
 
-#define REQUEST_TIMEOUT 3
+#define TIMEOUT 3
 
 class Client {
 	public:
@@ -36,6 +36,8 @@ class Client {
 		void readBuffer(char *);
 		void showrequest();
 
+		bool istimeOut();
+
 		~Client();
 		
 	private:
@@ -51,7 +53,6 @@ class Client {
 		// int bodyLength;
 		std::vector<Server *> dataServer;
 		time_t c_timer_start;
-		time_t c_timer_end;
 
 
 

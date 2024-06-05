@@ -132,21 +132,17 @@ void Client::readBuffer(char *buf)
 				return setState(ERROR);
 		}
 	}
-	c_timer_end = time(0);
-	if (c_timer_end - c_timer_start > REQUEST_TIMEOUT)
-	{
-		std::cout << "TIMEOUT\n";
-		request.setResponseCode("408");
-		return setState(ERROR);
-	}
 	return setState(READ);
 }
 
-void Worker::showClients()
+bool Client::istimeOut()
 {
-	for (size_t i = 0; i < clients.size(); i++) {
-		std::cout << clients[i]->getFd() << "\n";
+	if (time(0) - c_timer_start > TIMEOUT)
+	{
+		response->status_code = "408";
+		return true;
 	}
+	return false;
 }
 
 void Client::showrequest()
