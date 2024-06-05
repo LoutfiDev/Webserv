@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/04 15:28:41 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/05 12:07:04 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,8 @@ Response::~Response() {}
 
 void Response::Get() {
 	DIR *directory;
+
+	
 	if ((directory = opendir(path.c_str())))
 	{
 		if (path[path.size() - 1] != '/')
@@ -84,7 +86,19 @@ void Response::Get() {
 				status_code = "403";
 			}
 			else if (location->autoindex)
+			{
+				std::string tmp;
+				tmp = path;
+				tmp.append("index.html");
+				if (access(tmp.c_str(), F_OK) == 0)
+				{
+					if (access(tmp.c_str(), R_OK) != 0)
+						status_code = "403";
+					else
+						path = tmp;
+				}
 				send_response();
+			}
 			else
 				status_code = "403";
 		}
@@ -245,7 +259,7 @@ int Response::send_response()
 					response.clear();
 					response += "<html><head><title>Index of /</title></head><body><h1>Index of /</h1><hr><pre>";	
 				}
-				while((dent=readdir(dir)) != NULL && (portion % 4))
+				while((dent=readdir(dir)) && (portion % 4))
 				{
 					struct stat st_buf;
 					stat (dent->d_name, &st_buf);
