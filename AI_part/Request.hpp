@@ -25,7 +25,10 @@ class Request {
 		Request &operator=(const Request &);
 
 		int getRequestCode() const;
+		void setRequestCode(int);
+
 		std::string getResponseCode() const;
+		void setResponseCode(std::string);
 
 		std::string& getRequestLine() const;
 		std::map<std::string, std::string>& getHeaders() const;
@@ -46,7 +49,7 @@ class Request {
 		void setRequestedServer(std::vector<Server *> );
 
 		int addHeader(std::string );
-		int  addBody(std::string );
+		int  addBody(std::string &);
 
 		void showHeaders();
 		
@@ -98,7 +101,6 @@ class Request {
 	
 	// attribute for the request location 
 	private:
-		std::string location_name;
 		Location *requested_location;
 		Server *requestedServer;
 	

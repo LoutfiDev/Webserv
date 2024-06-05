@@ -11,6 +11,7 @@ std::string trim(const std::string& str, std::string toTrim =" \t\n\r");
 std::string fileName();
 void toLower(std::string &);
 std::string getUri(std::string &, std::string &);
+std::string removeLastChar(std::string); // remove last '/'
 
 
 #endif //!UTLS

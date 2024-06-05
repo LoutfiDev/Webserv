@@ -64,16 +64,16 @@ std::string generateFileName()
 	return name;	
 }
 
-std::string removeLastChar(std::string filename) // remove last '/'
+std::string removeLastChar(std::string str) // remove last '/'
 {
-	size_t i = filename.size();
+	size_t i = str.size();
 
-	if (filename[i] == '/')
+	if (str[i - 1] == '/')
 	{
 		i--;
-		filename = filename.substr(0, i);
+		str = str.substr(0, i);
 	}
-	return filename;
+	return str;
 }
 
 std::string getFileName(std::string &filename)
@@ -135,7 +135,7 @@ void Response::Post()
 	stat(requestedfile.c_str(), &st_stat);
 	if (st_stat.st_mode & S_IFDIR)
 	{
-		std::cout << location->upload_dir << " " << location->root << "\n";
+		// std::cout << "0 -> "<< location->upload_dir << " " << location->root << "\n";
 		if (location->upload_dir.length())
 		{
 			if (access(location->upload_dir.c_str(), F_OK) == -1)
@@ -155,6 +155,7 @@ void Response::Post()
 		}
 		else if (location->root.length())
 		{
+			// std::cout << "1-> "<<location->root << " " << location->root << "\n";
 			if (access(location->root.c_str(), F_OK) == -1)
 			{
 				status_code = "404";
@@ -229,7 +230,7 @@ void Response::Post()
 		while (std::getline(infile, line))
 			outfile << line << "\n";
 		status_code = "201";
-		send_response();
+		// send_response();
 
 		// i think in case of a regular file that can pass throught CGI we need to call GET method (arabic : dakchi li galina youssef l2ostora)
 	}

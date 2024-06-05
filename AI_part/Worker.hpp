@@ -17,8 +17,6 @@
 
 // #define HEADERISDONE 1
 
-#define READBUFFER 1024
-
 class Worker {
 	public:
 		Worker();
@@ -38,7 +36,7 @@ class Worker {
 
 		~Worker();
 	
-		//utils functions no need for others to acces them
+		//utils functions no need to be public
 	private:
 		bool writeToClient(std::vector<Client *>::iterator);
 		int readFromClient(int, std::vector<Client *>::iterator);

@@ -1,10 +1,13 @@
 #include "Client.hpp"
 #include "Request.hpp"
+#include "Worker.hpp"
 #include <cstddef>
+#include <ctime>
 #include <exception>
 #include <iostream>
 #include <iterator>
 #include <string>
+#include <unistd.h>
 #include <vector>
 
 Client::Client(int _fd, std::vector<Server *> data)
@@ -15,6 +18,8 @@ Client::Client(int _fd, std::vector<Server *> data)
 	isHeaderPartDone = 0;
 	response->socket = _fd;
 	state = READ;
+	c_timer_start = time(0);
+	std::cout << "new Client Created\n";
 }
 
 Client::Client(const Client& obj) {
@@ -32,10 +37,11 @@ Client &Client::operator=(const Client& obj)
 	buffer = obj.buffer;
 	isHeaderPartDone = obj.isHeaderPartDone;
 	state = obj.state;
+	c_timer_start = obj.c_timer_start;
 	return (*this);
 }
 
-Request Client::getRequest() const
+Request &Client::getRequest()
 {
 	return (request);
 }
@@ -86,7 +92,7 @@ void Client::setState(int _state)
 void Client::readBuffer(char *buf)
 {
 	buffer += buf;
-	size_t found = 0;
+	size_t found = -1;
 	while (buffer.size())
 	{
 		found = buffer.find("\r\n");
@@ -94,13 +100,6 @@ void Client::readBuffer(char *buf)
 		{
 			buffer = buffer.substr(2);
 			isHeaderPartDone++;
-			// sets the response attribute
-			// response->location = request.getRequestedLocation();
-			// response->server = request.getRequestedServer();
-			// response->method = request.getMethodName();
-			// response->http_v = request.getHttpVersion();
-			// response->status_code = request.getResponseCode();
-			// response->path = request.getPath();
 		}
 		if (isHeaderPartDone == 0)
 		{
@@ -115,10 +114,6 @@ void Client::readBuffer(char *buf)
 		}
 		else
 		{
-			if (request.getHost().length() == 0)
-			{
-				return setState(ERROR);
-			}
 			if (request.addBody(buffer) == -1)
 			{
 				response->responseBody = request.getBody();
@@ -137,7 +132,21 @@ void Client::readBuffer(char *buf)
 				return setState(ERROR);
 		}
 	}
+	c_timer_end = time(0);
+	if (c_timer_end - c_timer_start > REQUEST_TIMEOUT)
+	{
+		std::cout << "TIMEOUT\n";
+		request.setResponseCode("408");
+		return setState(ERROR);
+	}
 	return setState(READ);
+}
+
+void Worker::showClients()
+{
+	for (size_t i = 0; i < clients.size(); i++) {
+		std::cout << clients[i]->getFd() << "\n";
+	}
 }
 
 void Client::showrequest()

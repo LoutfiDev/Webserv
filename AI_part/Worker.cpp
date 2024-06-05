@@ -40,14 +40,16 @@ Worker &Worker::operator=(const Worker& obj)
 int Worker::readFromClient(int fd, std::vector<Client *>::iterator client)
 {
 	int read_size;
-	char buf[READBUFFER];
+	int READBUFFER = 1024;
 
+	char buf[READBUFFER];
 	std::memset(buf, '\0', READBUFFER - 1);
 	read_size = read(fd, buf, READBUFFER - 2);
 	buf[READBUFFER - 1] = '\0';
 	if (read_size == -1)
 	{
 		std::cerr << "Connection Closed by peer\n";
+		clients.erase(client);
 		close(fd);
 		return CONNECTIONCLOSED;
 	}
@@ -83,8 +85,9 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 		(*client)->getResponse()->send_errorResponse();
 		return true;
 	}
+	(*client)->getResponse()->pick_method((*client)->getResponse()->location);
 	while ((read = (*client)->getResponse()->send_response())!= -1);
-	if(read == -1)
+	if (read == -1)
 	{
 		return true;
 	}
@@ -117,6 +120,7 @@ int Worker::serve(int fd)
 			{
 				if (writeToClient(cli) == true)
 				{
+
 					dropClientConnection(cli);
 					break;
 				}
@@ -124,6 +128,7 @@ int Worker::serve(int fd)
 			}
 			else
 			{
+				std::cout << "error " << (*cli)->getResponse()->status_code << "\n";
 				(*cli)->getResponse()->send_errorResponse();
 				dropClientConnection(cli);
 				break;
@@ -136,17 +141,27 @@ int Worker::serve(int fd)
 
 void Worker::setClientResponse(int clientFd)
 {
+	// int max_body_size = 10;
+	// char *s;
 	for (size_t i = 0; i < clients.size(); i++) {
 		if (clients[i]->getFd() == clientFd)
 		{
+			if (clients[i]->getRequest().getHost().length() == 0)
+				return clients[i]->setState(ERROR);
 			clients[i]->getResponse()->location = clients[i]->getRequest().getRequestedLocation();
 			clients[i]->getResponse()->server = clients[i]->getRequest().getRequestedServer();
 			clients[i]->getResponse()->method = clients[i]->getRequest().getMethodName();
 			clients[i]->getResponse()->http_v = clients[i]->getRequest().getHttpVersion();
 			clients[i]->getResponse()->status_code = clients[i]->getRequest().getResponseCode();
 			clients[i]->getResponse()->path = clients[i]->getRequest().getPath();
-			if (clients[i]->getState() == WRITE)
-				clients[i]->getResponse()->pick_method(clients[i]->getResponse()->location);
+			// max_body_size = strtod(clients[i]->getResponse()->server->max_body_size.c_str(), &s);
+			// if (clients[i]->getRequest().getBodyCount() > max_body_size)
+			// {
+			// 	clients[i]->setState(ERROR);
+			// 	clients[i]->getResponse()->status_code = "413";
+			// }
+			// if (clients[i]->getState() == WRITE)
+			// 	clients[i]->getResponse()->pick_method(clients[i]->getResponse()->location);
 		}
 	}
 }
@@ -154,7 +169,7 @@ void Worker::setClientResponse(int clientFd)
 void Worker::showClients()
 {
 	for (size_t i = 0; i < clients.size(); i++)
-		clients[i]->showrequest();
+		std::cout << clients[i]->getFd() << "\n";
 }
 
 Worker::~Worker() {

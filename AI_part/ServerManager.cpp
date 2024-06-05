@@ -148,14 +148,13 @@ bool ServerManager::isNewConnection(int fd)
 
 		if (fd == beg->first)
 		{
-			std::cout << "New Client\n";
 			newClient = accept(beg->first, (struct sockaddr *)&accept_addr, &accept_len);
 			if (newClient == -1)
 			{
 				this->~ServerManager();
 				handleError("accept", errno);
 			}
-			fcntl(newClient, F_SETFL, O_NONBLOCK);
+			fcntl(newClient, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 			ev.events = EPOLLIN;
 			ev.data.fd = newClient;
 			epoll_ctl(epoll_fd, EPOLL_CTL_ADD, newClient, &ev);
@@ -181,6 +180,7 @@ void ServerManager::multiplixer()
 
 	while (1)
 	{
+		worker.showClients();
 		num_event = epoll_wait(epoll_fd, epl_evt, NUMCONNECTION, -1);
 		if (num_event == -1)
 		{
@@ -201,11 +201,10 @@ void ServerManager::multiplixer()
 					}
 					else if (state == READINGISDONE  || state == ERRORINREADING)
 					{
-						worker.setClientResponse(epl_evt[i].data.fd);
 						ev.data.fd = epl_evt[i].data.fd;
 						ev.events = EPOLLOUT;
 						epoll_ctl(epoll_fd, EPOLL_CTL_MOD, epl_evt[i].data.fd, &ev);
-						continue;
+						worker.setClientResponse(epl_evt[i].data.fd);
 					}
 
 				}

@@ -27,6 +27,7 @@ Request::Request() {
 	contentTypeCheck = false;
 	chunk_length = 0;
 	host =  "";
+	requestedServer = NULL;
 }
 
 Request::Request(const Request& obj) {
@@ -66,9 +67,22 @@ int Request::getRequestCode() const
 	return request_code;
 }
 
+void Request::setRequestCode(int code)
+{
+	request_code = code;
+}
+
 std::string Request::getResponseCode() const
 {
 	return response_code;
+}
+
+void Request::setResponseCode(std::string code)
+{
+	std::istringstream num(code);
+
+	num >> request_code;
+	response_code = code;
 }
 
 std::string  Request::getMethodName() const
@@ -97,10 +111,10 @@ void Request::setPath(std::string uri)
 
 }
 
-std::string Request::getMatchedLocation() const
-{
-	return location_name;
-}
+// std::string Request::getMatchedLocation() const
+// {
+// 	return location_name;
+// }
 
 std::string  Request::getHttpVersion() const
 {
@@ -120,10 +134,7 @@ int Request::getBodyCount() const
 int Request::getBodyLength()
 {
 	if (bodyLength < 0)
-	{
-		request_code = 402;
-		response_code = "402";
-	}
+		setResponseCode("400");
 	return bodyLength;
 }
 
@@ -140,10 +151,7 @@ Server *Request::getRequestedServer()
 const std::string &Request::getHost()
 {
 	if (host.length() == 0)
-	{
-		request_code = 400;
-		response_code = "400";
-	}
+		setResponseCode("400");
 	return host;
 }
 
@@ -154,7 +162,8 @@ void Request::setChunkLength(std::string token)
 	num >> std::hex >> chunk_length;
 	if (chunk_length == 0)
 		chunk_length = -1;
-
+	if (chunk_length < 0)
+		chunk_length = -2;
 }
 
 void Request::setBodyLength(std::string &number)
@@ -165,8 +174,7 @@ void Request::setBodyLength(std::string &number)
 	if (std::strlen(s) != 0 || bodyLength > LLONG_MAX - 1 || bodyLength < 0)
 	{
 		bodyLength = -1;
-		request_code = 400;
-		response_code = "400";
+		setResponseCode("400");
 	}
 	bodyLength_CPY = bodyLength;
 }
@@ -186,12 +194,13 @@ void Request::setRequestedServer(std::vector<Server *> servers)
 void Request::setRequestedLocation()
 {
 	std::string uri;
-	std::map<std::string, Location *> l = requestedServer->locations;
+	std::map<std::string, Location *> *l = &requestedServer->locations;
 	std::map<std::string, Location *>::iterator beg;
 	std::string finale_path;
+	std::string location_name;
 
 	uri = path;
-	for (beg = l.begin(); beg != l.end(); beg++)
+	for (beg = l->begin(); beg != l->end(); beg++)
 	{
 		if (uri.compare(0, beg->first.length(), beg->first) == 0)
 		{
@@ -204,12 +213,10 @@ void Request::setRequestedLocation()
 		std::cout << "location Not found\n";
 		return;
 	}
-	uri = getUri(uri, location_name);
-	finale_path = requested_location->root + uri;
+	uri = getUri(path, location_name);
+	finale_path = removeLastChar(requested_location->root) + uri;
 	path = finale_path;
-	// std::cout << "requested uri => " << finale_path << "\n";
-	// else
-	// std::cout << "location= "<< matched_location << "\n";
+	std::cout << "requested uri => " << finale_path << "\n";
 }
 
 /*
@@ -223,8 +230,7 @@ void Request::checkRequestLine(std::vector<std::string> &attrs)
 {
 	if (attrs.size() != 3)
 	{
-		response_code = "400";
-		request_code = 400;
+		setResponseCode("400");
 		return;
 	}
 	method_name = attrs[0];
@@ -232,22 +238,16 @@ void Request::checkRequestLine(std::vector<std::string> &attrs)
 	http_version = attrs[2];
 
 	if (method_name != "GET" && method_name != "POST" && method_name != "DELETE")
-	{
-		response_code = "405";
-		request_code = 405;
-	}
+		setResponseCode("405");
 	else if (http_version != "HTTP/1.1")
-	{
-		response_code = "505";
-		request_code = 505;
-	}
+		setResponseCode("505");
 }
 
 /*
  * @description parse the first line 
  *
  * @param tocken tipycally a line with 'METHOD PATY HTTP_VERSIOn'
- * @return 0 : succes | 1 : bad request name | 2 : bad http version
+ * @return void
  */
 
 void Request::processRequestLine(std::string token)
@@ -281,16 +281,14 @@ int Request::addHeader(std::string token)
 		found = token.find(":");
 		if (found == std::string::npos)
 		{
-			response_code = "400";
-			request_code = 400;
+			setResponseCode("400");
 			return 0;
 		}
 		key = trim(token.substr(0, found));
 		value = trim(token.substr(found + 1));
 		if (key.length() == 0 || value.length() == 0)
 		{
-			response_code = "400";
-			request_code = 400;
+			setResponseCode("400");
 			return 0;
 		}
 		toLower(key);
@@ -307,9 +305,18 @@ int Request::addHeader(std::string token)
 	return 0;
 }
 
-int Request::addBody(std::string token)
+/*
+ * @Description : read that buffer into the body attribute and performe parse it
+ * @param token string buffer from client
+ * 
+ * @return int 0:no error in token | 1:reading is done | -1: error
+ *
+ */
+
+int Request::addBody(std::string &token)
 {
-	try{
+	try
+	{
 		if (!transferEncodingCheck)
 		{
 			getTransferEncoding();
@@ -336,6 +343,7 @@ int Request::addBody(std::string token)
 			bodyCount += token.length();
 			if (bodyLength_CPY <= 0)
 				return -1;
+			std::cout << token << " =>END\n";
 		}
 		catch (int)
 		{
@@ -362,7 +370,7 @@ void Request::showHeaders()
  *				  is set to "chunked"
  * @param token string the token that i read from Client
  * 
- * @return void
+ * @return int 0: no error found | 1: reading is done
  *
  */
 
@@ -387,6 +395,11 @@ int Request::readTransferEncodingBody(std::string token)
 			if (chunk_length == -1)
 			{
 				body += "\r\n";
+				return 1;
+			}
+			if (chunk_length == -2)
+			{
+				setResponseCode("408");
 				return -1;
 			}
 			tmp_body = tmp_body.substr(line + 2);
@@ -501,14 +514,12 @@ const std::string &Request::getTransferEncoding()
 		throw NOTEXIST;
 	try {
 		getContentLength();
-		response_code = "400";
-		request_code = 400;
+		setResponseCode("400");
 	}
 	catch (int) {
 		if (value->second != "chunked")
 		{
-			response_code = "501";
-			request_code = 501;
+			setResponseCode("501");
 			throw -1;
 		}
 	}

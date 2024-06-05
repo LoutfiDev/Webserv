@@ -13,13 +13,15 @@
 #define WRITE 1
 #define ERROR 2
 
+#define REQUEST_TIMEOUT 3
+
 class Client {
 	public:
 		Client(int, std::vector<Server *>);
 		Client(const Client &);
 		Client &operator=(const Client &);
 
-		Request getRequest() const;
+		Request &getRequest();
 		void setRequest(const Request &);
 
 		Response *getResponse() const;
@@ -48,6 +50,8 @@ class Client {
 		// bool canParseBody;		// if method is POST then go and parse body else don't 
 		// int bodyLength;
 		std::vector<Server *> dataServer;
+		time_t c_timer_start;
+		time_t c_timer_end;
 
 
 
