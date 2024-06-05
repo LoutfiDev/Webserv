@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
+/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/30 03:03:50 by anaji            ###   ########.fr       */
+/*   Updated: 2024/06/04 15:28:41 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@
 // you can pass a request object as param to the constructer
 // Response::Response(Request req) : status_code("200")
 
-Response::Response() : STAGE(0), index(0), http_v("HTTP/1.1"), status_code("200")
+Response::Response() : STAGE(0), index(0)
 {
 	fill_messages();
 }
@@ -58,7 +58,6 @@ Response::~Response() {}
 
 void Response::Get() {
 	DIR *directory;
-	
 	if ((directory = opendir(path.c_str())))
 	{
 		if (path[path.size() - 1] != '/')
@@ -217,8 +216,6 @@ int Response::send_response()
 				response += "Location: " + path + "\r\n";
 			path = getPath();
 		}
-		
-
 		if (!path.empty())
 		{
 			if (path[path.size() - 1] == '/')
@@ -248,7 +245,7 @@ int Response::send_response()
 					response.clear();
 					response += "<html><head><title>Index of /</title></head><body><h1>Index of /</h1><hr><pre>";	
 				}
-				while((dent=readdir(dir)) || (portion % 4))
+				while((dent=readdir(dir)) != NULL && (portion % 4))
 				{
 					struct stat st_buf;
 					stat (dent->d_name, &st_buf);
