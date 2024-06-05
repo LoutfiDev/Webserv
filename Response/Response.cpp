@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/05 12:07:04 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/05 16:06:04 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,18 +127,20 @@ void Response::Delete_folder(std::string path)
 	while((dent=readdir(directory)) && status_code == "200")
 	{
 		struct stat st_buf;
-		stat (dent->d_name, &st_buf);
-		// //  if (stat (dent->d_name, &st_buf) != 0) no_such_file
+		stat (std::string(path + "/" + dent->d_name).c_str(), &st_buf);
 		if (std::string(dent->d_name) == ".." || std::string(dent->d_name) == ".")
 			continue;
-		if (S_ISDIR (st_buf.st_mode))
-			Delete_folder(path + "/" + dent->d_name);
-		else if (S_ISREG (st_buf.st_mode)) 
+		if (S_ISDIR(st_buf.st_mode))
 		{
-			if (access(path.c_str(), R_OK) != 0)
+			Delete_folder(path + "/" + dent->d_name);
+			remove(std::string(path + "/" + dent->d_name).c_str());
+		}
+		else if (S_ISREG(st_buf.st_mode)) 
+		{
+			if (access(std::string(path + "/" + dent->d_name).c_str(), R_OK) != 0)
 				status_code = "403";
 			else 
-				remove(path.c_str());
+				remove(std::string(path + "/" + dent->d_name).c_str());
 		}
 	}
 	closedir(directory);
@@ -152,6 +154,11 @@ void Response::Delete()
 	{
 		Delete_folder(path);
 		closedir(directory);
+		if (status_code == "200")
+		{
+			remove(path.c_str());
+			status_code = 204;
+		}
 	}
 	else
 	{
@@ -160,7 +167,10 @@ void Response::Delete()
 			if (access(path.c_str(), R_OK) != 0)
 				status_code = "403";
 			else 
+			{
 				remove(path.c_str());
+				status_code = "204";
+			}
 		}
 		else
 			status_code = "404";

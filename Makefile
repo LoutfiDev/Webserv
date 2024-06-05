@@ -6,12 +6,12 @@
 #    By: soulang <soulang@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/23 11:42:24 by soulang           #+#    #+#              #
-#    Updated: 2024/06/05 11:05:01 by soulang          ###   ########.fr        #
+#    Updated: 2024/06/05 14:14:27 by soulang          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = Webserv
-CPPFLAGS = #-Wall -Wextra -Werror -std=c++98 -fsanitize=address -g3
+CPPFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g3
 CXX = c++
 
 SRCS = main.cpp Parser/parser.cpp Parser/server.cpp \
