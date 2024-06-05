@@ -3,15 +3,15 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: anaji <marvin@42.fr>                       +#+  +:+       +#+         #
+#    By: soulang <soulang@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/23 11:42:24 by soulang           #+#    #+#              #
-#    Updated: 2024/05/29 23:53:45 by anaji            ###   ########.fr        #
+#    Updated: 2024/06/04 15:15:28 by soulang          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = Webserv
-CPPFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g3
+CPPFLAGS = #-Wall -Wextra -Werror -std=c++98 -fsanitize=address -g3
 CXX = c++
 
 SRCS = main.cpp Parser/parser.cpp Parser/server.cpp \
