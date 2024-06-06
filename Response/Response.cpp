@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/05 16:06:04 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/06 11:58:51 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,15 +36,6 @@ Response::Response() : STAGE(0), index(0)
 {
 	fill_messages();
 }
-
-// Response::Response() : STAGE(0), index(0), method("GET"), path("web_root/index.html"), http_v("HTTP/1.1"), status_code("200")
-// {
-// 	fill_messages();
-// 	//you can pass req.method to this funct to call the method and form the response 
-// 	if (status_code == "200")
-// 		pick_method(location);
-// 	// int i = send_response();
-// }
 
 Response::Response(const Response& copy) { (void)copy; }
 
@@ -87,9 +78,7 @@ void Response::Get() {
 			}
 			else if (location->autoindex)
 			{
-				std::string tmp;
-				tmp = path;
-				tmp.append("index.html");
+				std::string tmp(path + "index.html");
 				if (access(tmp.c_str(), F_OK) == 0)
 				{
 					if (access(tmp.c_str(), R_OK) != 0)
@@ -97,7 +86,6 @@ void Response::Get() {
 					else
 						path = tmp;
 				}
-				send_response();
 			}
 			else
 				status_code = "403";
@@ -157,7 +145,7 @@ void Response::Delete()
 		if (status_code == "200")
 		{
 			remove(path.c_str());
-			status_code = 204;
+			status_code = "204";
 		}
 	}
 	else
@@ -273,7 +261,6 @@ int Response::send_response()
 				{
 					struct stat st_buf;
 					stat (dent->d_name, &st_buf);
-					// //  if (stat (dent->d_name, &st_buf) != 0) no_such_file
 					if (std::string(dent->d_name) == ".." || std::string(dent->d_name) == ".")
 						continue;
 					if (S_ISDIR (st_buf.st_mode))
@@ -325,7 +312,7 @@ void Response::fill_messages( void )
 	messages["201"] = "Created";
 	messages["204"] = "Deleted";
 	messages["400"] = "Bad Request";
-	messages["403"] = "Forbidde";
+	messages["403"] = "Forbidden";
 	messages["404"] = "Page Not Found";
 	messages["405"] = "Method Not Allowed";
 	messages["408"] = "Timed out";
