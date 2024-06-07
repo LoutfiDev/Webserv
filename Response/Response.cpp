@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/06 11:58:51 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/07 12:16:21 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@
 // v- Add location* server* as atrrib to response   //
 // v- set an int in send_response as return         //
 // v- default server Configuration					//
+// x- set uri value and save the local path         //
+// x- return 403 while remove failed in delete      //
 //**************************************************//
 
 
@@ -50,12 +52,11 @@ Response::~Response() {}
 void Response::Get() {
 	DIR *directory;
 
-	
 	if ((directory = opendir(path.c_str())))
 	{
-		if (path[path.size() - 1] != '/')
+		if (uri[uri.size() - 1] != '/')
 		{
-			path.append("/");
+			uri.append("/");
 			status_code = "301";
 		}
 		else
@@ -69,7 +70,7 @@ void Response::Get() {
 					tmp = path + *it;
 					if (access(tmp.c_str(), F_OK) == 0)
 					{
-						path.append(*it);
+						uri.append(*it);
 						status_code = "301";
 						return ;
 					}
@@ -125,7 +126,7 @@ void Response::Delete_folder(std::string path)
 		}
 		else if (S_ISREG(st_buf.st_mode)) 
 		{
-			if (access(std::string(path + "/" + dent->d_name).c_str(), R_OK) != 0)
+			if (access(std::string(path + "/" + dent->d_name).c_str(), W_OK) != 0)
 				status_code = "403";
 			else 
 				remove(std::string(path + "/" + dent->d_name).c_str());
@@ -152,7 +153,7 @@ void Response::Delete()
 	{
 		if (access(path.c_str(), F_OK) == 0)
 		{
-			if (access(path.c_str(), R_OK) != 0)
+			if (access(path.c_str(), W_OK) != 0)
 				status_code = "403";
 			else 
 			{
@@ -219,13 +220,14 @@ std::string Response::getPath( void )
 
 int Response::send_response()
 {
+	
 	if (STAGE < HEADERISSENT)
 	{
 		response += http_v + " " + status_code + " " + getMessage(status_code) + "\r\n";
 		if (status_code != "200")
 		{
 			if (status_code == "301")
-				response += "Location: " + path + "\r\n";
+				response += "Location: " + uri + "\r\n";
 			path = getPath();
 		}
 		if (!path.empty())

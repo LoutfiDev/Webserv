@@ -78,7 +78,7 @@ std::string removeLastChar(std::string str) // remove last '/'
 
 std::string getFileName(std::string &filename)
 {
-	size_t i = filename.size();
+	long i = filename.size();
 	std::string name;
 
 	if (filename[i] == '/')

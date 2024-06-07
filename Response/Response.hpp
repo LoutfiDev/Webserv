@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:42 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/04 11:31:11 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/07 11:36:38 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@
 
 #include "../Parser/parser.hpp"
 
+#define CGIISDONE 3
 #define HEADERISSENT 1
 #define BODYISSENT 2
 
@@ -56,6 +57,7 @@ class Response
 		
 		std::string method;
 		std::string path;
+		std::string uri;
 		std::string http_v;
 		std::string status_code;
 
