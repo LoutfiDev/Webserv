@@ -230,7 +230,7 @@ void Response::Post()
 		while (std::getline(infile, line))
 			outfile << line << "\n";
 		status_code = "201";
-		// send_response();
+		send_response();
 
 		// i think in case of a regular file that can pass throught CGI we need to call GET method (arabic : dakchi li galina youssef l2ostora)
 	}
