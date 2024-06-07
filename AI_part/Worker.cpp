@@ -155,6 +155,8 @@ void Worker::setClientResponse(int clientFd)
 			clients[i]->getResponse()->http_v = clients[i]->getRequest().getHttpVersion();
 			clients[i]->getResponse()->status_code = clients[i]->getRequest().getResponseCode();
 			clients[i]->getResponse()->path = clients[i]->getRequest().getPath();
+			clients[i]->getResponse()->uri= clients[i]->getRequest().getResponseUri();
+				
 			// max_body_size = strtod(clients[i]->getResponse()->server->max_body_size.c_str(), &s);
 			// if (clients[i]->getRequest().getBodyCount() > max_body_size)
 			// {
