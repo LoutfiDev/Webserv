@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/07 12:16:21 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/07 22:07:41 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,26 +15,16 @@
 #include <string>
 
 //******************TO DO***************************//
-// v- list files while autoIndex is on              //
-// v- create a buffer to write response             //
-// v- create FLAGS to protect overwrite             //
-// v- Add location header to response if "301"      // 
-// v- ask for text/html resp if "301"               //
-// v- set index.html as default index directive     //
-// v- set index to 0 after sending the body         //
-// v- set Response constructed by def constructor   //
-// v- Add location* server* as atrrib to response   //
-// v- set an int in send_response as return         //
-// v- default server Configuration					//
-// x- set uri value and save the local path         //
-// x- return 403 while remove failed in delete      //
+// x- try to get file .mp4                          //
+// x- fix delete (remove : permission level)        //
+// x- fix redirect                                  //
 //**************************************************//
 
 
 // you can pass a request object as param to the constructer
 // Response::Response(Request req) : status_code("200")
 
-Response::Response() : STAGE(0), index(0)
+Response::Response() : STAGE(0), index(0), HEADERISWRITTEN(0)
 {
 	fill_messages();
 }
@@ -51,7 +41,7 @@ Response::~Response() {}
 
 void Response::Get() {
 	DIR *directory;
-
+	
 	if ((directory = opendir(path.c_str())))
 	{
 		if (uri[uri.size() - 1] != '/')
@@ -72,6 +62,7 @@ void Response::Get() {
 					{
 						uri.append(*it);
 						status_code = "301";
+						closedir(directory);
 						return ;
 					}
 				}
@@ -122,14 +113,13 @@ void Response::Delete_folder(std::string path)
 		if (S_ISDIR(st_buf.st_mode))
 		{
 			Delete_folder(path + "/" + dent->d_name);
-			remove(std::string(path + "/" + dent->d_name).c_str());
+			if ((remove(std::string(path + "/" + dent->d_name).c_str())) != 0)
+				status_code = "403";
 		}
 		else if (S_ISREG(st_buf.st_mode)) 
 		{
-			if (access(std::string(path + "/" + dent->d_name).c_str(), W_OK) != 0)
+			if ((remove(std::string(path + "/" + dent->d_name).c_str())) != 0)
 				status_code = "403";
-			else 
-				remove(std::string(path + "/" + dent->d_name).c_str());
 		}
 	}
 	closedir(directory);
@@ -145,21 +135,20 @@ void Response::Delete()
 		closedir(directory);
 		if (status_code == "200")
 		{
-			remove(path.c_str());
-			status_code = "204";
+			if ((remove(path.c_str())) != 0)
+				status_code = "403";
+			else
+				status_code = "204";
 		}
 	}
 	else
 	{
 		if (access(path.c_str(), F_OK) == 0)
 		{
-			if (access(path.c_str(), W_OK) != 0)
+			if ((remove(path.c_str())) != 0)
 				status_code = "403";
 			else 
-			{
-				remove(path.c_str());
 				status_code = "204";
-			}
 		}
 		else
 			status_code = "404";
@@ -220,7 +209,6 @@ std::string Response::getPath( void )
 
 int Response::send_response()
 {
-	
 	if (STAGE < HEADERISSENT)
 	{
 		response += http_v + " " + status_code + " " + getMessage(status_code) + "\r\n";
@@ -249,36 +237,42 @@ int Response::send_response()
 	}
 	else if (STAGE < BODYISSENT)
 	{			
+			DIR *directory;
 			memset(buffer, 0, 1024);
-			if((dir=opendir(path.c_str())))
+
+			if((directory=opendir(path.c_str())))
 			{
 				int portion = 1;
 				struct dirent *dent;
-				if (portion == 1)
+				if (!HEADERISWRITTEN)
 				{
+					dir = directory;
 					response.clear();
-					response += "<html><head><title>Index of /</title></head><body><h1>Index of /</h1><hr><pre>";	
+					response += "<html><head><title>Index of /</title></head><body><h1>Index of /</h1><hr><pre>";
+					HEADERISWRITTEN++;
 				}
-				while((dent=readdir(dir)) && (portion % 4))
+				while((portion % 4) && (dent=readdir(dir)))
 				{
 					struct stat st_buf;
-					stat (dent->d_name, &st_buf);
+					stat (std::string(path + "/" + dent->d_name).c_str(), &st_buf);
 					if (std::string(dent->d_name) == ".." || std::string(dent->d_name) == ".")
 						continue;
 					if (S_ISDIR (st_buf.st_mode))
 						response += "<a href=\"" + std::string(dent->d_name) + "/\">" + std::string(dent->d_name) + "/</a></br>";
-					else if (S_ISREG (st_buf.st_mode)) 
+					else if (S_ISREG (st_buf.st_mode))
 						response += "<a href=\"" + std::string(dent->d_name) + "\">" + std::string(dent->d_name) + "</a></br>";
 					portion++;
 				}
-				closedir(dir);
 				if(!dent)
 				{
 					response += "</pre><hr></body></html>";
 					write(socket, response.c_str() , response.size());
+					response.clear();
+					closedir(directory);
 					return -1;
 				}
 				write(socket, response.c_str() , response.size());
+				response.clear();
 			}
 			else
 			{

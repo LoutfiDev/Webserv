@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:42 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/07 11:36:38 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/07 16:28:04 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ class Response
 		char buffer[1024];
 		int STAGE;
 		unsigned int index;
+		int HEADERISWRITTEN;
 		
 		std::string method;
 		std::string path;
