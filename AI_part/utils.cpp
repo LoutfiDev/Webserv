@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <ctime>
 #include <fstream>
 #include <iostream>
@@ -78,7 +79,7 @@ std::string removeLastChar(std::string str) // remove last '/'
 
 std::string getFileName(std::string &filename)
 {
-	size_t i = filename.size();
+	long i = filename.size();
 	std::string name;
 
 	if (filename[i] == '/')
@@ -225,11 +226,13 @@ void Response::Post()
 			return;
 
 		}
+		char buff[1000];
+		memset(buff, '\0', 1000);
 		std::ifstream infile(requestedfile.c_str());
 		std::ofstream outfile(pathname.c_str());
-		while (std::getline(infile, line))
-			outfile << line << "\n";
-		status_code = "201";
+
+		if (infile.read(buff, 1000))
+			status_code = "201";
 		send_response();
 
 		// i think in case of a regular file that can pass throught CGI we need to call GET method (arabic : dakchi li galina youssef l2ostora)

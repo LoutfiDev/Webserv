@@ -93,6 +93,7 @@ void Client::readBuffer(char *buf)
 {
 	buffer += buf;
 	size_t found = -1;
+	c_timer_start = time(0);
 	while (buffer.size())
 	{
 		found = buffer.find("\r\n");
