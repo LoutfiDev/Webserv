@@ -30,6 +30,8 @@ class Client {
 		int getState() const;
 		void setState(int);
 
+		void  resetTimer();
+
 		int getFd() const;
 		std::vector<Server *> getDataServer();
 

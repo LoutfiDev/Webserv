@@ -6,8 +6,10 @@
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
+#include <fcntl.h>
 #include <fstream>
 #include <iostream>
+#include <numeric>
 #include <string>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -124,7 +126,6 @@ void Response::Post()
 	struct stat st_stat;
 	std::string pathname;
 	std::string path_dir;
-	std::string line;
 
 	std::cout << requestedfile << "\n";
 	if (access(requestedfile.c_str(), F_OK) == -1)
@@ -226,12 +227,14 @@ void Response::Post()
 			return;
 
 		}
-		char buff[1000];
+		char buff[1001];
 		memset(buff, '\0', 1000);
-		std::ifstream infile(requestedfile.c_str());
-		std::ofstream outfile(pathname.c_str());
+		std::fstream infile(requestedfile.c_str());
+		std::fstream outfile(pathname.c_str());
+		std::cout << pathname << "\n";
 		if (infile.read(buff, 1000))
-			status_code = "201";
+			outfile << buff;
+		status_code = "201";
 		send_response();
 
 		// i think in case of a regular file that can pass throught CGI we need to call GET method (arabic : dakchi li galina youssef l2ostora)

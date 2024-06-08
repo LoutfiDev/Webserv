@@ -81,6 +81,11 @@ void Client::setState(int _state)
 	response->status_code = request.getResponseCode();
 	state = _state;
 }
+
+void Client::resetTimer()
+{
+	c_timer_start = time(0);
+}
 	
 /*
  * @description read bytes sended by the client (request) to buffer and parse it

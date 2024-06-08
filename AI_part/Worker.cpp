@@ -115,6 +115,7 @@ int Worker::serve(int fd)
 	{
 		if ((*cli)->getFd() == fd)
 		{
+			(*cli)->resetTimer();
 			if ((*cli)->getState() == READ)
 				return readFromClient(fd, cli);
 			else if ((*cli)->getState() == WRITE)
