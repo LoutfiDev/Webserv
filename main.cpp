@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 08:53:41 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/05 10:54:54 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/08 16:57:17 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 
 int main (int ac, char **av)
 {
+	signal(SIGPIPE, SIG_IGN);
 	std::string fileName = "Conf/default.conf";
 	if (ac <= 2)
 	{

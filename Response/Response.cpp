@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/07 22:07:41 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/08 17:05:07 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,8 @@
 #include <string>
 
 //******************TO DO***************************//
-// x- try to get file .mp4                          //
-// x- fix delete (remove : permission level)        //
+// v- try to get file .mp4                          //
+// v- fix delete (remove : permission level)        //
 // x- fix redirect                                  //
 //**************************************************//
 
