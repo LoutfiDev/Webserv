@@ -95,6 +95,11 @@ std::string  Request::getPath() const
 	return path;
 }
 
+std::string Request::getResponseUri() const
+{
+	return response_uri;
+}
+
 void Request::setPath(std::string uri)
 {
 	size_t pos;
@@ -215,6 +220,7 @@ void Request::setRequestedLocation()
 	}
 	uri = getUri(path, location_name);
 	finale_path = removeLastChar(requested_location->root) + uri;
+	response_uri = path;
 	path = finale_path;
 	std::cout << "requested uri => " << finale_path << "\n";
 }

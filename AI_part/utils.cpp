@@ -230,7 +230,6 @@ void Response::Post()
 		memset(buff, '\0', 1000);
 		std::ifstream infile(requestedfile.c_str());
 		std::ofstream outfile(pathname.c_str());
-
 		if (infile.read(buff, 1000))
 			status_code = "201";
 		send_response();

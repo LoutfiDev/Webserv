@@ -35,6 +35,7 @@ class Request {
 
 		std::string getMethodName() const;
 		std::string getPath() const;
+		std::string getResponseUri() const;
 		void setPath(std::string);
 		std::string getHttpVersion() const;
 		std::string getMatchedLocation() const;
@@ -106,6 +107,7 @@ class Request {
 	
 	public:
 		std::string path;
+		std::string response_uri;
 
 };
 
