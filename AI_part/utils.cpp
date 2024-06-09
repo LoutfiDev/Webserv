@@ -126,6 +126,7 @@ void Response::Post()
 	struct stat st_stat;
 	std::string pathname;
 	std::string path_dir;
+	static bool state_post = true;
 
 	std::cout << requestedfile << "\n";
 	if (access(requestedfile.c_str(), F_OK) == -1)
@@ -134,9 +135,11 @@ void Response::Post()
 		send_response();
 		return;
 	}
+	std::cout << "requested =>" << requestedfile << "\n";
 	stat(requestedfile.c_str(), &st_stat);
 	if (st_stat.st_mode & S_IFDIR)
 	{
+		std::cout << "need a DIR\n";
 		// std::cout << "0 -> "<< location->upload_dir << " " << location->root << "\n";
 		if (location->upload_dir.length())
 		{
@@ -186,8 +189,10 @@ void Response::Post()
 	}
 	else if (st_stat.st_mode & S_IFREG)
 	{
+		std::cout << "ned a REGFILE\n";
 		if (location->upload_dir.length())
 		{
+			std::cout << "have an upload_dir location =>" << location->upload_dir << "\n";
 			if (access(location->upload_dir.c_str(), F_OK) == -1)
 			{
 				status_code = "404";
@@ -205,6 +210,7 @@ void Response::Post()
 		}
 		else if (location->root.length())
 		{
+			std::cout << "have a root location =>" << location->root << "\n";
 			if (access(location->root.c_str(), F_OK) == -1)
 			{
 				status_code = "404";
@@ -229,14 +235,25 @@ void Response::Post()
 		}
 		char buff[1001];
 		memset(buff, '\0', 1000);
-		std::fstream infile(requestedfile.c_str());
-		std::fstream outfile(pathname.c_str());
-		std::cout << pathname << "\n";
-		if (infile.read(buff, 1000))
-			outfile << buff;
-		status_code = "201";
-		send_response();
-
+		std::ifstream infile;
+		std::ofstream outfile;
+		if (state_post)
+		{
+			std::ifstream infile(requestedfile.c_str());
+			std::ofstream outfile(pathname.c_str());
+			state_post = !state_post;
+		}
+		else 
+		{
+			if (infile.read(buff, 1000))
+				outfile << buff;
+			if (infile.eof()) 
+			{
+				state_post = !state_post;
+				status_code = "201";
+				send_response();
+			}
+		}
 		// i think in case of a regular file that can pass throught CGI we need to call GET method (arabic : dakchi li galina youssef l2ostora)
 	}
 	else
