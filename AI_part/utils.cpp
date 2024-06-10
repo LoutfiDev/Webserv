@@ -8,7 +8,9 @@
 #include <ctime>
 #include <fcntl.h>
 #include <fstream>
+#include <ios>
 #include <iostream>
+#include <istream>
 #include <numeric>
 #include <string>
 #include <sys/stat.h>
@@ -111,6 +113,41 @@ std::string getUri(std::string &requestedUri, std::string &locationName)
 	return uri;
 }
 
+int Response::processPostResponse()
+{
+	static int count = 0;
+	char buff[1024];
+
+	std::cout << count++ << "\n";
+	memset(buff, '\0', 1023);
+	if (method != "POST")
+		return (postState = END, 1);
+	if (typeInfile == BODY)
+	{
+		outfile << responseBody;
+		postState = END;
+		return 1;
+	}
+	else 
+	{
+		infile.read(buff, 1023);
+		if (infile)
+			outfile.write(buff, 1023);
+		else
+		{
+			outfile.write(buff, infile.gcount());
+		}
+		if (infile.eof()) 
+		{
+			infile.close();
+			outfile.close();
+			postState = END;
+			return 1;
+		}
+		return 0;
+	}
+}
+
 /*
  * @Description : Post method
  * @param none 
@@ -126,8 +163,9 @@ void Response::Post()
 	struct stat st_stat;
 	std::string pathname;
 	std::string path_dir;
-	static bool state_post = true;
 
+	if (postState != PROCESSING)
+		return;
 	std::cout << requestedfile << "\n";
 	if (access(requestedfile.c_str(), F_OK) == -1)
 	{
@@ -137,10 +175,16 @@ void Response::Post()
 	}
 	std::cout << "requested =>" << requestedfile << "\n";
 	stat(requestedfile.c_str(), &st_stat);
+	if (st_stat.st_mode & S_IFDIR && requestedfile[requestedfile.size() - 1] != '/')
+	{
+		uri.append("/");
+		status_code = "301";
+		send_response();
+		return;
+	}
 	if (st_stat.st_mode & S_IFDIR)
 	{
 		std::cout << "need a DIR\n";
-		// std::cout << "0 -> "<< location->upload_dir << " " << location->root << "\n";
 		if (location->upload_dir.length())
 		{
 			if (access(location->upload_dir.c_str(), F_OK) == -1)
@@ -182,14 +226,15 @@ void Response::Post()
 			send_response();
 			return;
 		}
-		std::ofstream outfile(pathname.c_str());
-		outfile << responseBody;
+		outfile.open(pathname.c_str(), std::ofstream::binary);
+		postState = SENDING;
+		typeInfile = BODY;
 		status_code = "201";
-		send_response();
+		processPostResponse();
 	}
 	else if (st_stat.st_mode & S_IFREG)
 	{
-		std::cout << "ned a REGFILE\n";
+		std::cout << "need a REGFILE\n";
 		if (location->upload_dir.length())
 		{
 			std::cout << "have an upload_dir location =>" << location->upload_dir << "\n";
@@ -233,27 +278,12 @@ void Response::Post()
 			return;
 
 		}
-		char buff[1001];
-		memset(buff, '\0', 1000);
-		std::ifstream infile;
-		std::ofstream outfile;
-		if (state_post)
-		{
-			std::ifstream infile(requestedfile.c_str());
-			std::ofstream outfile(pathname.c_str());
-			state_post = !state_post;
-		}
-		else 
-		{
-			if (infile.read(buff, 1000))
-				outfile << buff;
-			if (infile.eof()) 
-			{
-				state_post = !state_post;
-				status_code = "201";
-				send_response();
-			}
-		}
+		infile.open(requestedfile.c_str(), std::ifstream::binary);
+		outfile.open(pathname.c_str(), std::ofstream::binary);
+		status_code = "201";
+		postState = SENDING;
+		typeInfile = FILE;
+		processPostResponse();
 		// i think in case of a regular file that can pass throught CGI we need to call GET method (arabic : dakchi li galina youssef l2ostora)
 	}
 	else

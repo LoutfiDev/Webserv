@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:42 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/07 16:28:04 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/10 04:14:41 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,14 @@
 #define HEADERISSENT 1
 #define BODYISSENT 2
 
+// post method states
+#define PROCESSING 1
+#define SENDING 2
+#define END 3
+
+#define BODY 1
+#define FILE 2
+
 class Response
 {
 	private:
@@ -62,6 +70,13 @@ class Response
 		std::string http_v;
 		std::string status_code;
 
+		//added by Ai for post method
+		int postState;
+		std::ifstream infile;
+		std::ofstream outfile;
+		int typeInfile;
+
+		int processPostResponse();
 		
 		Response();
 		Response(const Response& copy);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/10 00:04:46 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/10 04:14:40 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@
 
 Response::Response() : STAGE(0), index(0), HEADERISWRITTEN(0)
 {
+	postState = PROCESSING;
+	typeInfile = BODY;
 	fill_messages();
 }
 
@@ -288,6 +290,8 @@ int Response::send_response()
 			}
 			else
 			{
+				if (postState != END && processPostResponse() == 0)
+					return 0;
 				std::ifstream is (path.c_str(), std::ifstream::binary);
 				if (is) 
 				{
