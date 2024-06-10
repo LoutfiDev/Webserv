@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/08 17:05:07 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/10 00:04:46 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 //******************TO DO***************************//
 // v- try to get file .mp4                          //
 // v- fix delete (remove : permission level)        //
-// x- fix redirect                                  //
+// v- fix redirect                                  //
 //**************************************************//
 
 
@@ -41,8 +41,12 @@ Response::~Response() {}
 
 void Response::Get() {
 	DIR *directory;
-	
-	if ((directory = opendir(path.c_str())))
+	if (location->redirection.size())
+	{
+		std::map<std::string, std::string>::iterator it = location->redirection.begin();
+		status_code = it->first;
+	}
+	else if ((directory = opendir(path.c_str())))
 	{
 		if (uri[uri.size() - 1] != '/')
 		{
@@ -215,7 +219,15 @@ int Response::send_response()
 		if (status_code != "200")
 		{
 			if (status_code == "301")
-				response += "Location: " + uri + "\r\n";
+			{
+				if (location->redirection.size())
+				{
+					std::map<std::string, std::string>::iterator it = location->redirection.begin();
+					response += "Location: " + it->second + "\r\n";
+				}
+				else
+					response += "Location: " + uri + "\r\n";
+			}
 			path = getPath();
 		}
 		if (!path.empty())
@@ -307,6 +319,7 @@ void Response::fill_messages( void )
 	messages["200"] = "OK";
 	messages["201"] = "Created";
 	messages["204"] = "Deleted";
+	messages["301"] = "Moved Permanently";
 	messages["400"] = "Bad Request";
 	messages["403"] = "Forbidden";
 	messages["404"] = "Page Not Found";
