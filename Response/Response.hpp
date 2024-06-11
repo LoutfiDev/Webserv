@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
+/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:42 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/10 04:14:41 by anaji            ###   ########.fr       */
+/*   Updated: 2024/06/11 15:52:55 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 #include <iostream>
 #include <iomanip>
 #include <cstring>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <fstream>
 #include <sstream>
 #include <cstdlib>
@@ -35,9 +37,9 @@
 
 #include "../Parser/parser.hpp"
 
-#define CGIISDONE 3
-#define HEADERISSENT 1
-#define BODYISSENT 2
+#define CGI_PROCESSING 1
+#define HEADER_PROCESSING 2
+#define BODY_PROCESSING 3
 
 // post method states
 #define PROCESSING 1
@@ -69,6 +71,21 @@ class Response
 		std::string uri;
 		std::string http_v;
 		std::string status_code;
+		
+		std::string cgiFile;
+		std::string cgiOut;
+		std::string extension;
+		std::string cgiPath;
+		std::string query;
+		std::string http_cookie;
+		char **env;
+		char **argv;
+
+		
+		void execute_cgi( void );
+		int is_cgi( void );
+		int isValid ( void );
+		void formEnv ( void );
 
 		//added by Ai for post method
 		int postState;
@@ -76,6 +93,9 @@ class Response
 		std::ofstream outfile;
 		int typeInfile;
 
+		long generateNum();
+		char randomChar(int old);
+		std::string generateFileName();
 		int processPostResponse();
 		
 		Response();
@@ -93,7 +113,7 @@ class Response
 		
 		void fill_messages( void );	
 		std::string getPath ( void );	
-		void pick_method(Location *location);
+		void pick_method( void );
 		int send_response( void );
 	
 		void Delete_folder(std::string path);

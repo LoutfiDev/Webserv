@@ -41,14 +41,14 @@ void toLower(std::string &str)
 	}
 }
 
-long generateNum()
+long Response::generateNum()
 {
 	srand((unsigned) time(NULL) + clock());
 	long num = rand();
 	return num;
 }
 
-char randomChar(int old)
+char Response::randomChar(int old)
 {
 	long character = generateNum() * old;
 	char charset[54] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\0";
@@ -58,7 +58,7 @@ char randomChar(int old)
 	return (charset[character %= 54]);
 }
 
-std::string generateFileName()
+std::string Response::generateFileName()
 {
 	std::string name;
 	int len = generateNum() % 20 + 10;

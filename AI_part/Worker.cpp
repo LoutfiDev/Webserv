@@ -90,11 +90,20 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 		(*client)->getResponse()->send_errorResponse();
 		return true;
 	}
-	(*client)->getResponse()->pick_method((*client)->getResponse()->location);
-	response_rseult = (*client)->getResponse()->send_response();
+	// if ((*client)->getResponse()->STAGE == CGI_PROCESSING)
+	(*client)->getResponse()->execute_cgi();
+	std::ifstream 	inputFile((*client)->getResponse()->cgiOut.c_str());
+	std::string rest;
+	while (std::getline(inputFile, rest))
+		std::cout << rest ;
+	exit(0);
+	(*client)->getResponse()->pick_method();
+	while ((response_rseult = (*client)->getResponse()->send_response())!= -1);
 	if (response_rseult == -1)
-		return true; //response is sended 
-	return false; //not yet
+	{
+		return true;
+	}
+	return false;
 }
 
 void Worker::dropClientConnection(std::vector<Client *>::iterator client)
