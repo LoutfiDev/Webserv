@@ -14,7 +14,7 @@ Client::Client(int _fd, std::vector<Server *> data)
 {
 	response = new Response();
 	fd = _fd;
-	dataServer = data;
+	init_dataServer(data);
 	isHeaderPartDone = 0;
 	response->socket = _fd;
 	state = READ;
@@ -34,11 +34,23 @@ Client &Client::operator=(const Client& obj)
 	fd = obj.fd;
 	request = obj.request;
 	response = obj.response;
+	init_dataServer(obj.dataServer);
 	buffer = obj.buffer;
 	isHeaderPartDone = obj.isHeaderPartDone;
 	state = obj.state;
 	c_timer_start = obj.c_timer_start;
 	return (*this);
+}
+
+void Client::init_dataServer(const std::vector<Server *> &_server)
+{
+	size_t i = 0;
+
+	while (i < _server.size())
+	{
+		dataServer.push_back(new Server(*_server[i]));
+		i++;
+	}
 }
 
 Request &Client::getRequest()
@@ -106,6 +118,9 @@ void Client::readBuffer(char *buf)
 		{
 			buffer = buffer.substr(2);
 			isHeaderPartDone++;
+			response->http_v = request.getHttpVersion();
+			response->method = request.getMethodName();
+			response->path = request.getPath();
 		}
 		if (isHeaderPartDone == 0)
 		{
@@ -122,7 +137,8 @@ void Client::readBuffer(char *buf)
 		{
 			if (request.addBody(buffer) == -1)
 			{
-				response->responseBody = request.getBody();
+				if (request.getMethodName() == "POST")
+					response->responseBody = request.getBodyFile();
 				return setState(WRITE);
 			}
 			if (request.getBodyLength() < 0)
@@ -154,20 +170,18 @@ bool Client::istimeOut()
 void Client::showrequest()
 {
 	request.showHeaders();
-	std::cout << "\n*************************BODY**************************\n";
-	std::cout << request.getBody();
 }
-
 
 Client::~Client() {
 	
+	size_t i = 0;
+	std::cout << "Drope Client\n";
 	std::vector<Server *>::iterator it = dataServer.begin();
-	while (it != dataServer.end()) {
-		delete *it;
+	while (i < dataServer.size()) {
 		dataServer.erase(it);
+		delete it[i];
 		it++;
+		i++;
 	}
 	delete response;
-
-
 }

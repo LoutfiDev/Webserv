@@ -115,187 +115,102 @@ std::string getUri(std::string &requestedUri, std::string &locationName)
 
 int Response::processPostResponse()
 {
-	static int count = 0;
 	char buff[1024];
 
-	std::cout << count++ << "\n";
 	memset(buff, '\0', 1023);
 	if (method != "POST")
 		return (postState = END, 1);
-	if (typeInfile == BODY)
+	infile.read(buff, 1023);
+	if (infile)
+		outfile.write(buff, 1023);
+	else
+		outfile.write(buff, infile.gcount());
+	if (infile.eof()) 
 	{
-		outfile << responseBody;
+		infile.close();
+		outfile.close();
 		postState = END;
 		return 1;
 	}
-	else 
-	{
-		infile.read(buff, 1023);
-		if (infile)
-			outfile.write(buff, 1023);
-		else
-		{
-			outfile.write(buff, infile.gcount());
-		}
-		if (infile.eof()) 
-		{
-			infile.close();
-			outfile.close();
-			postState = END;
-			return 1;
-		}
-		return 0;
-	}
+	return 0;
 }
 
 /*
- * @Description : Post method
+ * @Description : Post method, create a file that contains the content of the 
+ *				  request body the URI in this method has no effect
  * @param none 
  * 
- * @return string the response so that i can read it and send it to the Client
+ * @return void
  *
  */
 
 void Response::Post()
 {
-	// path = "/nfs/homes/anaji/Desktop/webServer/web_root/index.html";
-	std::string requestedfile = path;
-	struct stat st_stat;
 	std::string pathname;
 	std::string path_dir;
 
 	if (postState != PROCESSING)
 		return;
-	std::cout << requestedfile << "\n";
-	if (access(requestedfile.c_str(), F_OK) == -1)
+	if (location->upload_dir.length())
 	{
-		status_code = "404";
-		send_response();
-		return;
-	}
-	std::cout << "requested =>" << requestedfile << "\n";
-	stat(requestedfile.c_str(), &st_stat);
-	if (st_stat.st_mode & S_IFDIR && requestedfile[requestedfile.size() - 1] != '/')
-	{
-		uri.append("/");
-		status_code = "301";
-		send_response();
-		return;
-	}
-	if (st_stat.st_mode & S_IFDIR)
-	{
-		std::cout << "need a DIR\n";
-		if (location->upload_dir.length())
-		{
-			if (access(location->upload_dir.c_str(), F_OK) == -1)
-			{
-				status_code = "404";
-				send_response();
-				return;
-			}
-			if (access(location->upload_dir.c_str(), W_OK) == -1)
-			{
-				status_code = "403";
-				send_response();
-				return;
-			}
-			path_dir = removeLastChar(location->upload_dir);
-			pathname = path_dir + '/' + generateFileName();
-		}
-		else if (location->root.length())
-		{
-			// std::cout << "1-> "<<location->root << " " << location->root << "\n";
-			if (access(location->root.c_str(), F_OK) == -1)
-			{
-				status_code = "404";
-				send_response();
-				return;
-			}
-			if (access(location->root.c_str(), W_OK) == -1)
-			{
-				status_code = "403";
-				send_response();
-				return;
-			}
-			path_dir = removeLastChar(location->root);
-			pathname = path_dir + '/' + generateFileName();
-		}
-		else
+		if (access(location->upload_dir.c_str(), F_OK) == -1)
 		{
 			status_code = "404";
 			send_response();
 			return;
 		}
-		outfile.open(pathname.c_str(), std::ofstream::binary);
-		postState = SENDING;
-		typeInfile = BODY;
-		status_code = "201";
-		processPostResponse();
+		if (access(location->upload_dir.c_str(), W_OK) == -1)
+		{
+			status_code = "403";
+			send_response();
+			return;
+		}
+		path_dir = removeLastChar(location->upload_dir);
+		pathname = path_dir + '/' + generateFileName();
 	}
-	else if (st_stat.st_mode & S_IFREG)
+	else if (location->root.length())
 	{
-		std::cout << "need a REGFILE\n";
-		if (location->upload_dir.length())
-		{
-			std::cout << "have an upload_dir location =>" << location->upload_dir << "\n";
-			if (access(location->upload_dir.c_str(), F_OK) == -1)
-			{
-				status_code = "404";
-				send_response();
-				return;
-			}
-			if (access(location->upload_dir.c_str(), W_OK) == -1)
-			{
-				status_code = "403";
-				send_response();
-				return;
-			}
-			path_dir = removeLastChar(location->upload_dir);
-			pathname = path_dir + '/' + generateFileName();
-		}
-		else if (location->root.length())
-		{
-			std::cout << "have a root location =>" << location->root << "\n";
-			if (access(location->root.c_str(), F_OK) == -1)
-			{
-				status_code = "404";
-				send_response();
-				return;
-			}
-			if (access(location->root.c_str(), W_OK) == -1)
-			{
-				status_code = "403";
-				send_response();
-				return;
-			}
-			path_dir = removeLastChar(location->root);
-			pathname = path_dir + '/' + generateFileName();
-		}
-		else
+		if (access(location->root.c_str(), F_OK) == -1)
 		{
 			status_code = "404";
 			send_response();
 			return;
-
 		}
-		infile.open(requestedfile.c_str(), std::ifstream::binary);
-		outfile.open(pathname.c_str(), std::ofstream::binary);
-		status_code = "201";
-		postState = SENDING;
-		typeInfile = FILE;
-		processPostResponse();
-		// i think in case of a regular file that can pass throught CGI we need to call GET method (arabic : dakchi li galina youssef l2ostora)
+		if (access(location->root.c_str(), W_OK) == -1)
+		{
+			status_code = "403";
+			send_response();
+			return;
+		}
+		path_dir = removeLastChar(location->root);
+		pathname = path_dir + '/' + generateFileName();
 	}
 	else
-		std::cout << "ALO\n";
+	{
+		status_code = "403";
+		send_response();
+		return;
+	}
+	infile.open(responseBody.c_str(), std::ifstream::binary);
+	outfile.open(pathname.c_str(), std::ofstream::binary);
+	postState = SENDING;
+	status_code = "201";
+	processPostResponse();
+
+	// i think in case of a regular file that can pass throught CGI we need to call GET method (arabic : dakchi li galina youssef l2ostora)
 }
 
 void Response::send_errorResponse()
 {
 	response += http_v + " " + status_code + " " + getMessage(status_code) + "\r\n";
-	// response += "Content-Length: " + getMessage(status_code).length() + "\r\n";
+	response += "Content-Length: " + to_String(getMessage(status_code).length()) + "\r\n";
 	response += "Content-Type: text/html\r\n\r\n";
 	response += getMessage(status_code) + "\r\n";
-	std::cout << response;
 	write(socket, response.c_str(), response.length());
+}
+
+std::string to_String(long long num) {
+  std::ostringstream oss;
+  oss << num;
+  return oss.str();
 }

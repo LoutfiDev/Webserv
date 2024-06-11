@@ -8,10 +8,11 @@
 
 void handleError(const char *, int);
 std::string trim(const std::string& str, std::string toTrim =" \t\n\r");
-std::string fileName();
+std::string generateFileName();
 void toLower(std::string &);
 std::string getUri(std::string &, std::string &);
 std::string removeLastChar(std::string); // remove last '/'
+std::string to_String(long long);
 
 
 #endif //!UTLS

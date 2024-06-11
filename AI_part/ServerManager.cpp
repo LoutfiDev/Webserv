@@ -181,7 +181,7 @@ void ServerManager::multiplixer()
 	while (1)
 	{
 		worker.showClients();
-		num_event = epoll_wait(epoll_fd, epl_evt, NUMCONNECTION, 10000);
+		num_event = epoll_wait(epoll_fd, epl_evt, NUMCONNECTION, 4000);
 		if (num_event == -1)
 		{
 			this->~ServerManager();

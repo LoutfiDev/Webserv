@@ -2,6 +2,7 @@
 #define RQST
 
 #include <cstddef>
+#include <fstream>
 #include <map>
 #include <sstream>
 #include <string>
@@ -41,7 +42,7 @@ class Request {
 		std::string getMatchedLocation() const;
 
 		int getBodyLength();
-		std::string getBody() const;
+		std::string getBodyFile() const;
 
 		Location *getRequestedLocation();
 		void setRequestedLocation();
@@ -71,6 +72,8 @@ class Request {
 		const std::string &getHost();
 		int getBodyCount() const;
 
+		void closeTmpBody();
+
 	private:
 		void setBodyLength(std::string &);
 		int readTransferEncodingBody(std::string);
@@ -81,14 +84,18 @@ class Request {
 		bool had_request_line;
 		std::map<std::string, std::string> headers;
 		std::string method_name;
-		// std::string path;
+		std::string path;
+		std::string response_uri;
 		std::string http_version;
+
 		std::string body;
 		std::string host;
 		long long bodyLength;
 		long long bodyLength_CPY;
 		int chunk_length;
 		std::string tmp_body;
+		std::ofstream tmp_body_file;
+		std::string tmp_body_file_name;
 
 
 		size_t bodyCount;				// to check if it is more then max_size
@@ -105,9 +112,6 @@ class Request {
 		Location *requested_location;
 		Server *requestedServer;
 	
-	public:
-		std::string path;
-		std::string response_uri;
 
 };
 

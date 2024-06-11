@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:19:40 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/10 00:08:31 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/11 03:22:17 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,9 @@ Server& Server::operator=(const Server& src)
 	return (*this);
 }
 
-Server::~Server() {}
+Server::~Server() {
+	std::cout << "Server DISTRUCTOR\n";
+}
 
 void Server::set_default_error_pages( void ){
 	error_pages["201"] = "error_pages/201.html";
@@ -77,13 +79,13 @@ void Server::set_default_error_pages( void ){
 
 // Server setters
 std::string parse_host(std::string host) {
-	
+
 	std::string tmp;
 	std::stringstream ss(host);
 	int nbr;
 	char *rest;
 	int i = 1;
-	
+
 	while (std::getline(ss, tmp, '.'))
 	{
 		nbr = strtod(tmp.c_str(), &rest);
@@ -91,15 +93,15 @@ std::string parse_host(std::string host) {
 			throw 5;
 		i++;
 	}
-	
+
 	return host;
 }
 
 std::string parse_port(std::string port) {
-	
+
 	char *rest;
 	int nbr;
-	
+
 	nbr = strtod(port.c_str(), &rest);
 	if (*rest)
 	{
@@ -117,9 +119,9 @@ std::string parse_port(std::string port) {
 }
 
 void Server::set_listen(std::string& rest) {
-	
+
 	std::string value;
-	    
+
 	while (!rest.empty())
 	{
 		if (rest[0] == ' ')
@@ -151,9 +153,9 @@ void Server::set_listen(std::string& rest) {
 }
 
 void Server::set_server_names(std::string& rest) { 
-	
+
 	std::string value;
-	    
+
 	while (!rest.empty())
 	{
 		if (rest[0] == ' ')
@@ -186,19 +188,19 @@ std::string is_status_code(std::string status_code)
 {
 	char *rest;
 	int nb;
-		nb = strtod(status_code.c_str(), &rest);
-		if (rest[0])
-			throw 11;
-		else if (!(nb > 299 && nb < 600))
-			throw 11;
+	nb = strtod(status_code.c_str(), &rest);
+	if (rest[0])
+		throw 11;
+	else if (!(nb > 299 && nb < 600))
+		throw 11;
 	return (status_code);
 }
 void Server::set_error_pages(std::string& rest) { 
-	
+
 	std::string value;
 	std::vector<std::string>tmp;
 	std::map<std::string, std::string> tmp_error_pages;
-	
+
 	set_default_error_pages();
 	while (!rest.empty())
 	{
@@ -240,7 +242,7 @@ std::string parse_max_body_size(std::string value)
 {
 	double nb;
 	char *rest;
-	
+
 	nb = strtod(value.c_str(), &rest);
 	if (rest[0])
 		throw 13;
@@ -251,7 +253,7 @@ std::string parse_max_body_size(std::string value)
 
 void Server::set_max_body_size(std::string& rest) { 
 	std::string value;
-	    
+
 	while (!rest.empty())
 	{
 		if (rest[0] == ' ')
@@ -284,7 +286,7 @@ void Server::set_max_body_size(std::string& rest) {
 
 void Server::set_root(std::string& rest) { 
 	std::string value;
-	    
+
 	while (!rest.empty())
 	{
 		if (rest[0] == ' ')
@@ -318,7 +320,7 @@ void Server::set_root(std::string& rest) {
 void Server::set_locations(std::string& rest) { 
 	std::string value;
 	std::string path;
-	
+
 	while (!rest.empty())
 	{
 		if (rest[0] == ' ')
@@ -361,7 +363,7 @@ void Server::set_locations(std::string& rest) {
 // std::string Server::get_server_names(const std::string& server_name) {}
 
 // std::string Server::get_error_pages(const unsigned int error_code) {}
- 
+
 // std::string Server::get_max_body_size( void ) const { return max_body_size; }
 
 // std::string Server::get_root( void ) const { return root;}
@@ -376,7 +378,7 @@ void Server::pick_directive(std::string& rest)
 		, &Server::set_max_body_size, &Server::set_root, &Server::set_locations};
 	std::string tmp;
 	std::stringstream ss(rest);
-    std::getline(ss, tmp, ' ');
+	std::getline(ss, tmp, ' ');
 	for (int i = 0; i < 6; i++)
 	{
 		if (str[i] == tmp)

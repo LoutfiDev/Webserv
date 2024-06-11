@@ -21,6 +21,8 @@ class Client {
 		Client(const Client &);
 		Client &operator=(const Client &);
 
+		void init_dataServer(const std::vector<Server *> &);
+
 		Request &getRequest();
 		void setRequest(const Request &);
 
@@ -53,6 +55,8 @@ class Client {
 		// bool canParseBody;		// if method is POST then go and parse body else don't 
 		// int bodyLength;
 		std::vector<Server *> dataServer;
+
+	public:
 		time_t c_timer_start;
 
 

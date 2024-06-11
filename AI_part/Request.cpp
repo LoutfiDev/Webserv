@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <ios>
 #include <iostream>
+#include <istream>
 #include <map>
 #include <sstream>
 #include <stdexcept>
@@ -126,9 +127,9 @@ std::string  Request::getHttpVersion() const
 	return http_version;
 }
 
-std::string Request::getBody() const
+std::string Request::getBodyFile() const
 {
-	return body;
+	return tmp_body_file_name;
 }
 
 int Request::getBodyCount() const
@@ -169,6 +170,11 @@ void Request::setChunkLength(std::string token)
 		chunk_length = -1;
 	if (chunk_length < 0)
 		chunk_length = -2;
+}
+
+void Request::closeTmpBody()
+{
+	tmp_body_file.close();
 }
 
 void Request::setBodyLength(std::string &number)
@@ -312,7 +318,7 @@ int Request::addHeader(std::string token)
 }
 
 /*
- * @Description : read that buffer into the body attribute and performe parse it
+ * @Description : read that buffer into the body attribute and parse it
  * @param token string buffer from client
  * 
  * @return int 0:no error in token | 1:reading is done | -1: error
@@ -321,6 +327,14 @@ int Request::addHeader(std::string token)
 
 int Request::addBody(std::string &token)
 {
+	if (method_name != "POST")
+		return -1;
+	if (!tmp_body_file.is_open())
+	{
+		tmp_body_file_name = "/tmp/" + generateFileName();
+		std::cout << "opening " << tmp_body_file_name << "\n";
+		tmp_body_file.open(tmp_body_file_name.c_str(), std::istream::binary);
+	}
 	try
 	{
 		if (!transferEncodingCheck)
@@ -344,15 +358,15 @@ int Request::addBody(std::string &token)
 				getContentLength();
 				contentLengthCheck = true;
 			}
-			body += token;
+			tmp_body_file.write(token.c_str(), token.length());
 			bodyLength_CPY -= token.length();
 			bodyCount += token.length();
 			if (bodyLength_CPY <= 0)
-				return -1;
-			std::cout << token << " =>END\n";
+				return (tmp_body_file.close(), -1);
 		}
 		catch (int)
 		{
+			tmp_body_file.close();
 			return -1;
 		}
 	}
@@ -400,12 +414,13 @@ int Request::readTransferEncodingBody(std::string token)
 			setChunkLength(tmp_body.substr(0, line));
 			if (chunk_length == -1)
 			{
-				body += "\r\n";
+				tmp_body_file << "\r\n";
 				return 1;
 			}
 			if (chunk_length == -2)
 			{
 				setResponseCode("408");
+				tmp_body_file.close();
 				return -1;
 			}
 			tmp_body = tmp_body.substr(line + 2);
@@ -414,16 +429,16 @@ int Request::readTransferEncodingBody(std::string token)
 		{
 			if (chunk_length > (int)tmp_body.length())
 			{
-				body += tmp_body;
+				tmp_body_file.write(tmp_body.c_str(), tmp_body.length());
 				chunk_length -= tmp_body.length();
 				tmp_body.clear();
 			}
 			else
 			{
-				body += tmp_body.substr(0, chunk_length);
+				tmp_body_file.write(tmp_body.substr(0, chunk_length).c_str(), tmp_body.substr(0, chunk_length).length());
 				tmp_body = tmp_body.substr(chunk_length);
 				chunk_length = 0;
-				body += "\r\n";
+				tmp_body_file << "\r\n";
 			}
 			bodyCount += tmp_body.length();
 		}
@@ -533,4 +548,5 @@ const std::string &Request::getTransferEncoding()
 }
 
 Request::~Request() {
+	tmp_body_file.close();
 }
