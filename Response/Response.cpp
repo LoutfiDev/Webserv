@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
+/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/10 04:14:40 by anaji            ###   ########.fr       */
+/*   Updated: 2024/06/11 18:28:58 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,15 +14,6 @@
 #include <netdb.h>
 #include <string>
 
-//******************TO DO***************************//
-// v- try to get file .mp4                          //
-// v- fix delete (remove : permission level)        //
-// v- fix redirect                                  //
-//**************************************************//
-
-
-// you can pass a request object as param to the constructer
-// Response::Response(Request req) : status_code("200")
 
 Response::Response() : STAGE(0), index(0), HEADERISWRITTEN(0)
 {
@@ -66,8 +57,9 @@ void Response::Get() {
 					tmp = path + *it;
 					if (access(tmp.c_str(), F_OK) == 0)
 					{
-						uri.append(*it);
-						status_code = "301";
+						path.append(*it);
+						if (access(path.c_str(), R_OK) != 0)
+							status_code = "403";
 						closedir(directory);
 						return ;
 					}
@@ -161,6 +153,131 @@ void Response::Delete()
 	}
 }
 
+
+void Response::formEnv( void )
+{
+	env = new char*[6];
+	
+	env[0] = new char[std::string(std::string("REQUEST_METHOD") + "=" + method).size() + 1];
+	strcpy(env[0], std::string(std::string("REQUEST_METHOD") + "=" + method).c_str());
+	
+	// env[1] = new char[std::string(std::string("QUERY_STRING") + "=" + query).size() + 1];
+	// strcpy(env[1], std::string(std::string("QUERY_STRING") + "=" + query).c_str());
+	
+	env[1] = new char[std::string(std::string("REDIRECT_STATUS") + "=" + "200").size() + 1];
+	strcpy(env[1], std::string(std::string("REDIRECT_STATUS") + "=" + "200").c_str());
+	
+	env[2] = new char[std::string(std::string("SCRIPT_FILENAME") + "=" + path).size() + 1];
+	strcpy(env[2], std::string(std::string("SCRIPT_FILENAME") + "=" + path).c_str());
+	
+	env[3] = new char[std::string(std::string("CONTENT_TYPE") + "=" + getContentType(path)).size() + 1];
+	strcpy(env[3], std::string(std::string("CONTENT_TYPE") + "=" + getContentType(path)).c_str());
+	
+	// env[5] = new char[std::string(std::string("HTTP_COOKIE") + "=" + http_cookie).size() + 1];
+	// strcpy(env[5], std::string(std::string("HTTP_COOKIE") + "=" + http_cookie).c_str());
+	
+	env[4] = new char[std::string(std::string("CONTENT-LENGTH") + "=" + getContentLenght(path)).size() + 1];
+	strcpy(env[4], std::string(std::string("CONTENT-LENGTH") + "=" + getContentLenght(path)).c_str());
+	
+	env[5] = NULL;
+}
+
+int Response::isValid( void )
+{
+	std::stringstream ss(cgiFile);
+	while (getline(ss, extension, '.'))
+		continue;
+	extension.insert (0, 1, '.');
+	std::map<std::string, std::string>::iterator it = location->cgi.begin();
+	for (; it != location->cgi.end(); ++it)
+	{
+		if (extension == it->first)
+		{
+			cgiPath = it->second;
+			return (0);
+		}
+	}
+	return 1;
+}
+
+int Response::is_cgi()
+{
+	DIR *directory;
+	
+	if ((directory = opendir(cgiFile.c_str())))
+	{
+		if (location->index.size())
+		{
+			std::string tmp;
+			std::vector<std::string>::iterator it = location->index.begin();
+			for (; it != location->index.end(); ++it)
+			{
+				tmp = cgiFile + *it;
+				if (access(tmp.c_str(), F_OK) == 0)
+				{
+					if (access(tmp.c_str(), W_OK) != 0)
+						return 1;
+					else
+					{
+						cgiFile.append(*it);
+						if (isValid())
+							return 1;
+						return 0;
+					}
+				}
+			}
+			return 1;
+		}
+		else
+			return 1;
+		closedir(directory);
+	}
+	else
+	{
+		if (access(cgiFile.c_str(), F_OK) == 0)
+		{
+			if (access(cgiFile.c_str(), W_OK) != 0 || isValid())
+				return 1;			
+		}
+		else
+			return 1;
+	}
+	return 0;
+}
+
+void Response::execute_cgi( void )
+{
+	int pid;
+	
+	if (location->cgi.size())
+	{
+		cgiFile = path;
+		if (is_cgi())
+			return ;
+		argv = new char*[3];
+		argv[0] = new char[cgiPath.size() + 1];
+		strcpy(argv[0], cgiPath.c_str());
+		argv[1] = new char[cgiFile.size() + 1];
+		strcpy(argv[1], cgiFile.c_str());
+		argv[2] = NULL;
+		formEnv();
+		cgiOut = generateFileName();
+		if ((pid = fork()) == 0)
+		{
+			freopen (cgiOut.c_str(),"w",stdout);
+			if (method == "POST")
+				freopen (path.c_str(),"r",stdin);
+			if (execve(argv[0], argv, NULL) == -1){
+				
+				std::cout << "execeve failled\n";
+				exit(1);
+			}
+		}
+		waitpid(pid, NULL, 0);//WNOHANG
+		//need to set a time out for the child
+	}
+}
+
 std::string Response::getMessage(std::string code)
 {
 	std::string message = "";
@@ -215,7 +332,7 @@ std::string Response::getPath( void )
 
 int Response::send_response()
 {
-	if (STAGE < HEADERISSENT)
+	if (STAGE == HEADER_PROCESSING)
 	{
 		response += http_v + " " + status_code + " " + getMessage(status_code) + "\r\n";
 		if (status_code != "200")
@@ -249,7 +366,7 @@ int Response::send_response()
 			
 		STAGE += 1;
 	}
-	else if (STAGE < BODYISSENT)
+	else if (STAGE == BODY_PROCESSING)
 	{			
 			DIR *directory;
 			memset(buffer, 0, 1024);
@@ -341,7 +458,7 @@ void Response::fill_messages( void )
 
 // location.allow_methods are in lower case try cout << location.allow_methods[0]
 
-void Response::pick_method(Location *location)
+void Response::pick_method()
 {
 	std::string tmp_method = method;
 

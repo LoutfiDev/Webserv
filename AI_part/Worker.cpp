@@ -85,7 +85,14 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 		(*client)->getResponse()->send_errorResponse();
 		return true;
 	}
-	(*client)->getResponse()->pick_method((*client)->getResponse()->location);
+	// if ((*client)->getResponse()->STAGE == CGI_PROCESSING)
+	(*client)->getResponse()->execute_cgi();
+	std::ifstream 	inputFile((*client)->getResponse()->cgiOut.c_str());
+	std::string rest;
+	while (std::getline(inputFile, rest))
+		std::cout << rest ;
+	exit(0);
+	(*client)->getResponse()->pick_method();
 	while ((read = (*client)->getResponse()->send_response())!= -1);
 	if (read == -1)
 	{
