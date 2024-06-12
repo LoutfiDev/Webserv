@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
+/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/12 03:10:17 by anaji            ###   ########.fr       */
+/*   Updated: 2024/06/12 19:43:16 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include <string>
 
 
-Response::Response() : STAGE(2), index(0), HEADERISWRITTEN(0)
+Response::Response() : STAGE(2), index(0), HEADERISWRITTEN(0), status(-1)
 {
 	postState = PROCESSING;
 	fill_messages();
@@ -93,7 +93,6 @@ void Response::Get() {
 	}
 }
 
-// void Response::Post() { return; }
 
 void Response::Delete_folder(std::string path)
 {
@@ -155,30 +154,30 @@ void Response::Delete()
 
 void Response::formEnv( void )
 {
-	env = new char*[6];
+	env = new char*[8];
 	
 	env[0] = new char[std::string(std::string("REQUEST_METHOD") + "=" + method).size() + 1];
 	strcpy(env[0], std::string(std::string("REQUEST_METHOD") + "=" + method).c_str());
 	
-	// env[1] = new char[std::string(std::string("QUERY_STRING") + "=" + query).size() + 1];
-	// strcpy(env[1], std::string(std::string("QUERY_STRING") + "=" + query).c_str());
+	env[1] = new char[std::string(std::string("QUERY_STRING") + "=" + query).size() + 1];
+	strcpy(env[1], std::string(std::string("QUERY_STRING") + "=" + query).c_str());
 	
-	env[1] = new char[std::string(std::string("REDIRECT_STATUS") + "=" + "200").size() + 1];
-	strcpy(env[1], std::string(std::string("REDIRECT_STATUS") + "=" + "200").c_str());
+	env[2] = new char[std::string(std::string("REDIRECT_STATUS") + "=" + "200").size() + 2];
+	strcpy(env[2], std::string(std::string("REDIRECT_STATUS") + "=" + "200").c_str());
 	
-	env[2] = new char[std::string(std::string("SCRIPT_FILENAME") + "=" + path).size() + 1];
-	strcpy(env[2], std::string(std::string("SCRIPT_FILENAME") + "=" + path).c_str());
+	env[3] = new char[std::string(std::string("SCRIPT_FILENAME") + "=" + path).size() + 1];
+	strcpy(env[3], std::string(std::string("SCRIPT_FILENAME") + "=" + path).c_str());
 	
-	env[3] = new char[std::string(std::string("CONTENT_TYPE") + "=" + getContentType(path)).size() + 1];
-	strcpy(env[3], std::string(std::string("CONTENT_TYPE") + "=" + getContentType(path)).c_str());
+	env[4] = new char[std::string(std::string("CONTENT_TYPE") + "=" + getContentType(path)).size() + 1];
+	strcpy(env[4], std::string(std::string("CONTENT_TYPE") + "=" + getContentType(path)).c_str());
 	
-	// env[5] = new char[std::string(std::string("HTTP_COOKIE") + "=" + http_cookie).size() + 1];
-	// strcpy(env[5], std::string(std::string("HTTP_COOKIE") + "=" + http_cookie).c_str());
+	env[5] = new char[std::string(std::string("HTTP_COOKIE") + "=" + http_cookie).size() + 1];
+	strcpy(env[5], std::string(std::string("HTTP_COOKIE") + "=" + http_cookie).c_str());
 	
-	env[4] = new char[std::string(std::string("CONTENT-LENGTH") + "=" + getContentLenght(path)).size() + 1];
-	strcpy(env[4], std::string(std::string("CONTENT-LENGTH") + "=" + getContentLenght(path)).c_str());
+	env[6] = new char[std::string(std::string("CONTENT-LENGTH") + "=" + getContentLenght(path)).size() + 1];
+	strcpy(env[6], std::string(std::string("CONTENT-LENGTH") + "=" + getContentLenght(path)).c_str());
 	
-	env[5] = NULL;
+	env[7] = NULL;
 }
 
 int Response::isValid( void )
@@ -244,37 +243,46 @@ int Response::is_cgi()
 	return 0;
 }
 
-void Response::execute_cgi( void )
+int Response::execute_cgi( void )
 {
-	int pid;
-	
-	if (location->cgi.size())
+	if (STAGE == EXEC_CGI)
 	{
 		cgiFile = path;
-		if (is_cgi())
-			return ;
-		argv = new char*[3];
-		argv[0] = new char[cgiPath.size() + 1];
-		strcpy(argv[0], cgiPath.c_str());
-		argv[1] = new char[cgiFile.size() + 1];
-		strcpy(argv[1], cgiFile.c_str());
-		argv[2] = NULL;
-		formEnv();
-		cgiOut = generateFileName();
-		if ((pid = fork()) == 0)
+		if (location->cgi.size() && !is_cgi())
 		{
-			freopen (cgiOut.c_str(),"w",stdout);
-			if (method == "POST")
-				freopen (path.c_str(),"r",stdin);
-			if (execve(argv[0], argv, NULL) == -1){
-				
-				std::cout << "execeve failled\n";
-				exit(1);
+			argv = new char*[3];
+			argv[0] = new char[cgiPath.size() + 1];
+			strcpy(argv[0], cgiPath.c_str());
+			argv[1] = new char[cgiFile.size() + 1];
+			strcpy(argv[1], cgiFile.c_str());
+			argv[2] = NULL;
+			formEnv();
+			cgiOut = generateFileName();
+			if ((pid = fork()) == 0)
+			{
+				freopen (cgiOut.c_str(),"w",stdout);
+				if (method == "POST")
+					freopen (path.c_str(),"r",stdin);
+				if (execve(argv[0], argv, env) == -1)
+					exit(1);
 			}
+			STAGE += 1;
 		}
-		waitpid(pid, NULL, 0);//WNOHANG
-		//need to set a time out for the child
+		else
+			STAGE = CGI_PROCESSING + 1;
 	}
+	waitpid(pid, &status, WNOHANG);
+	if (status != -1)
+	{
+		if (status != 0)
+		{
+			status_code = "500";
+			return 2;
+		}
+		STAGE += 1;
+	}
+	return 1;
+	//need to set a time out for the child	
 }
 
 std::string Response::getMessage(std::string code)

@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:42 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/12 11:07:49 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/12 15:56:26 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@
 #include "../Parser/parser.hpp"
 #include "../AI_part/utils.hpp"
 
+#define EXEC_CGI 0
 #define CGI_PROCESSING 1
 #define HEADER_PROCESSING 2
 #define BODY_PROCESSING 3
@@ -76,17 +77,21 @@ class Response
 		std::string cgiPath;
 		std::string query;
 		std::string http_cookie;
+		
+		int pid;
+		int status;
 		char **env;
 		char **argv;
 
 		
-		void execute_cgi( void );
+		int execute_cgi( void );
 		int is_cgi( void );
 		int isValid ( void );
 		void formEnv ( void );
 
 		//added by Ai for post method
 		int postState;
+		std::string responseBody;
 		std::ifstream infile;
 		std::ofstream outfile;
 		int typeInfile;
@@ -100,8 +105,6 @@ class Response
 		
 
 		void Get( void );
-		//Post Defintion at AI_Part/utils.cpp
-		std::string responseBody;
 		void Post( void );
 		void Delete( void );
 		
