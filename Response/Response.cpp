@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/12 19:43:16 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/12 23:57:44 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include <string>
 
 
-Response::Response() : STAGE(2), index(0), HEADERISWRITTEN(0), status(-1)
+Response::Response() : STAGE(0), index(0), HEADERISWRITTEN(0), status(-1)
 {
 	postState = PROCESSING;
 	fill_messages();
@@ -242,47 +242,66 @@ int Response::is_cgi()
 	}
 	return 0;
 }
+void Response::resetTimer()
+{
+	timespan = time(0);
+}
+
+bool Response::istimeOut()
+{
+	if (time(0) - timespan > CGITIMEOUT)
+	{
+		status_code = "408";
+		return true;
+	}
+	return false;
+} 
 
 int Response::execute_cgi( void )
 {
-	if (STAGE == EXEC_CGI)
-	{
 		cgiFile = path;
 		if (location->cgi.size() && !is_cgi())
 		{
-			argv = new char*[3];
-			argv[0] = new char[cgiPath.size() + 1];
-			strcpy(argv[0], cgiPath.c_str());
-			argv[1] = new char[cgiFile.size() + 1];
-			strcpy(argv[1], cgiFile.c_str());
-			argv[2] = NULL;
-			formEnv();
-			cgiOut = generateFileName();
-			if ((pid = fork()) == 0)
+			if (STAGE == EXEC_CGI)
 			{
-				freopen (cgiOut.c_str(),"w",stdout);
-				if (method == "POST")
-					freopen (path.c_str(),"r",stdin);
-				if (execve(argv[0], argv, env) == -1)
-					exit(1);
+				resetTimer();
+				argv = new char*[3];
+				argv[0] = new char[cgiPath.size() + 1];
+				strcpy(argv[0], cgiPath.c_str());
+				argv[1] = new char[cgiFile.size() + 1];
+				strcpy(argv[1], cgiFile.c_str());
+				argv[2] = NULL;
+				formEnv();
+				cgiOut = generateFileName();
+				if ((pid = fork()) == 0)
+				{
+					freopen (cgiOut.c_str(),"w",stdout);
+					if (method == "POST")
+						freopen (path.c_str(),"r",stdin);
+					if (execve(argv[0], argv, env) == -1)
+						exit(1);
+				}
+				STAGE += 1;
 			}
-			STAGE += 1;
+			waitpid(pid, &status, WNOHANG);
+			if (status != -1)
+			{
+				if (status != 0)
+				{
+					status_code = "500";
+					return 2;
+				}
+				STAGE += 1;
+			}
+			else if (istimeOut())
+			{
+				kill(pid, SIGKILL);
+				return 2;
+			}
 		}
 		else
 			STAGE = CGI_PROCESSING + 1;
-	}
-	waitpid(pid, &status, WNOHANG);
-	if (status != -1)
-	{
-		if (status != 0)
-		{
-			status_code = "500";
-			return 2;
-		}
-		STAGE += 1;
-	}
 	return 1;
-	//need to set a time out for the child	
 }
 
 std::string Response::getMessage(std::string code)

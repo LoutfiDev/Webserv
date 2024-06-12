@@ -95,8 +95,13 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 		int error = (*client)->getResponse()->execute_cgi();
 		if (error == ERROR)
 		{
-			(*client)->getResponse()->send_errorResponse();
-			return true;
+			// while (1)
+			// {
+			// 	response_result = (*client)->getResponse()->send_response();
+			// 	std::cout << response_result << "\n";
+			// 	if (response_result == -1)
+			// 		return true;
+			// }
 		}
 	}
 	else
