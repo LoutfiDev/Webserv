@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/12 23:57:44 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/13 00:34:35 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -296,6 +296,7 @@ int Response::execute_cgi( void )
 			else if (istimeOut())
 			{
 				kill(pid, SIGKILL);
+				STAGE += 1;
 				return 2;
 			}
 		}
@@ -426,6 +427,7 @@ int Response::send_response()
 					write(socket, response.c_str() , response.size());
 					response.clear();
 					closedir(directory);
+					STAGE += 1;
 					return -1;
 				}
 				write(socket, response.c_str() , response.size());
@@ -448,14 +450,20 @@ int Response::send_response()
 					else
 					{
 						if (is.gcount() == 0)
+						{
+							STAGE += 1;
 							return -1;
+						}
 						write(socket, buffer , is.gcount());
 						index += is.gcount();
 					}	
 					is.close();
 				}
 				else
+				{
+					STAGE += 1;
 					return -1;
+				}
 			}
 	}
 	return 0;

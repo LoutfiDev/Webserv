@@ -87,29 +87,28 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 	// (*client)->resetTimer();
 	if ((*client)->getState() == ERROR)
 	{
-		(*client)->getResponse()->send_errorResponse();
-		return true;
+		(*client)->getResponse()->send_response();
+		if ((*client)->getResponse()->STAGE > BODY_PROCESSING)
+			return true;
 	}
 	if ((*client)->getResponse()->STAGE <= CGI_PROCESSING)
 	{
 		int error = (*client)->getResponse()->execute_cgi();
 		if (error == ERROR)
 		{
-			// while (1)
-			// {
-			// 	response_result = (*client)->getResponse()->send_response();
-			// 	std::cout << response_result << "\n";
-			// 	if (response_result == -1)
-			// 		return true;
-			// }
+			(*client)->getResponse()->send_response();
+			if ((*client)->getResponse()->STAGE > BODY_PROCESSING)
+				return true;
 		}
 	}
 	else
 	{
-		(*client)->getResponse()->pick_method();
+		//waiting for debug
+		if ((*client)->getResponse()->STAGE < HEADER_PROCESSING)
+			(*client)->getResponse()->pick_method();
 		response_result = (*client)->getResponse()->send_response();
 		if (response_result == -1)
-			return true;
+				return true;
 	}
 	return false;
 }
