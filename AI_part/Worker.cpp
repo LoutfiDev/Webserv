@@ -41,7 +41,7 @@ Worker &Worker::operator=(const Worker& obj)
 int Worker::readFromClient(int fd, std::vector<Client *>::iterator client)
 {
 	int read_size;
-	int READBUFFER = 1024;
+	int READBUFFER = 10024;
 
 	(*client)->resetTimer();
 	char buf[READBUFFER];
@@ -91,18 +91,16 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 		return true;
 	}
 	// if ((*client)->getResponse()->STAGE == CGI_PROCESSING)
-	(*client)->getResponse()->execute_cgi();
-	std::ifstream 	inputFile((*client)->getResponse()->cgiOut.c_str());
-	std::string rest;
-	while (std::getline(inputFile, rest))
-		std::cout << rest ;
-	exit(0);
+	// (*client)->getResponse()->execute_cgi();
+	// std::ifstream 	inputFile((*client)->getResponse()->cgiOut.c_str());
+	// std::string rest;
+	// while (std::getline(inputFile, rest))
+	// 	std::cout << rest ;
+	// exit(0);
 	(*client)->getResponse()->pick_method();
-	while ((response_rseult = (*client)->getResponse()->send_response())!= -1);
+	response_rseult = (*client)->getResponse()->send_response();
 	if (response_rseult == -1)
-	{
 		return true;
-	}
 	return false;
 }
 
@@ -165,7 +163,9 @@ void Worker::setClientResponse(int clientFd)
 			clients[i]->getResponse()->location = clients[i]->getRequest().getRequestedLocation();
 			clients[i]->getResponse()->server = clients[i]->getRequest().getRequestedServer();
 			clients[i]->getResponse()->uri= clients[i]->getRequest().getResponseUri();
-			// std::cout << "http_v " << clients[i]->getResponse()->http_v << "\n";
+			clients[i]->getResponse()->http_cookie = clients[i]->getRequest().getCookie();
+			clients[i]->getResponse()->query = clients[i]->getRequest().getQueryString();
+
 			// max_body_size = strtod(clients[i]->getResponse()->server->max_body_size.c_str(), &s);
 			// if (clients[i]->getRequest().getBodyCount() > max_body_size)
 			// {

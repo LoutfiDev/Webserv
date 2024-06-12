@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/11 18:28:58 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/12 03:10:17 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,9 @@
 #include <string>
 
 
-Response::Response() : STAGE(0), index(0), HEADERISWRITTEN(0)
+Response::Response() : STAGE(2), index(0), HEADERISWRITTEN(0)
 {
 	postState = PROCESSING;
-	typeInfile = BODY;
 	fill_messages();
 }
 

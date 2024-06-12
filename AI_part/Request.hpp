@@ -40,6 +40,8 @@ class Request {
 		void setPath(std::string);
 		std::string getHttpVersion() const;
 		std::string getMatchedLocation() const;
+		std::string getCookie() const;
+		std::string getQueryString() const;
 
 		int getBodyLength();
 		std::string getBodyFile() const;
@@ -71,6 +73,7 @@ class Request {
 		const std::string &getContentType();
 		const std::string &getHost();
 		int getBodyCount() const;
+
 
 		void closeTmpBody();
 
@@ -111,6 +114,12 @@ class Request {
 	private:
 		Location *requested_location;
 		Server *requestedServer;
+
+	//cgi paraameter
+	private:
+		std::string cookie;
+		std::string query_string;
+
 	
 
 };

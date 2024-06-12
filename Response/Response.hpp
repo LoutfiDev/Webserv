@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:42 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/11 15:52:55 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/12 03:00:32 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@
 
 
 #include "../Parser/parser.hpp"
+#include "../AI_part/utils.hpp"
 
 #define CGI_PROCESSING 1
 #define HEADER_PROCESSING 2
@@ -45,9 +46,6 @@
 #define PROCESSING 1
 #define SENDING 2
 #define END 3
-
-#define BODY 1
-#define FILE 2
 
 class Response
 {
@@ -93,9 +91,6 @@ class Response
 		std::ofstream outfile;
 		int typeInfile;
 
-		long generateNum();
-		char randomChar(int old);
-		std::string generateFileName();
 		int processPostResponse();
 		
 		Response();

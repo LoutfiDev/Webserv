@@ -28,6 +28,8 @@ Request::Request() {
 	contentTypeCheck = false;
 	chunk_length = 0;
 	host =  "";
+	cookie = "";
+	query_string = "";
 	requestedServer = NULL;
 }
 
@@ -53,6 +55,8 @@ Request &Request::operator=(const Request& obj)
 	tmp_body = obj.tmp_body;
 	bodyCount = obj.bodyCount;
 	host = obj.host;
+	query_string = obj.query_string;
+	cookie = obj.cookie;
 
 	transferEncodingCheck = obj.transferEncodingCheck;
 	contentLengthCheck = obj.contentLengthCheck;
@@ -117,11 +121,6 @@ void Request::setPath(std::string uri)
 
 }
 
-// std::string Request::getMatchedLocation() const
-// {
-// 	return location_name;
-// }
-
 std::string  Request::getHttpVersion() const
 {
 	return http_version;
@@ -159,6 +158,16 @@ const std::string &Request::getHost()
 	if (host.length() == 0)
 		setResponseCode("400");
 	return host;
+}
+
+std::string Request::getCookie() const
+{
+	return cookie;
+}
+
+std::string Request::getQueryString() const
+{
+	return query_string;
 }
 
 void Request::setChunkLength(std::string token)
@@ -209,6 +218,7 @@ void Request::setRequestedLocation()
 	std::map<std::string, Location *>::iterator beg;
 	std::string finale_path;
 	std::string location_name;
+	size_t query_pos;
 
 	uri = path;
 	for (beg = l->begin(); beg != l->end(); beg++)
@@ -227,7 +237,14 @@ void Request::setRequestedLocation()
 	uri = getUri(path, location_name);
 	finale_path = removeLastChar(requested_location->root) + uri;
 	response_uri = path;
+	query_pos = finale_path.find("?");
+	if (query_pos != std::string::npos)
+	{
+		query_string = finale_path.substr(query_pos + 1);
+		finale_path = finale_path.substr(0, query_pos);
+	}
 	path = finale_path;
+	std::cout << "Query_string =>" << query_string << "\n";
 	std::cout << "requested uri => " << finale_path << "\n";
 }
 
@@ -313,6 +330,8 @@ int Request::addHeader(std::string token)
 			host = value;
 			return HOST_EXIST;
 		}
+		if (key == "cookie")
+			cookie = value;
 	}
 	return 0;
 }
@@ -363,6 +382,7 @@ int Request::addBody(std::string &token)
 			bodyCount += token.length();
 			if (bodyLength_CPY <= 0)
 				return (tmp_body_file.close(), -1);
+			std::cout << "Read  = " << bodyCount << "\n";
 		}
 		catch (int)
 		{
@@ -496,7 +516,6 @@ void Request::removeBoundary(std::string boundary)
 	}
 	std::cout << '<' << body << '>';
 }
-
 
 /*
  * @Description : POST getters for Content-Length and Content-Type
