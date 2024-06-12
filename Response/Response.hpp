@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:42 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/11 15:52:55 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/11 23:36:16 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@
 
 
 #include "../Parser/parser.hpp"
+#include "../AI_part/utils.hpp"
 
 #define CGI_PROCESSING 1
 #define HEADER_PROCESSING 2
@@ -93,9 +94,6 @@ class Response
 		std::ofstream outfile;
 		int typeInfile;
 
-		long generateNum();
-		char randomChar(int old);
-		std::string generateFileName();
 		int processPostResponse();
 		
 		Response();
