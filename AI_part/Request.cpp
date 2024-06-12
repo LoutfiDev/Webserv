@@ -336,6 +336,44 @@ int Request::addHeader(std::string token)
 	return 0;
 }
 
+int Request::ignoreBody(std::string &token)
+{
+	try{
+		if (!transferEncodingCheck)
+		{
+
+			getTransferEncoding();
+			if (request_code)
+				return request_code;
+			transferEncodingCheck = true;
+		}
+		if (readTransferEncodingBody(token) == -1)
+			return -1;
+	}
+	catch (int state)
+	{
+		if (state == -1)
+			return 0;
+		try
+		{
+			if (!contentLengthCheck)
+			{
+				std::cout << getContentLength() << "\n";
+				contentLengthCheck = true;
+			}
+			bodyLength_CPY -= token.length();
+			bodyCount += token.length();
+			if (bodyLength_CPY <= 0)
+				return -1;
+		}
+		catch (int)
+		{
+			return -1;
+		}
+	}
+	return 0;
+}
+
 /*
  * @Description : read that buffer into the body attribute and parse it
  * @param token string buffer from client
@@ -346,8 +384,8 @@ int Request::addHeader(std::string token)
 
 int Request::addBody(std::string &token)
 {
-	if (method_name != "POST")
-		return -1;
+	// if (method_name != "POST")
+	// 	return ignoreBody(token);
 	if (!tmp_body_file.is_open())
 	{
 		tmp_body_file_name = "/tmp/" + generateFileName();
@@ -374,7 +412,7 @@ int Request::addBody(std::string &token)
 		{
 			if (!contentLengthCheck)
 			{
-				getContentLength();
+				std::cout << getContentLength() << "\n";
 				contentLengthCheck = true;
 			}
 			tmp_body_file.write(token.c_str(), token.length());
@@ -382,7 +420,7 @@ int Request::addBody(std::string &token)
 			bodyCount += token.length();
 			if (bodyLength_CPY <= 0)
 				return (tmp_body_file.close(), -1);
-			std::cout << "Read  = " << bodyCount << "\n";
+			// std::cout << "Read  = " << bodyCount << "\n";
 		}
 		catch (int)
 		{

@@ -2,6 +2,7 @@
 #include "Request.hpp"
 #include "Worker.hpp"
 #include <cstddef>
+#include <cstring>
 #include <ctime>
 #include <exception>
 #include <iostream>
@@ -105,7 +106,7 @@ void Client::resetTimer()
  * @param buf tocken from the client
  * @return int 0 : succes | -1 : error
  */
-
+long count = 0;
 void Client::readBuffer(char *buf)
 {
 	buffer += buf;
@@ -135,6 +136,7 @@ void Client::readBuffer(char *buf)
 		}
 		else
 		{
+			count += buffer.size();
 			if (request.addBody(buffer) == -1)
 			{
 				if (request.getMethodName() == "POST")
@@ -146,6 +148,7 @@ void Client::readBuffer(char *buf)
 				std::cout << "Lengh = "<< request.getBodyLength() << "\n";
 				return setState(ERROR);
 			}
+			std::cout << count << "\n";
 			buffer.clear();
 		}
 		if (request.getRequestCode())

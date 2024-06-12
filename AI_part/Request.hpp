@@ -54,6 +54,8 @@ class Request {
 
 		int addHeader(std::string );
 		int  addBody(std::string &);
+		int  ignoreBody(std::string &);
+
 
 		void showHeaders();
 		

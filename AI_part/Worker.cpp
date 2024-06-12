@@ -38,10 +38,11 @@ Worker &Worker::operator=(const Worker& obj)
  * @return int state of the read (done, error, not yet)
  *
  */
+
 int Worker::readFromClient(int fd, std::vector<Client *>::iterator client)
 {
 	int read_size;
-	int READBUFFER = 10024;
+	int READBUFFER = 1024;
 
 	(*client)->resetTimer();
 	char buf[READBUFFER];
@@ -104,7 +105,10 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 		(*client)->getResponse()->pick_method();
 		response_result = (*client)->getResponse()->send_response();
 		if (response_result == -1)
+		{
+			std::cout << "write is done\n";
 			return true;
+		}
 	}
 	return false;
 }
@@ -197,6 +201,7 @@ void Worker::checkClientTimeout()
 	{
 		if ((*client)->istimeOut())
 		{
+			std::cout << "TimeOut\n";
 			kill((*client)->getResponse()->pid, SIGKILL);
 	// std::cout << "c_timer = " << (*client)->c_timer_start << " | time = " << time(0) << "\n";
 			(*client)->getResponse()->send_errorResponse();
