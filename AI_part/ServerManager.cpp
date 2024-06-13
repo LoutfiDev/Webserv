@@ -180,7 +180,7 @@ void ServerManager::multiplixer()
 
 	while (1)
 	{
-		num_event = epoll_wait(epoll_fd, epl_evt, NUMCONNECTION, 4000);
+		num_event = epoll_wait(epoll_fd, epl_evt, NUMCONNECTION, -1);
 		// std::cout << "EVENT\n";
 		if (num_event == -1)
 		{

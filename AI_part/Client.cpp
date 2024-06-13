@@ -20,6 +20,7 @@ Client::Client(int _fd, std::vector<Server *> data)
 	response->socket = _fd;
 	state = READ;
 	c_timer_start = time(0);
+	requestLine = 0;
 	std::cout << "new Client Created\n";
 }
 
@@ -34,6 +35,7 @@ Client &Client::operator=(const Client& obj)
 		return (*this);
 	fd = obj.fd;
 	request = obj.request;
+	requestLine = obj.requestLine;
 	response = obj.response;
 	init_dataServer(obj.dataServer);
 	buffer = obj.buffer;
@@ -95,21 +97,31 @@ void Client::setState(int _state)
 	state = _state;
 }
 
+void Client::setResponseAttribut()
+{
+	if (!requestLine && response->status_code == "200")
+	{
+		response->http_v = request.getHttpVersion();
+		response->method = request.getMethodName();
+	}
+	if (request.getIsSet())
+		requestLine = 1;
+}
+
 void Client::resetTimer()
 {
 	c_timer_start = time(0);
 }
-	
+
 /*
  * @description read bytes sended by the client (request) to buffer and parse it
  *
  * @param buf tocken from the client
  * @return int 0 : succes | -1 : error
  */
-long count = 0;
 void Client::readBuffer(char *buf)
 {
-	buffer += buf;
+	buffer.append(buf);
 	size_t found = -1;
 	c_timer_start = time(0);
 	while (buffer.size())
@@ -119,9 +131,7 @@ void Client::readBuffer(char *buf)
 		{
 			buffer = buffer.substr(2);
 			isHeaderPartDone++;
-			response->http_v = request.getHttpVersion();
-			response->method = request.getMethodName();
-			response->path = request.getPath();
+			std::cout << "After HEADER\n";
 		}
 		if (isHeaderPartDone == 0)
 		{
@@ -133,10 +143,10 @@ void Client::readBuffer(char *buf)
 				request.setRequestedLocation();
 			}
 			buffer = buffer.substr(found + 2);
+			setResponseAttribut();
 		}
 		else
 		{
-			count += buffer.size();
 			if (request.addBody(buffer) == -1)
 			{
 				if (request.getMethodName() == "POST")
@@ -148,13 +158,12 @@ void Client::readBuffer(char *buf)
 				std::cout << "Lengh = "<< request.getBodyLength() << "\n";
 				return setState(ERROR);
 			}
-			std::cout << count << "\n";
 			buffer.clear();
 		}
 		if (request.getRequestCode())
 		{
 			std::cout << "pass to the response with <" << request.getRequestCode() << ">\n";
-				return setState(ERROR);
+			return setState(ERROR);
 		}
 	}
 	return setState(READ);
@@ -176,7 +185,7 @@ void Client::showrequest()
 }
 
 Client::~Client() {
-	
+
 	size_t i = 0;
 	std::cout << "Drope Client\n";
 	std::vector<Server *>::iterator it = dataServer.begin();

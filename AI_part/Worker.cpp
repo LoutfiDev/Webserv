@@ -42,7 +42,7 @@ Worker &Worker::operator=(const Worker& obj)
 int Worker::readFromClient(int fd, std::vector<Client *>::iterator client)
 {
 	int read_size;
-	int READBUFFER = 1024;
+	int READBUFFER = 10000;
 
 	(*client)->resetTimer();
 	char buf[READBUFFER];
@@ -105,8 +105,8 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 	else
 	{
 		//waiting for debug
-		if ((*client)->getResponse()->STAGE < HEADER_PROCESSING)
-			(*client)->getResponse()->pick_method();
+		// if ((*client)->getResponse()->STAGE < HEADER_PROCESSING)
+		// 	(*client)->getResponse()->pick_method();
 		response_result = (*client)->getResponse()->send_response();
 		if (response_result == -1)
 		{
@@ -164,14 +164,18 @@ int Worker::serve(int fd)
 
 void Worker::setClientResponse(int clientFd)
 {
-	// int max_body_size = 10;
-	// char *s;
-	// std::cout << "CLI RESPONSE IS SET\n";
+	int max_body_size = 100000000;
+	int tmp;
+	char *s;
 	for (size_t i = 0; i < clients.size(); i++) {
 		if (clients[i]->getFd() == clientFd)
 		{
+			if (clients[i]->getResponse()->status_code != "200")
+				return ;
 			if (clients[i]->getRequest().getHost().length() == 0)
 				return clients[i]->setState(ERROR);
+
+			clients[i]->getResponse()->path = clients[i]->getRequest().getPath();
 			clients[i]->getResponse()->status_code = clients[i]->getRequest().getResponseCode();
 			clients[i]->getResponse()->location = clients[i]->getRequest().getRequestedLocation();
 			clients[i]->getResponse()->server = clients[i]->getRequest().getRequestedServer();
@@ -179,14 +183,16 @@ void Worker::setClientResponse(int clientFd)
 			clients[i]->getResponse()->http_cookie = clients[i]->getRequest().getCookie();
 			clients[i]->getResponse()->query = clients[i]->getRequest().getQueryString();
 
-			// max_body_size = strtod(clients[i]->getResponse()->server->max_body_size.c_str(), &s);
-			// if (clients[i]->getRequest().getBodyCount() > max_body_size)
-			// {
-			// 	clients[i]->setState(ERROR);
-			// 	clients[i]->getResponse()->status_code = "413";
-			// }
-			// if (clients[i]->getState() == WRITE)
-			// 	clients[i]->getResponse()->pick_method(clients[i]->getResponse()->location);
+			tmp = strtod(clients[i]->getResponse()->server->max_body_size.c_str(), &s);
+			if (tmp)
+				max_body_size = tmp;
+			if (clients[i]->getRequest().getBodyCount() > max_body_size)
+			{
+				clients[i]->setState(ERROR);
+				clients[i]->getResponse()->status_code = "413";
+			}
+			if (clients[i]->getState() == WRITE)
+				clients[i]->getResponse()->pick_method();
 		}
 	}
 }
@@ -205,9 +211,9 @@ void Worker::checkClientTimeout()
 	{
 		if ((*client)->istimeOut())
 		{
-			std::cout << "TimeOut\n";
+			std::cout << "TimeOut\n" << (*client)->getResponse()->STAGE << "\n";
 			kill((*client)->getResponse()->pid, SIGKILL);
-	// std::cout << "c_timer = " << (*client)->c_timer_start << " | time = " << time(0) << "\n";
+			// std::cout << "c_timer = " << (*client)->c_timer_start << " | time = " << time(0) << "\n";
 			(*client)->getResponse()->send_errorResponse();
 			dropClientConnection(client);
 			break;

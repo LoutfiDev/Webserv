@@ -99,18 +99,43 @@ std::string getFileName(std::string &filename)
 	return name;
 }
 
-std::string getUri(std::string &requestedUri, std::string &locationName)
+std::string getUri(std::string &requestedUri, std::string locationName)
 {
 	size_t pos;
 	std::string uri;
 
 	if (locationName == "/\0")
 		return requestedUri;
+	locationName = removeLastChar(locationName);
 	pos = requestedUri.find(locationName);
 	if (pos == std::string::npos)
 		return requestedUri;
 	uri = requestedUri.substr(pos + locationName.length());
 	return uri;
+}
+
+std::string getExtension(const std::string &file)
+{
+	std::cout << file << "\n";
+	std::string tmp;
+	std::ifstream 	inputFile("./Response/mime.types");
+	size_t pos;
+
+	if (!inputFile.is_open())
+	{
+		std::cout << "Error: opening Configuration file failed" << std::endl;
+		exit(127);	
+	}
+	while(std::getline(inputFile, tmp))
+	{
+		pos = tmp.find(file);
+		if (pos != std::string::npos)
+		{
+			std::cout << trim(tmp.substr(pos + file.length()), " ;,") << "\n";
+			return (trim(tmp.substr(pos + file.length()), " ;,"));
+		}
+	}
+	return ("");
 }
 
 int Response::processPostResponse()
@@ -206,11 +231,12 @@ void Response::send_errorResponse()
 	response += "Content-Length: " + to_String(getMessage(status_code).length()) + "\r\n";
 	response += "Content-Type: text/html\r\n\r\n";
 	response += getMessage(status_code) + "\r\n";
+	std::cout << response;
 	write(socket, response.c_str(), response.length());
 }
 
 std::string to_String(long long num) {
-  std::ostringstream oss;
-  oss << num;
-  return oss.str();
+	std::ostringstream oss;
+	oss << num;
+	return oss.str();
 }

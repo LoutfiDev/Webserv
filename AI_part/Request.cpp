@@ -31,6 +31,8 @@ Request::Request() {
 	cookie = "";
 	query_string = "";
 	requestedServer = NULL;
+	requested_location = NULL;
+	isSet = false;
 }
 
 Request::Request(const Request& obj) {
@@ -41,6 +43,7 @@ Request &Request::operator=(const Request& obj)
 {
 	if (this == &obj)
 		return (*this);
+	isSet = obj.isSet;
 	request_code = obj.request_code;
 	response_code = obj.response_code;
 	had_request_line = obj.had_request_line;
@@ -88,6 +91,11 @@ void Request::setResponseCode(std::string code)
 
 	num >> request_code;
 	response_code = code;
+}
+
+bool Request::getIsSet() const
+{
+	return isSet;
 }
 
 std::string  Request::getMethodName() const
@@ -138,6 +146,7 @@ int Request::getBodyCount() const
 
 int Request::getBodyLength()
 {
+	// std::cout << bodyLength << "\n";
 	if (bodyLength < 0)
 		setResponseCode("400");
 	return bodyLength;
@@ -257,6 +266,7 @@ void Request::setRequestedLocation()
 
 void Request::checkRequestLine(std::vector<std::string> &attrs)
 {
+	isSet = true;
 	if (attrs.size() != 3)
 	{
 		setResponseCode("400");
@@ -268,7 +278,7 @@ void Request::checkRequestLine(std::vector<std::string> &attrs)
 
 	if (method_name != "GET" && method_name != "POST" && method_name != "DELETE")
 		setResponseCode("405");
-	else if (http_version != "HTTP/1.1")
+	else if (http_version.compare("HTTP/1.1"))
 		setResponseCode("505");
 }
 
@@ -317,6 +327,7 @@ int Request::addHeader(std::string token)
 		value = trim(token.substr(found + 1));
 		if (key.length() == 0 || value.length() == 0)
 		{
+			std::cout << '"' << token  << "\"\n";
 			setResponseCode("400");
 			return 0;
 		}
@@ -325,13 +336,15 @@ int Request::addHeader(std::string token)
 		headers[key] = value;
 		if (key == "content-length")
 			setBodyLength(value);
-		if (key == "host")
+		else if (key == "host")
 		{
 			host = value;
 			return HOST_EXIST;
 		}
-		if (key == "cookie")
+		else if (key == "cookie")
 			cookie = value;
+		else if (key == "content-type")
+			std::cout << value << "\n";
 	}
 	return 0;
 }
@@ -384,11 +397,11 @@ int Request::ignoreBody(std::string &token)
 
 int Request::addBody(std::string &token)
 {
-	// if (method_name != "POST")
-	// 	return ignoreBody(token);
+	if (method_name != "POST")
+		return -1;
 	if (!tmp_body_file.is_open())
 	{
-		tmp_body_file_name = "/tmp/" + generateFileName();
+		tmp_body_file_name = "/nfs/sgoinfre/goinfre/Perso/anaji/tmp/" + generateFileName() + "." + getExtension(getContentType());
 		std::cout << "opening " << tmp_body_file_name << "\n";
 		tmp_body_file.open(tmp_body_file_name.c_str(), std::istream::binary);
 	}
@@ -411,16 +424,13 @@ int Request::addBody(std::string &token)
 		try
 		{
 			if (!contentLengthCheck)
-			{
-				std::cout << getContentLength() << "\n";
-				contentLengthCheck = true;
-			}
+				 getContentLength();
+			contentLengthCheck = true;
 			tmp_body_file.write(token.c_str(), token.length());
 			bodyLength_CPY -= token.length();
 			bodyCount += token.length();
 			if (bodyLength_CPY <= 0)
 				return (tmp_body_file.close(), -1);
-			// std::cout << "Read  = " << bodyCount << "\n";
 		}
 		catch (int)
 		{
@@ -573,13 +583,14 @@ const std::string &Request::getContentLength()
 	return (value->second);
 }
 
-const std::string &Request::getContentType()
+const std::string Request::getContentType()
 {
 	std::map<std::string, std::string>::iterator value;
 
 	value = headers.find("content-type");
 	if (value == headers.end())
-		throw NOTEXIST;
+		return "";
+	std::cout << "Vlaue => " << value->second << "\n";
 	return (value->second);
 }
 

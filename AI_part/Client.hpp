@@ -43,8 +43,12 @@ class Client {
 		bool istimeOut();
 
 		~Client();
+
+	private:
+		void setResponseAttribut();
 		
 	private:
+		int requestLine;
 		int fd;
 		int state;
 		Request request;

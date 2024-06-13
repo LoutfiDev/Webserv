@@ -3,20 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/13 00:34:35 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/13 04:05:42 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
+#include <iostream>
 #include <netdb.h>
 #include <string>
 
 
-Response::Response() : STAGE(0), index(0), HEADERISWRITTEN(0), status(-1)
+Response::Response() : STAGE(2), index(0), HEADERISWRITTEN(0), status(-1)
 {
+	status_code = "200";
+	http_v = "HTTP/1.1";
 	postState = PROCESSING;
 	fill_messages();
 }
@@ -344,10 +347,12 @@ std::string Response::getContentType(std::string file)
 			{
 				if (tmp.empty())
 					continue;
+				inputFile.close();
 				return (tmp);
 			}
 		}
 	}
+	inputFile.close();
 	return ("");
 }
 std::string Response::getPath( void )
@@ -496,6 +501,7 @@ void Response::pick_method()
 {
 	std::string tmp_method = method;
 
+	std::cout << method << "\n";
 	toLower(tmp_method); //from utils.cpp
 	std::string methods[3] = {"GET", "POST", "DELETE"};
 	void (Response::* ptr[3]) ( void ) = {&Response::Get, &Response::Post, &Response::Delete};

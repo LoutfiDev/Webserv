@@ -34,6 +34,7 @@ class Request {
 		std::string& getRequestLine() const;
 		std::map<std::string, std::string>& getHeaders() const;
 
+		bool getIsSet() const;
 		std::string getMethodName() const;
 		std::string getPath() const;
 		std::string getResponseUri() const;
@@ -72,7 +73,7 @@ class Request {
 	public:
 		const std::string &getContentLength();
 		const std::string &getTransferEncoding();
-		const std::string &getContentType();
+		const std::string getContentType();
 		const std::string &getHost();
 		int getBodyCount() const;
 
@@ -88,6 +89,8 @@ class Request {
 		std::string response_code;	// status code for the response
 		bool had_request_line;
 		std::map<std::string, std::string> headers;
+
+		bool isSet;
 		std::string method_name;
 		std::string path;
 		std::string response_uri;
