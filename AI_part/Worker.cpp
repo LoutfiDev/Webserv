@@ -81,7 +81,7 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 {
 	int response_result;
 
-	// (*client)->resetTimer();
+	(*client)->resetTimer();
 	if ((*client)->getState() == ERROR)
 	{
 		(*client)->getResponse()->send_response();
@@ -113,7 +113,7 @@ void Worker::dropClientConnection(std::vector<Client *>::iterator client)
 {
 	close((*client)->getFd());
 	clients.erase(client);
-	delete *client;
+	// delete *client;
 }
 
 void Worker::add(int connection, std::vector<Server *> &prerquisite)
