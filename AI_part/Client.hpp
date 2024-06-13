@@ -41,6 +41,8 @@ class Client {
 		void showrequest();
 
 		bool istimeOut();
+		// bool getIgnoreTimer() const;
+		void setIgnoreTimer(bool);
 
 		~Client();
 
@@ -60,8 +62,9 @@ class Client {
 		// int bodyLength;
 		std::vector<Server *> dataServer;
 
-	public:
+	private:
 		time_t c_timer_start;
+		bool ignoretimer;
 
 
 

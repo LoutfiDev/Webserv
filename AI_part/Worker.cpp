@@ -77,11 +77,12 @@ int Worker::readFromClient(int fd, std::vector<Client *>::iterator client)
  *
  */
 
+int cout = 0;
 bool Worker::writeToClient(std::vector<Client *>::iterator client)
 {
 	int response_result;
 
-	// (*client)->resetTimer();
+	(*client)->resetTimer();
 	if ((*client)->getState() == ERROR)
 	{
 		(*client)->getResponse()->send_response();
@@ -90,7 +91,6 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 	}
 	if ((*client)->getResponse()->STAGE <= CGI_PROCESSING)
 	{
-		std::cout << "on CGI\n";
 		int error = (*client)->getResponse()->execute_cgi();
 		if (error == ERROR)
 		{
@@ -106,7 +106,10 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 			(*client)->getResponse()->pick_method();
 		response_result = (*client)->getResponse()->send_response();
 		if (response_result == -1)
-				return true;
+		{
+			(*client)->setIgnoreTimer(true);
+			return true;
+		}
 	}
 	return false;
 }
@@ -115,7 +118,7 @@ void Worker::dropClientConnection(std::vector<Client *>::iterator client)
 {
 	close((*client)->getFd());
 	clients.erase(client);
-	delete *client;
+	// delete *client;
 }
 
 void Worker::add(int connection, std::vector<Server *> &prerquisite)
@@ -203,7 +206,7 @@ void Worker::checkClientTimeout()
 	{
 		if ((*client)->istimeOut())
 		{
-			std::cout << "TimeOut\n" << (*client)->getResponse()->STAGE << "\n";
+			std::cout << "TimeOut\n";
 			// kill((*client)->getResponse()->pid, SIGKILL);
 			// std::cout << "c_timer = " << (*client)->c_timer_start << " | time = " << time(0) << "\n";
 			(*client)->getResponse()->send_errorResponse();

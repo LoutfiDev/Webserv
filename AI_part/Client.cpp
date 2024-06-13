@@ -21,6 +21,7 @@ Client::Client(int _fd, std::vector<Server *> data)
 	state = READ;
 	c_timer_start = time(0);
 	requestLine = 0;
+	ignoretimer = false;
 	std::cout << "new Client Created\n";
 }
 
@@ -41,6 +42,7 @@ Client &Client::operator=(const Client& obj)
 	buffer = obj.buffer;
 	isHeaderPartDone = obj.isHeaderPartDone;
 	state = obj.state;
+	ignoretimer = obj.ignoretimer;
 	c_timer_start = obj.c_timer_start;
 	return (*this);
 }
@@ -168,9 +170,14 @@ void Client::readBuffer(char *buf, int size)
 	return setState(READ);
 }
 
+void Client::setIgnoreTimer(bool state)
+{
+	ignoretimer = state;
+}
+
 bool Client::istimeOut()
 {
-	if (time(0) - c_timer_start > TIMEOUT)
+	if (ignoretimer == false && time(0) - c_timer_start > TIMEOUT)
 	{
 		response->status_code = "408";
 		return true;

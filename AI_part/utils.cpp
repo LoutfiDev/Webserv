@@ -230,7 +230,6 @@ void Response::send_errorResponse()
 	response += "Content-Length: " + to_String(getMessage(status_code).length()) + "\r\n";
 	response += "Content-Type: text/html\r\n\r\n";
 	response += getMessage(status_code) + "\r\n";
-	std::cout << response;
 	write(socket, response.c_str(), response.length());
 }
 
