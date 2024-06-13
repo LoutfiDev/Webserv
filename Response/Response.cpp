@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/13 13:37:17 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/13 15:16:06 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -300,7 +300,9 @@ int Response::execute_cgi( void )
 			{
 				kill(pid, SIGKILL);
 				status_code = "408";
+				std::cout << "STAGE =>" <<STAGE << "\n";
 				STAGE += 1;
+				std::cout << "STAGE =>" <<STAGE << "\n";
 				return 2;
 			}
 		}

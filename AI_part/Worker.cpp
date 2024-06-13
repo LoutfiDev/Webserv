@@ -90,6 +90,7 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 	}
 	if ((*client)->getResponse()->STAGE <= CGI_PROCESSING)
 	{
+		std::cout << "on CGI\n";
 		int error = (*client)->getResponse()->execute_cgi();
 		if (error == ERROR)
 		{
