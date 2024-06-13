@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <exception>
+#include <fcntl.h>
 #include <iomanip>
 #include <ios>
 #include <iostream>
@@ -15,6 +16,7 @@
 #include <stdexcept>
 #include <string>
 #include <sys/types.h>
+#include <unistd.h>
 #include <vector>
 
 Request::Request() {
@@ -139,12 +141,12 @@ std::string Request::getBodyFile() const
 	return tmp_body_file_name;
 }
 
-int Request::getBodyCount() const
+size_t Request::getBodyCount() const
 {
 	return bodyCount;
 }
 
-int Request::getBodyLength()
+long long Request::getBodyLength()
 {
 	// std::cout << bodyLength << "\n";
 	if (bodyLength < 0)
@@ -240,6 +242,7 @@ void Request::setRequestedLocation()
 	}
 	if (location_name.length() == 0)
 	{
+		setResponseCode("400");
 		std::cout << "location Not found\n";
 		return;
 	}
@@ -253,8 +256,8 @@ void Request::setRequestedLocation()
 		finale_path = finale_path.substr(0, query_pos);
 	}
 	path = finale_path;
-	std::cout << "Query_string =>" << query_string << "\n";
-	std::cout << "requested uri => " << finale_path << "\n";
+	// std::cout << "Query_string =>" << query_string << "\n";
+	// std::cout << "requested uri => " << finale_path << "\n";
 }
 
 /*
@@ -343,8 +346,6 @@ int Request::addHeader(std::string token)
 		}
 		else if (key == "cookie")
 			cookie = value;
-		else if (key == "content-type")
-			std::cout << value << "\n";
 	}
 	return 0;
 }
@@ -371,7 +372,7 @@ int Request::ignoreBody(std::string &token)
 		{
 			if (!contentLengthCheck)
 			{
-				std::cout << getContentLength() << "\n";
+				getContentLength();
 				contentLengthCheck = true;
 			}
 			bodyLength_CPY -= token.length();
@@ -398,11 +399,11 @@ int Request::ignoreBody(std::string &token)
 int Request::addBody(std::string &token)
 {
 	if (method_name != "POST")
-		return -1;
+		return ignoreBody(token);
 	if (!tmp_body_file.is_open())
 	{
 		tmp_body_file_name = "/nfs/sgoinfre/goinfre/Perso/anaji/tmp/" + generateFileName() + "." + getExtension(getContentType());
-		std::cout << "opening " << tmp_body_file_name << "\n";
+		// std::cout << "opening " << tmp_body_file_name << "\n";
 		tmp_body_file.open(tmp_body_file_name.c_str(), std::istream::binary);
 	}
 	try
@@ -590,7 +591,6 @@ const std::string Request::getContentType()
 	value = headers.find("content-type");
 	if (value == headers.end())
 		return "";
-	std::cout << "Vlaue => " << value->second << "\n";
 	return (value->second);
 }
 

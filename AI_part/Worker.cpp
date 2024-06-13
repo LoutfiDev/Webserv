@@ -42,7 +42,7 @@ Worker &Worker::operator=(const Worker& obj)
 int Worker::readFromClient(int fd, std::vector<Client *>::iterator client)
 {
 	int read_size;
-	int READBUFFER = 10000;
+	int READBUFFER = 1000;
 
 	(*client)->resetTimer();
 	char buf[READBUFFER];
@@ -57,18 +57,14 @@ int Worker::readFromClient(int fd, std::vector<Client *>::iterator client)
 	}
 	if (read_size == 0)
 		return READINGISDONE;
-	(*client)->readBuffer(buf);
+	(*client)->readBuffer(buf, read_size);
 	if ((*client)->getState() == ERROR)
 	{
 		std::cout << "error in the request\n";
 		return ERRORINREADING;
 	}
 	if ((*client)->getState() == WRITE)
-	{
-		std::cout << "Reading done\n";
 		return READINGISDONE; // move to write data to that client fd
-	}
-	// std::cout << "c_timer = " << (*client)->c_timer_start << " | time = " << time(0) << "\n";
 	return NOTHING;
 }
 
@@ -92,16 +88,6 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 		if ((*client)->getResponse()->STAGE > BODY_PROCESSING)
 			return true;
 	}
-	if ((*client)->getResponse()->STAGE <= CGI_PROCESSING)
-	{
-		int error = (*client)->getResponse()->execute_cgi();
-		if (error == ERROR)
-		{
-			(*client)->getResponse()->send_response();
-			if ((*client)->getResponse()->STAGE > BODY_PROCESSING)
-				return true;
-		}
-	}
 	else
 	{
 		//waiting for debug
@@ -109,10 +95,7 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 		// 	(*client)->getResponse()->pick_method();
 		response_result = (*client)->getResponse()->send_response();
 		if (response_result == -1)
-		{
-			std::cout << "write is done\n";
 			return true;
-		}
 	}
 	return false;
 }
@@ -162,9 +145,9 @@ int Worker::serve(int fd)
 	return NOTHING;
 }
 
-void Worker::setClientResponse(int clientFd)
+void Worker::intResponse(int clientFd)
 {
-	int max_body_size = 100000000;
+	size_t max_body_size = 100000000;
 	int tmp;
 	char *s;
 	for (size_t i = 0; i < clients.size(); i++) {
@@ -192,7 +175,19 @@ void Worker::setClientResponse(int clientFd)
 				clients[i]->getResponse()->status_code = "413";
 			}
 			if (clients[i]->getState() == WRITE)
+			{
+				if (clients[i]->getResponse()->STAGE <= CGI_PROCESSING)
+				{
+					int error = clients[i]->getResponse()->execute_cgi();
+					if (error == ERROR)
+					{
+						clients[i]->getResponse()->send_response();
+						if (clients[i]->getResponse()->STAGE > BODY_PROCESSING)
+							return;
+					}
+				}
 				clients[i]->getResponse()->pick_method();
+			}
 		}
 	}
 }
@@ -212,7 +207,7 @@ void Worker::checkClientTimeout()
 		if ((*client)->istimeOut())
 		{
 			std::cout << "TimeOut\n" << (*client)->getResponse()->STAGE << "\n";
-			kill((*client)->getResponse()->pid, SIGKILL);
+			// kill((*client)->getResponse()->pid, SIGKILL);
 			// std::cout << "c_timer = " << (*client)->c_timer_start << " | time = " << time(0) << "\n";
 			(*client)->getResponse()->send_errorResponse();
 			dropClientConnection(client);

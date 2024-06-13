@@ -119,9 +119,9 @@ void Client::resetTimer()
  * @param buf tocken from the client
  * @return int 0 : succes | -1 : error
  */
-void Client::readBuffer(char *buf)
+void Client::readBuffer(char *buf, int size)
 {
-	buffer.append(buf);
+	buffer.append(buf, size);
 	size_t found = -1;
 	c_timer_start = time(0);
 	while (buffer.size())
@@ -131,7 +131,6 @@ void Client::readBuffer(char *buf)
 		{
 			buffer = buffer.substr(2);
 			isHeaderPartDone++;
-			std::cout << "After HEADER\n";
 		}
 		if (isHeaderPartDone == 0)
 		{

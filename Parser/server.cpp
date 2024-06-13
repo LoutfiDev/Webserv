@@ -6,7 +6,7 @@
 /*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:19:40 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/11 03:22:17 by anaji            ###   ########.fr       */
+/*   Updated: 2024/06/13 10:45:23 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,6 @@ Server& Server::operator=(const Server& src)
 }
 
 Server::~Server() {
-	std::cout << "Server DISTRUCTOR\n";
 }
 
 void Server::set_default_error_pages( void ){

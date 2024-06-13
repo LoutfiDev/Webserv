@@ -44,7 +44,7 @@ class Request {
 		std::string getCookie() const;
 		std::string getQueryString() const;
 
-		int getBodyLength();
+		long long getBodyLength();
 		std::string getBodyFile() const;
 
 		Location *getRequestedLocation();
@@ -75,7 +75,7 @@ class Request {
 		const std::string &getTransferEncoding();
 		const std::string getContentType();
 		const std::string &getHost();
-		int getBodyCount() const;
+		size_t getBodyCount() const;
 
 
 		void closeTmpBody();

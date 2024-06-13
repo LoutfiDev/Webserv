@@ -116,7 +116,6 @@ std::string getUri(std::string &requestedUri, std::string locationName)
 
 std::string getExtension(const std::string &file)
 {
-	std::cout << file << "\n";
 	std::string tmp;
 	std::ifstream 	inputFile("./Response/mime.types");
 	size_t pos;

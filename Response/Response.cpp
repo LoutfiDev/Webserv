@@ -6,7 +6,7 @@
 /*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/13 04:05:42 by anaji            ###   ########.fr       */
+/*   Updated: 2024/06/13 10:42:43 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@ Response::Response() : STAGE(2), index(0), HEADERISWRITTEN(0), status(-1)
 	status_code = "200";
 	http_v = "HTTP/1.1";
 	postState = PROCESSING;
+	server = NULL;
+	location = NULL;
 	fill_messages();
 }
 
@@ -357,7 +359,8 @@ std::string Response::getContentType(std::string file)
 }
 std::string Response::getPath( void )
 {
-	if (server->error_pages.find(status_code) != server->error_pages.end())
+
+	if (server && server->error_pages.find(status_code) != server->error_pages.end())
 		return server->error_pages[status_code];
 	return "";
 }
@@ -501,7 +504,6 @@ void Response::pick_method()
 {
 	std::string tmp_method = method;
 
-	std::cout << method << "\n";
 	toLower(tmp_method); //from utils.cpp
 	std::string methods[3] = {"GET", "POST", "DELETE"};
 	void (Response::* ptr[3]) ( void ) = {&Response::Get, &Response::Post, &Response::Delete};

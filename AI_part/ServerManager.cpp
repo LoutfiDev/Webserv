@@ -3,6 +3,7 @@
 #include "utils.hpp"
 #include <cerrno>
 #include <cstddef>
+#include <cstdlib>
 #include <fcntl.h>
 #include <iostream>
 #include <map>
@@ -74,10 +75,12 @@ void ServerManager::init_server(const char *port)
 		throw SOCKET_NOT_AVAILABLE;
 	}
 	freeaddrinfo(servinfo);
-	res = setsockopt(tmp_socket_fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
+	int flags = fcntl(tmp_socket_fd, F_GETFL, 0);
+	fcntl(tmp_socket_fd, F_SETFL, flags | O_NONBLOCK);
+	res = setsockopt(tmp_socket_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&reuse, sizeof(reuse));
 	if (res == -1)
 		handleError("setsockopt", errno);
-	fcntl(tmp_socket_fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+	// fcntl(tmp_socket_fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 	makeListen();
 	std::cout << "Listening on port: " << port << "....\n";
 }
@@ -135,6 +138,23 @@ void ServerManager::init_epoll()
 	}
 }
 
+void close_and_exit(std::map<int, std::vector<Server *> > lst)
+{
+	std::map<int, std::vector<Server *> >::iterator beg = lst.begin();
+
+	while (beg != lst.end()) {
+		close(beg->first);
+		int j = 0;
+		for (std::vector<Server *>::iterator i = beg->second.begin(); i < beg->second.end(); i++) {
+			delete beg->second[j];
+			beg->second.erase(i);
+			j++;
+		}
+		beg++;	
+	}
+	std::exit(0);
+}
+
 bool ServerManager::isNewConnection(int fd)
 {
 	std::map<int, std::vector<Server *> >::iterator beg = nginx.begin();
@@ -155,7 +175,7 @@ bool ServerManager::isNewConnection(int fd)
 				handleError("accept", errno);
 			}
 			fcntl(newClient, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
-			ev.events = EPOLLIN;
+			ev.events = EPOLLIN | EPOLLRDHUP | EPOLLHUP;
 			ev.data.fd = newClient;
 			epoll_ctl(epoll_fd, EPOLL_CTL_ADD, newClient, &ev);
 			worker.add(newClient, nginx[beg->first]);
@@ -180,8 +200,7 @@ void ServerManager::multiplixer()
 
 	while (1)
 	{
-		num_event = epoll_wait(epoll_fd, epl_evt, NUMCONNECTION, -1);
-		// std::cout << "EVENT\n";
+		num_event = epoll_wait(epoll_fd, epl_evt, NUMCONNECTION, 10000);
 		if (num_event == -1)
 		{
 			this->~ServerManager();
@@ -204,7 +223,7 @@ void ServerManager::multiplixer()
 						ev.data.fd = epl_evt[i].data.fd;
 						ev.events = EPOLLOUT;
 						epoll_ctl(epoll_fd, EPOLL_CTL_MOD, epl_evt[i].data.fd, &ev);
-						worker.setClientResponse(epl_evt[i].data.fd);
+						worker.intResponse(epl_evt[i].data.fd);
 					}
 
 				}
@@ -212,9 +231,11 @@ void ServerManager::multiplixer()
 				{
 					worker.serve(epl_evt[i].data.fd);
 				}
+				else if (epl_evt[i].events & EPOLLHUP || epl_evt[i].events & EPOLLRDHUP)
+					close_and_exit(nginx);
 			}
 		}
-		// worker.checkClientTimeout();
+		worker.checkClientTimeout();
 	}
 }
 
@@ -273,6 +294,8 @@ void ServerManager::start(Parser &config)
 				insert_alredy_known_server(*servers[i]);
 		}
 	}
+	if (!nginx.size())
+		handleError("no server Available", -1);
 	init_epoll();
 	multiplixer();
 }

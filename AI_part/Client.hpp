@@ -37,7 +37,7 @@ class Client {
 		int getFd() const;
 		std::vector<Server *> getDataServer();
 
-		void readBuffer(char *);
+		void readBuffer(char *, int);
 		void showrequest();
 
 		bool istimeOut();
