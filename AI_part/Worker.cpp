@@ -93,6 +93,8 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 		int error = (*client)->getResponse()->execute_cgi();
 		if (error == ERROR)
 		{
+			std::cout << "cgi: " << (*client)->getResponse()->STAGE << "\n";
+			std::cout << "error: " << error << "\n";
 			(*client)->getResponse()->send_response();
 			if ((*client)->getResponse()->STAGE > BODY_PROCESSING)
 				return true;
@@ -100,8 +102,7 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 	}
 	else
 	{
-		//waiting for debug
-		if ((*client)->getResponse()->STAGE < HEADER_PROCESSING)
+		if ((*client)->getResponse()->STAGE == HEADER_PROCESSING)
 			(*client)->getResponse()->pick_method();
 		response_result = (*client)->getResponse()->send_response();
 		if (response_result == -1)
