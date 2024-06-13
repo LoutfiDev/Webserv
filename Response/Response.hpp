@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:42 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/12 23:43:59 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/13 12:35:17 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@
 #define SENDING 2
 #define END 3
 
-#define CGITIMEOUT 10
+#define CGITIMEOUT 5
 
 class Response
 {

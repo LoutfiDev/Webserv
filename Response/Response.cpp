@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
+/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/13 10:42:43 by anaji            ###   ########.fr       */
+/*   Updated: 2024/06/13 13:37:17 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include <string>
 
 
-Response::Response() : STAGE(2), index(0), HEADERISWRITTEN(0), status(-1)
+Response::Response() : STAGE(0), index(0), HEADERISWRITTEN(0), status(-1)
 {
 	status_code = "200";
 	http_v = "HTTP/1.1";
@@ -255,10 +255,7 @@ void Response::resetTimer()
 bool Response::istimeOut()
 {
 	if (time(0) - timespan > CGITIMEOUT)
-	{
-		status_code = "408";
 		return true;
-	}
 	return false;
 } 
 
@@ -294,6 +291,7 @@ int Response::execute_cgi( void )
 				if (status != 0)
 				{
 					status_code = "500";
+					STAGE += 1;
 					return 2;
 				}
 				STAGE += 1;
@@ -301,6 +299,7 @@ int Response::execute_cgi( void )
 			else if (istimeOut())
 			{
 				kill(pid, SIGKILL);
+				status_code = "408";
 				STAGE += 1;
 				return 2;
 			}

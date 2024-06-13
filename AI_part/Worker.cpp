@@ -88,14 +88,24 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 		if ((*client)->getResponse()->STAGE > BODY_PROCESSING)
 			return true;
 	}
+	if ((*client)->getResponse()->STAGE <= CGI_PROCESSING)
+	{
+		int error = (*client)->getResponse()->execute_cgi();
+		if (error == ERROR)
+		{
+			(*client)->getResponse()->send_response();
+			if ((*client)->getResponse()->STAGE > BODY_PROCESSING)
+				return true;
+		}
+	}
 	else
 	{
 		//waiting for debug
-		// if ((*client)->getResponse()->STAGE < HEADER_PROCESSING)
-		// 	(*client)->getResponse()->pick_method();
+		if ((*client)->getResponse()->STAGE < HEADER_PROCESSING)
+			(*client)->getResponse()->pick_method();
 		response_result = (*client)->getResponse()->send_response();
 		if (response_result == -1)
-			return true;
+				return true;
 	}
 	return false;
 }
@@ -173,20 +183,6 @@ void Worker::intResponse(int clientFd)
 			{
 				clients[i]->setState(ERROR);
 				clients[i]->getResponse()->status_code = "413";
-			}
-			if (clients[i]->getState() == WRITE)
-			{
-				if (clients[i]->getResponse()->STAGE <= CGI_PROCESSING)
-				{
-					int error = clients[i]->getResponse()->execute_cgi();
-					if (error == ERROR)
-					{
-						clients[i]->getResponse()->send_response();
-						if (clients[i]->getResponse()->STAGE > BODY_PROCESSING)
-							return;
-					}
-				}
-				clients[i]->getResponse()->pick_method();
 			}
 		}
 	}
