@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
+/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/13 19:10:02 by anaji            ###   ########.fr       */
+/*   Updated: 2024/06/13 23:46:41 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -274,12 +274,12 @@ int Response::execute_cgi( void )
 				strcpy(argv[1], cgiFile.c_str());
 				argv[2] = NULL;
 				formEnv();
-				cgiOut = generateFileName();
+				cgiOut = generateFileName() + ".html";
 				if ((pid = fork()) == 0)
 				{
 					freopen (cgiOut.c_str(),"w",stdout);
 					if (method == "POST")
-						freopen (path.c_str(),"r",stdin);
+						freopen (responseBody.c_str(),"r",stdin);
 					if (execve(argv[0], argv, env) == -1)
 						exit(1);
 				}
@@ -368,6 +368,14 @@ std::string Response::getPath( void )
 
 int Response::send_response()
 {
+	if (!cgiOut.empty() && STAGE == HEADER_PROCESSING)
+	{
+		path = cgiOut;
+		if (extension == ".php")
+			STAGE += 1;
+		response += http_v + " " + status_code + " " + getMessage(status_code) + "\r\n";
+		write(socket, response.c_str() , response.size());
+	}
 	if (STAGE == HEADER_PROCESSING)
 	{
 		response += http_v + " " + status_code + " " + getMessage(status_code) + "\r\n";
@@ -398,6 +406,7 @@ int Response::send_response()
 		}
 		else
 			response += "Content-Type: text/html\r\n\r\n";
+		
 		write(socket, response.c_str() , response.size());
 			
 		STAGE += 1;
@@ -449,6 +458,7 @@ int Response::send_response()
 				std::ifstream is (path.c_str(), std::ifstream::binary);
 				if (is) 
 				{
+					std::cout << "index :" << index << "\n";
 					is.seekg (index, is.beg);
 					is.read (buffer,1024);
 					if (is)
