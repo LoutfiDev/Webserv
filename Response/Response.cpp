@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/13 19:03:39 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/13 23:33:24 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -366,50 +366,45 @@ std::string Response::getPath( void )
 
 int Response::send_response()
 {
-	if (!cgiOut.empty())
+	if (!cgiOut.empty() && STAGE == HEADER_PROCESSING)
+	{
 		path = cgiOut;
+		if (extension == ".php")
+			STAGE += 1;
+		response += http_v + " " + status_code + " " + getMessage(status_code) + "\r\n";
+		write(socket, response.c_str() , response.size());
+	}
 	if (STAGE == HEADER_PROCESSING)
 	{
-		if(extension == ".php")
+		response += http_v + " " + status_code + " " + getMessage(status_code) + "\r\n";
+		if (status_code != "200")
 		{
-			std::string value;
-			std::ifstream 	inputFile(path.c_str());
-			while (std::getline(inputFile, value, '\r'))
-				response += value;
-			response += "\r\n";
-			index = response.size();
+			if (status_code == "301")
+			{
+				if (location->redirection.size())
+				{
+					std::map<std::string, std::string>::iterator it = location->redirection.begin();
+					response += "Location: " + it->second + "\r\n";
+				}
+				else
+					response += "Location: " + uri + "\r\n";
+			}
+			path = getPath();
+		}
+		if (!path.empty())
+		{
+			if (path[path.size() - 1] == '/')
+				response += "Content-Type: text/html\r\n\r\n";
+			else
+			{
+				response += "Content-Length: " + getContentLenght(path) + "\r\n";
+				response += "Content-Type: " + getContentType(path) + "\r\n";
+				response += "\r\n";
+			}
 		}
 		else
-		{
-			response += http_v + " " + status_code + " " + getMessage(status_code) + "\r\n";
-			if (status_code != "200")
-			{
-				if (status_code == "301")
-				{
-					if (location->redirection.size())
-					{
-						std::map<std::string, std::string>::iterator it = location->redirection.begin();
-						response += "Location: " + it->second + "\r\n";
-					}
-					else
-						response += "Location: " + uri + "\r\n";
-				}
-				path = getPath();
-			}
-			if (!path.empty())
-			{
-				if (path[path.size() - 1] == '/')
-					response += "Content-Type: text/html\r\n\r\n";
-				else
-				{
-					response += "Content-Length: " + getContentLenght(path) + "\r\n";
-					response += "Content-Type: " + getContentType(path) + "\r\n";
-					response += "\r\n";
-				}
-			}
-			else
-				response += "Content-Type: text/html\r\n\r\n";
-		}
+			response += "Content-Type: text/html\r\n\r\n";
+		
 		write(socket, response.c_str() , response.size());
 			
 		STAGE += 1;
@@ -461,6 +456,7 @@ int Response::send_response()
 				std::ifstream is (path.c_str(), std::ifstream::binary);
 				if (is) 
 				{
+					std::cout << "index :" << index << "\n";
 					is.seekg (index, is.beg);
 					is.read (buffer,1024);
 					if (is)
