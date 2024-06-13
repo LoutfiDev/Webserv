@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:42 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/12 15:56:26 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/12 23:43:59 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,8 @@
 #define SENDING 2
 #define END 3
 
+#define CGITIMEOUT 10
+
 class Response
 {
 	private:
@@ -78,16 +80,19 @@ class Response
 		std::string query;
 		std::string http_cookie;
 		
-		int pid;
+		pid_t pid;
 		int status;
 		char **env;
 		char **argv;
+		time_t timespan;
 
 		
 		int execute_cgi( void );
 		int is_cgi( void );
 		int isValid ( void );
 		void formEnv ( void );
+		bool istimeOut();
+		void  resetTimer();
 
 		//added by Ai for post method
 		int postState;
