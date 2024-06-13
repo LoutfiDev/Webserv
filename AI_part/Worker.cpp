@@ -101,8 +101,7 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 	}
 	else
 	{
-		//waiting for debug
-		if ((*client)->getResponse()->STAGE < HEADER_PROCESSING)
+		if ((*client)->getResponse()->STAGE == HEADER_PROCESSING)
 			(*client)->getResponse()->pick_method();
 		response_result = (*client)->getResponse()->send_response();
 		if (response_result == -1)

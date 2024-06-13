@@ -13,7 +13,7 @@
 #define WRITE 1
 #define ERROR 2
 
-#define TIMEOUT 3
+#define TIMEOUT 10
 
 class Client {
 	public:
