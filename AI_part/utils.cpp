@@ -142,7 +142,6 @@ int Response::processPostResponse()
 {
 	char buff[1024];
 
-	std::cout << "ON post\n";
 	memset(buff, '\0', 1023);
 	if (method != "POST")
 		return (postState = END, 1);
@@ -221,7 +220,7 @@ void Response::Post()
 	outfile.open(pathname.c_str(), std::ofstream::binary);
 	postState = SENDING;
 	status_code = "201";
-	// processPostResponse();
+	processPostResponse();
 
 	// i think in case of a regular file that can pass throught CGI we need to call GET method (arabic : dakchi li galina youssef l2ostora)
 }

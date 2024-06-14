@@ -6,7 +6,7 @@
 /*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/14 11:04:13 by anaji            ###   ########.fr       */
+/*   Updated: 2024/06/14 12:04:41 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -372,9 +372,6 @@ std::string Response::getPath( void )
 
 int Response::send_response()
 {
-	// std::string line, key, value;
-	// size_t found;
-
 	if (!cgiOut.empty() && STAGE == HEADER_PROCESSING)
 	{
         path = cgiOut;

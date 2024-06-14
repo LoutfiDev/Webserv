@@ -217,7 +217,7 @@ void Request::setChunkLength(std::string token)
 	num >> std::hex >> chunk_length;
 	if (chunk_length == 0)
 		chunk_length = -1;
-	if (chunk_length < 0)
+	else if (chunk_length < 0)
 		chunk_length = -2;
 }
 
@@ -446,7 +446,10 @@ int Request::addBody(std::string &token)
 			transferEncodingCheck = true;
 		}
 		if (readTransferEncodingBody(token) == -1)
+		{
+			tmp_body_file.close();
 			return -1;
+		}
 	}
 	catch (int state)
 	{

@@ -107,7 +107,6 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 		response_result = (*client)->getResponse()->send_response();
 		if (response_result == -1)
 		{
-			std::cout << "all send\n";
 			(*client)->setIgnoreTimer(true);
 			return true;
 		}
@@ -174,6 +173,7 @@ void Worker::initResponse(int clientFd)
 				return ;
 			if (clients[i]->getRequest().getHost().length() == 0)
 				return clients[i]->setState(ERROR);
+			
 			if (clients[i]->getRequest().getSessionId())
 			{
 				clients[i]->getResponse()->SessionId = clients[i]->getRequest().getSession();
@@ -186,7 +186,6 @@ void Worker::initResponse(int clientFd)
 			clients[i]->getResponse()->uri= clients[i]->getRequest().getResponseUri();
 			clients[i]->getResponse()->http_cookie = clients[i]->getRequest().getCookie();
 			clients[i]->getResponse()->query = clients[i]->getRequest().getQueryString();
-
 			tmp = strtod(clients[i]->getResponse()->server->max_body_size.c_str(), &s);
 			if (tmp)
 				max_body_size = tmp;
