@@ -124,18 +124,19 @@ void Client::resetTimer()
 void Client::readBuffer(char *buf, int size)
 {
 	buffer.append(buf, size);
-	size_t found = -1;
+	size_t found;
 	c_timer_start = time(0);
 	while (buffer.size())
 	{
 		found = buffer.find("\r\n");
-		if (found == 0)
+		if (found == 0 && !isHeaderPartDone)
 		{
 			buffer = buffer.substr(2);
 			isHeaderPartDone++;
 		}
 		if (isHeaderPartDone == 0)
 		{
+		
 			if (found == std::string::npos)
 				break ;
 			if (request.addHeader(buffer.substr(0, found)) == HOST_EXIST)
@@ -148,6 +149,7 @@ void Client::readBuffer(char *buf, int size)
 		}
 		else
 		{
+			// std::cerr << size << "\t";
 			if (request.addBody(buffer) == -1)
 			{
 				if (request.getMethodName() == "POST")

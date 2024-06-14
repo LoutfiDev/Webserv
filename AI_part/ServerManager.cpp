@@ -235,7 +235,7 @@ void ServerManager::multiplixer()
 					close_and_exit(nginx);
 			}
 		}
-		worker.checkClientTimeout();
+		// worker.checkClientTimeout();
 	}
 }
 
