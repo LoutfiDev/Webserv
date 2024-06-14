@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/29 12:01:01 by yloutfi           #+#    #+#             */
-/*   Updated: 2024/05/21 11:33:52 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/14 18:25:13 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ void Sed::execute (std::string fileName, std::string s1, std::string s2, std::st
 	std::size_t 	pos;
 	
 	if (!myFile.is_open() || !myFileCopy.is_open())
-		throw 26;
+		throw "Error: opening Configuration file failed";
 	while (1)
 	{
 		pos = 0;

@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 09:04:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/25 23:49:36 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/14 18:26:16 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ Parser::Parser(std::string fileName)
 	std::string rest;
 	
 	if (!inputFile.is_open())
-		throw 26;
+		throw "Error: opening Configuration file failed";
 	std::getline(inputFile, rest);	
 	try
 	{
@@ -40,94 +40,13 @@ Parser::Parser(std::string fileName)
 				servers.push_back(new Server(rest));
 			}
 			else
-				throw 1;
+				throw "unknown directive";
 		}
 	}
-	catch(const int e)
+	catch(const char* e)
 	{
-		switch (e)
-		{
-			case 1:
-				error(fileName, "unknown directive");
-				exit(0);
-			case 2: 
-				error(fileName, "directive \"server\" has no opening \"{\"");
-				exit(0);
-			case 3: 
-				error(fileName, "unexpected end of file, expecting \"}\"");
-				exit(0);
-			case 4: 
-				error(fileName, "directive \"location\" has no opening \"{\"");
-				exit(0);
-			case 5: 
-				error(fileName, "host not found in \"listen\" directive");
-				exit(0);
-			case 6: 
-				error(fileName, "port not found in \"listen\" directive");
-				exit(0);
-			case 7: 
-				error(fileName, "invalid parameter in \"listen\" directive");
-				exit(0);
-			case 8: 
-				error(fileName, "\"listen\" directive accept only [host:port] as parameter");
-				exit(0);
-			case 9: 
-				error(fileName, "invalid number of arguments in \"server_name\" directive");
-				exit(0);
-			case 10: 
-				error(fileName, "invalid number of arguments in \"error_page\" directive");
-				exit(0);
-			case 11: 
-				error(fileName, "invalid value in \"error_page\" directive");
-				exit(0);
-			case 12: 
-				error(fileName, "invalid number of arguments in \"client_max_body_size\" directive");
-				exit(0);
-			case 13: 
-				error(fileName, "invalid value in \"client_max_body_size\" directive");
-				exit(0);
-			case 14: 
-				error(fileName, "invalid number of arguments in \"root\" directive");
-				exit(0);
-			case 15: 
-				error(fileName, "invalid number of arguments in \"location\" directive");
-				exit(0);
-			case 16: 
-				error(fileName, "invalid number of arguments in \"autoindex\" directive");
-				exit(0);
-			case 17: 
-				error(fileName, "invalid value in \"autoindex\" directive");
-				exit(0);
-			case 18: 
-				error(fileName, "invalid number of arguments in \"allowed_methods\" directive");
-				exit(0);
-			case 19: 
-				error(fileName, "invalid value in \"allowed_methods\" directive");
-				exit(0);
-			case 20: 
-				error(fileName, "invalid number of arguments in \"index\" directive");
-				exit(0);
-			case 21: 
-				error(fileName, "invalid number of arguments in \"upload_dir\" directive");
-				exit(0);
-			case 22: 
-				error(fileName, "invalid number of arguments in \"cgi\" directive");
-				exit(0);
-			case 23: 
-				error(fileName, "invalid value in \"cgi\" directive");
-				exit(0);
-			case 24: 
-				error(fileName, "invalid number of arguments in \"return\" directive");
-				exit(0);
-			case 25: 
-				error(fileName, "invalid value in \"return\" directive");
-				exit(0);
-			case 26: 
-				std::cout << "Error: opening Configuration file failed" << std::endl;
-				exit(0);
-			default:
-				std::cout << "default" << std::endl;
-		}
+		error(fileName, e);
+		exit(0);
 	}
 	
 	inputFile.close();

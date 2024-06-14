@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/21 08:45:07 by yloutfi           #+#    #+#             */
-/*   Updated: 2024/05/17 15:14:59 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/14 18:28:48 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,6 @@
 #include "Sed/SedIsLoser.hpp"
 
 class Server;
-
-extern int line;
-extern int semi_colon;
 
 class Parser
 {

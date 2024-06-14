@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/14 12:12:38 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/14 18:47:35 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -281,6 +281,7 @@ int Response::execute_cgi( void )
 				argv[2] = NULL;
 				formEnv();
 				cgiOut = generateFileName();
+				cgiOut.append(".html");
 				if ((pid = fork()) == 0)
 				{
 					out = freopen (cgiOut.c_str(),"w",stdout);
@@ -305,7 +306,7 @@ int Response::execute_cgi( void )
 			else if (istimeOut())
 			{
 				kill(pid, SIGKILL);
-				status_code = "408";
+				status_code = "504";
 				STAGE += 1;
 				return 2;
 			}
@@ -340,11 +341,6 @@ std::string Response::getContentType(std::string file)
 	std::string tmp;
 	file.erase(0, file.find('.') + 1);
 	std::ifstream 	inputFile("Response/mime.types");
-	if (!inputFile.is_open())
-	{
-		std::cout << "Error: opening Configuration file failed" << std::endl;
-		exit(127);	
-	}
 	while(std::getline(inputFile, tmp))
 	{
 		if (tmp.find(file) != std::string::npos)
@@ -375,27 +371,34 @@ int Response::send_response()
 	if (!cgiOut.empty() && STAGE == HEADER_PROCESSING)
 	{
         path = cgiOut;
-        std::ifstream file(path.c_str());
-		std::string line;
         if (extension == ".php")
-            STAGE += 1;
-        while (std::getline(file, line))
-        {
-            if (line == "\r")
-                break;
-			std::string key, value;
-			size_t found;
-            found = line.find(":");
-            key = trim(line.substr(0, found));
-            value = trim(line.substr(found + 1));
-            cgi_headers[key] = value.erase(value.length() -1, 1);
-        }
-		response += http_v + " ";
-		if (cgi_headers.find("Status") != cgi_headers.end())
-			response += cgi_headers["Status"] + "\r\n";
-		else
-			response += status_code + " " + getMessage(status_code) + "\r\n";
-		write(socket, response.c_str() , response.size());
+		{
+			STAGE += 1;
+			std::ifstream file(path.c_str());
+			std::string line;
+			while (std::getline(file, line))
+			{
+				if (line == "\r")
+					break;
+				std::string key, value;
+				size_t found;
+				found = line.find(":");
+				key = trim(line.substr(0, found));
+				value = trim(line.substr(found + 1));
+				cgi_headers[key] = value.erase(value.length() -1, 1);
+			}
+			response += http_v + " ";
+			if (cgi_headers.find("Status") != cgi_headers.end())
+				response += cgi_headers["Status"] + "\r\n";
+			else
+				response += status_code + " " + getMessage(status_code) + "\r\n";
+			if (write(socket, response.c_str() , response.size()) == -1)
+			{
+				status_code = "500";
+				return 2;
+			}	
+				
+		}
 	}
 	if (STAGE == HEADER_PROCESSING)
 	{
@@ -433,7 +436,12 @@ int Response::send_response()
 		else
 			response += "Content-Type: text/html\r\n\r\n";
 
-		write(socket, response.c_str() , response.size());
+		if (write(socket, response.c_str() , response.size()) == -1)
+		{
+			status_code = "500";
+			return 2;
+		}	
+			
 
 		STAGE += 1;
 	}
@@ -474,7 +482,12 @@ int Response::send_response()
 				STAGE += 1;
 				return -1;
 			}
-			write(socket, response.c_str() , response.size());
+			if (write(socket, response.c_str() , response.size()) == -1)
+			{
+				status_code = "500";
+				return 2;
+			}	
+				
 			response.clear();
 		}
 		else
@@ -484,7 +497,6 @@ int Response::send_response()
 			std::ifstream is (path.c_str(), std::ifstream::binary);
 			if (is) 
 			{
-				// std::cout << "index :" << index << "|" << getContentLenght(path) << "\n";
 				is.seekg (index, is.beg);
 				is.read (buffer,1024);
 				if (is)
@@ -493,7 +505,12 @@ int Response::send_response()
 					is.read (buffer,1024);
 					if (is)
 					{
-						write(socket, buffer , 1024);
+						if (write(socket, buffer , 1024) == -1)
+						{
+							status_code = "500";
+							return 2;
+						}	
+							
 						index += 1024;
 					}
 					else
@@ -503,7 +520,12 @@ int Response::send_response()
 							STAGE += 1;
 							return -1;
 						}
-						write(socket, buffer , is.gcount());
+						if (write(socket, buffer , is.gcount()) == -1)
+						{
+							status_code = "500";
+							return 2;
+						}	
+							
 						index += is.gcount();
 					}	
 					is.close();
@@ -515,7 +537,12 @@ int Response::send_response()
 						STAGE += 1;
 						return -1;
 					}
-					write(socket, buffer , is.gcount());
+					if (write(socket, buffer , is.gcount()) == -1)
+					{
+						status_code = "500";
+						return 2;
+					}	
+						
 					index += is.gcount();
 				}	
 				is.close();
@@ -546,6 +573,7 @@ void Response::fill_messages( void )
 	messages["415"] = "Unsupported Media Type";
 	messages["500"] = "Internal Server Error";
 	messages["501"] = "Not Implemented";
+	messages["504"] = "Gateway Timeout";
 	messages["505"] = "HTTP Version Not Supported";
 }
 

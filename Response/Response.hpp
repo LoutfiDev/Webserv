@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:42 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/14 12:12:31 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/14 18:29:24 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,6 @@
 
 class Response
 {
-	private:
 		
 	public:
 		std::map<std::string, std::string>messages;

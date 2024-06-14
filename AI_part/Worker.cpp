@@ -88,7 +88,10 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 	{
 		(*client)->getResponse()->send_response();
 		if ((*client)->getResponse()->STAGE > BODY_PROCESSING)
+		{
+			remove((*client)->getResponse()->cgiOut.c_str());
 			return true;
+		}
 	}
 	if ((*client)->getResponse()->STAGE <= CGI_PROCESSING)
 	{
@@ -101,7 +104,10 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 				fclose((*client)->getResponse()->out);
 			(*client)->getResponse()->send_response();
 			if ((*client)->getResponse()->STAGE > BODY_PROCESSING)
+			{
+				remove((*client)->getResponse()->cgiOut.c_str());
 				return true;
+			}
 		}
 		if ((*client)->getResponse()->in)
 			fclose((*client)->getResponse()->in);
@@ -116,6 +122,7 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 		if (response_result == -1)
 		{
 			(*client)->setIgnoreTimer(true);
+			remove((*client)->getResponse()->cgiOut.c_str());
 			return true;
 		}
 	}

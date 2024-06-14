@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
+/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:19:40 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/13 10:45:23 by anaji            ###   ########.fr       */
+/*   Updated: 2024/06/14 20:27:28 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,15 +30,19 @@ Server::Server(std::string& rest)
 		else if (rest[0] == '}' && open_brace && !close_brace)
 		{
 			rest.erase(0, 1);
+			if (!locations.size())
+				throw "directive \"server\" has no location";
+			if (host.empty() || port.empty())
+				throw "directive \"server\" must have \"listen\" directive";
 			return ;
 		}
 		else if (open_brace)
 		    pick_directive(rest);
 		else
-			throw 2;
+			throw "directive \"server\" has no opening \"{\"";
 	}
 	if (!close_brace)
-		throw 3;
+		throw "unexpected end of file, expecting \"}\"";
 }
 
 Server::Server(const Server& copy) { *this = copy; }
@@ -73,6 +77,7 @@ void Server::set_default_error_pages( void ){
 	error_pages["415"] = "error_pages/415.html";
 	error_pages["500"] = "error_pages/500.html";
 	error_pages["501"] = "error_pages/501.html";
+	error_pages["504"] = "error_pages/504.html";
 	error_pages["505"] = "error_pages/505.html";
 }
 
@@ -89,7 +94,7 @@ std::string parse_host(std::string host) {
 	{
 		nbr = strtod(tmp.c_str(), &rest);
 		if (rest[0] || !(nbr >= 0 && nbr < 256) || i > 4)
-			throw 5;
+			throw "host not found in \"listen\" directive";
 		i++;
 	}
 
@@ -107,12 +112,12 @@ std::string parse_port(std::string port) {
 		while (*rest)
 		{
 			if (*rest != ' ')
-				throw 6;
+				throw "port not found in \"listen\" directive";
 			rest++;
 		}
 	}
 	if (!(nbr > 0 && nbr < 10000))
-		throw 6;
+		throw "port not found in \"listen\" directive";
 
 	return port;
 }
@@ -144,11 +149,11 @@ void Server::set_listen(std::string& rest) {
 			else if (port.empty())
 				port = parse_port(value);
 			else
-				throw 7;
+				throw "invalid parameter in \"listen\" directive";
 		}
 	}
 	if (host.empty() || port.empty())
-		throw 8;
+		throw "\"listen\" directive accept only [host:port] as parameter";
 }
 
 void Server::set_server_names(std::string& rest) { 
@@ -180,7 +185,7 @@ void Server::set_server_names(std::string& rest) {
 		}
 	}
 	if (server_names.size() == 0)
-		throw 9;
+		throw "invalid number of arguments in \"server_name\" directive";
 }
 
 std::string is_status_code(std::string status_code)
@@ -189,9 +194,9 @@ std::string is_status_code(std::string status_code)
 	int nb;
 	nb = strtod(status_code.c_str(), &rest);
 	if (rest[0])
-		throw 11;
+		throw "invalid value in \"error_page\" directive";
 	else if (!(nb > 299 && nb < 600))
-		throw 11;
+		throw "invalid value in \"error_page\" directive";
 	return (status_code);
 }
 void Server::set_error_pages(std::string& rest) { 
@@ -225,13 +230,13 @@ void Server::set_error_pages(std::string& rest) {
 				tmp.push_back(value);
 		}
 		if (tmp.size() < 2)
-			throw 10;
+			throw "invalid number of arguments in \"error_page\" directive";
 		std::vector<std::string>::iterator it = tmp.begin();
 		for (; it+1 != tmp.end(); ++it)
 			tmp_error_pages[is_status_code(*it)] = *tmp.rbegin();
 	}
 	if (tmp_error_pages.size() == 0)
-		throw 10;
+		throw "invalid number of arguments in \"error_page\" directive";
 	std::map<std::string, std::string>::iterator ite = tmp_error_pages.begin();
 	for (; ite != tmp_error_pages.end(); ++ite)
 		error_pages[ite->first] = ite->second;
@@ -244,9 +249,9 @@ std::string parse_max_body_size(std::string value)
 
 	nb = strtod(value.c_str(), &rest);
 	if (rest[0])
-		throw 13;
+		throw "invalid value in \"client_max_body_size\" directive";
 	else if (nb > std::numeric_limits<unsigned int>::max() || nb < 0)
-		throw 13;
+		throw "invalid value in \"client_max_body_size\" directive";
 	return value;
 }
 
@@ -276,11 +281,11 @@ void Server::set_max_body_size(std::string& rest) {
 			else if (max_body_size.empty())
 				max_body_size = parse_max_body_size(value);
 			else
-				throw 12;
+				throw "\"location\" directive must have root";
 		}
 	}
 	if (max_body_size.empty())
-		throw 12;
+		throw "invalid number of arguments in \"client_max_body_size\" directive";
 }
 
 void Server::set_root(std::string& rest) { 
@@ -309,11 +314,11 @@ void Server::set_root(std::string& rest) {
 			else if (root.empty())
 				root = value;
 			else
-				throw 14;
+				throw "invalid number of arguments in \"root\" directive";
 		}
 	}
 	if (root.empty())
-		throw 14;
+		throw "invalid number of arguments in \"root\" directive";
 }	 
 
 void Server::set_locations(std::string& rest) { 
@@ -338,15 +343,26 @@ void Server::set_locations(std::string& rest) {
 			else if (path.empty())
 				path = value;
 			else
-				throw 15;
+				throw "invalid number of arguments in \"location\" directive";
 		}
 		if (path.empty())
-			throw 15;
+			throw "invalid number of arguments in \"location\" directive";
 		else
 		{
+			if (locations.find(path) != locations.end())
+				throw "\"server\" directive dosn't accept duplicated \"location\" directive";
 			locations[path] = new Location(rest);
 			if (locations[path]->root.empty())
-				locations[path]->root = root;
+			{
+				if (!root.empty())
+					locations[path]->root = root;
+				else
+				{
+					if (!locations[path]->redirection.size())
+						throw "\"location\" directive must have root";
+				}
+
+			}
 			if (!locations[path]->allow_methods.size())
 				locations[path]->allow_methods.push_back("GET");
 			break;
@@ -354,20 +370,6 @@ void Server::set_locations(std::string& rest) {
 	}
 }
 
-// Server getters
-// std::string Server::get_host( void ) const { return host; }
-
-// std::string Server::get_port( void ) const {return port; }
-
-// std::string Server::get_server_names(const std::string& server_name) {}
-
-// std::string Server::get_error_pages(const unsigned int error_code) {}
-
-// std::string Server::get_max_body_size( void ) const { return max_body_size; }
-
-// std::string Server::get_root( void ) const { return root;}
-
-// Location *Server::get_locations(const std::string& path) {}
 
 //Additional memberFunc
 void Server::pick_directive(std::string& rest)
@@ -386,5 +388,5 @@ void Server::pick_directive(std::string& rest)
 			return ((this->*(ptr[i]))(rest));
 		}
 	}
-	throw 1;
+	throw "unknown directive";
 }

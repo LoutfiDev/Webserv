@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:20:30 by soulang           #+#    #+#             */
-/*   Updated: 2024/05/27 13:09:58 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/14 20:16:38 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,10 +34,10 @@ Location::Location(std::string& rest)
 		else if (open_brace)
 		    pick_directive(rest);
 		else
-			throw 4;
+			throw "directive \"location\" has no opening \"{\"";
 	}
 	if (!close_brace)
-		throw 3;
+		throw "unexpected end of file, expecting \"}\"";
 }
 
 Location::Location(const Location& copy) { *this = copy; }
@@ -68,7 +68,7 @@ int parse_value(std::string value)
 	else if (value == "off")
 		return (0);
 	else
-		throw 17;
+		throw "invalid value in \"autoindex\" directive";
 }
 
 void Location::set_autoindex(std::string& rest){
@@ -98,11 +98,11 @@ void Location::set_autoindex(std::string& rest){
 			else if (nb < 1)
 				nb = parse_value(value);
 			else
-				throw 16;
+				throw "invalid number of arguments in \"autoindex\" directive";
 		}
 	}
 	if (nb == -1)
-		throw 16;
+		throw "invalid number of arguments in \"autoindex\" directive";
 	autoindex = nb;
 }
 
@@ -132,11 +132,11 @@ void Location::set_root(std::string& rest){
 			else if (root.empty())
 				root = value;
 			else
-				throw 14;
+				throw "invalid number of arguments in \"root\" directive";
 		}
 	}
 	if (root.empty())
-		throw 14;
+		throw "invalid number of arguments in \"root\" directive";
 }
 
 std::string parse_methods(std::vector<std::string>v, std::string value)
@@ -148,14 +148,14 @@ std::string parse_methods(std::vector<std::string>v, std::string value)
 	for (; ite != v.end(); ++ite)
 	{
 		if (value == *ite)
-			throw 19;
+			throw "invalid value in \"allowed_methods\" directive";
 	}
 	for (int i = 0; i < 3; i++)
 	{
 		if (str[i] == value)
 			return (value);
 	}
-	throw 19;
+	throw "invalid value in \"allowed_methods\" directive";
 }
 
 void Location::set_allow_methods(std::string& rest){
@@ -186,7 +186,7 @@ void Location::set_allow_methods(std::string& rest){
 		}
 	}
 	if (allow_methods.size() == 0)
-		throw 18;
+		throw "invalid number of arguments in \"allowed_methods\" directive";
 }
 
 void Location::set_index(std::string& rest){
@@ -217,7 +217,7 @@ void Location::set_index(std::string& rest){
 		}
 	}
 	if (index.size() == 0)
-		throw 20;
+		throw "invalid number of arguments in \"index\" directive";
 }
 
 void Location::set_upload_dir(std::string& rest){
@@ -246,30 +246,30 @@ void Location::set_upload_dir(std::string& rest){
 			else if (upload_dir.empty())
 				upload_dir = value;
 			else
-				throw 21;
+				throw "invalid number of arguments in \"upload_dir\" directive";
 		}
 	}
 	if (upload_dir.empty())
-		throw 21;
+		throw "invalid number of arguments in \"upload_dir\" directive";
 }
 
 std::string	parse_extention(std::map<std::string, std::string> map, std::string value)
 {
-	std::string str[2] = {".php", ".py"};
+	std::string str[3] = {".php", ".py", ".sh"};
 	std::string::iterator it = value.begin();
 	for(; it != value.end(); ++it) { *it =  std::tolower(*it); }
 	std::map<std::string, std::string>::iterator ite = map.begin();
 	for (; ite != map.end(); ++ite)
 	{
 		if (value == ite->first)
-			throw 23;
+			throw "invalid value in \"cgi\" directive";
 	}
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i < 3; i++)
 	{
 		if (str[i] == value)
 			return value;
 	}
-	throw 23;
+	throw "invalid value in \"cgi\" directive";
 }
 void Location::set_cgi(std::string& rest){
 	std::string value;
@@ -301,13 +301,13 @@ void Location::set_cgi(std::string& rest){
 			else if (path.empty())
 				path = value;
 			else
-				throw 22;
+				throw "invalid number of arguments in \"cgi\" directive";
 		}
 		if (!path.empty() && !extention.empty())
 			cgi[extention] = path;
 	}
 	if (cgi.size() == 0)
-		throw 22;
+		throw "invalid number of arguments in \"cgi\" directive";
 }
 
 std::string	parse_status_code(std::string value)
@@ -317,9 +317,9 @@ std::string	parse_status_code(std::string value)
 	
 	nb = strtod(value.c_str(), &rest);
 	if (rest[0])
-		throw 25;
+		throw "invalid value in \"return\" directive";
 	else if (!(nb > 299 && nb < 600))
-		throw 25;
+		throw "invalid value in \"return\" directive";
 	return value;
 }
 void Location::set_redirection(std::string& rest){
@@ -352,16 +352,19 @@ void Location::set_redirection(std::string& rest){
 			else if (path.empty())
 				path = value;
 			else
-				throw 24;
+				throw "invalid number of arguments in \"return\" directive";
 		}
 		if (!path.empty() && !status_code.empty())
+		{
+			if (redirection.size())
+				throw "directive \"location\" accept on \"return\" directive";
 			redirection[status_code] = path;
+		}
 	}
 	if (redirection.size() == 0)
-		throw 24;
+		throw "invalid number of arguments in \"return\" directive";
 }
 
-// Location getters
 
 
 //Additional memberFunc
@@ -381,5 +384,5 @@ void Location::pick_directive(std::string& rest)
 			return ((this->*(ptr[i]))(rest));
 		}
 	}
-	throw 1;
+	throw "unknown directive";
 }
