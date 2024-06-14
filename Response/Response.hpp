@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:42 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/13 12:35:17 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/14 10:18:11 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,7 @@ class Response
 		std::string cgiPath;
 		std::string query;
 		std::string http_cookie;
+		std::map<std::string, std::string>cgi_headers;
 		
 		pid_t pid;
 		int status;
