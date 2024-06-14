@@ -20,6 +20,7 @@
 #include <vector>
 
 Request::Request() {
+	isSessionIdSet = false;
 	had_request_line = false;
 	request_code = 0;
 	bodyLength = 0;
@@ -129,6 +130,34 @@ void Request::setPath(std::string uri)
 	}
 	path = uri;
 
+}
+
+std::string Request::getSession() const
+{
+	return SessionId;
+}
+
+bool Request::getSessionId()
+{
+	std::stringstream ckie;
+	std::string part;
+	size_t pos;
+
+	if (cookie.length() == 0)
+		return false;
+	ckie << cookie;
+
+	while (std::getline(ckie, part, ';'))
+	{
+		pos = part.find("SID=");
+		if (pos != std::string::npos)
+		{
+			SessionId = part.substr(pos + 4);
+			std::cout << SessionId << "\n";
+			return true;
+		}
+	}
+	return false;
 }
 
 std::string  Request::getHttpVersion() const
@@ -361,7 +390,7 @@ int Request::ignoreBody(std::string &token)
 				return request_code;
 			transferEncodingCheck = true;
 		}
-		if (readTransferEncodingBody(token) == -1)
+		if (ignoreTransferEncodingBody(token) == -1)
 			return -1;
 	}
 	catch (int state)
@@ -404,7 +433,7 @@ int Request::addBody(std::string &token)
 	{
 		tmp_body_file_name = "/nfs/sgoinfre/goinfre/Perso/anaji/tmp/" + generateFileName();
 		// tmp_body_file_name = "/nfs/sgoinfre/goinfre/Perso/anaji/tmp/" + generateFileName() + "." + getExtension(getContentType());
-		// std::cout << "opening " << tmp_body_file_name << "\n";
+		std::cout << "opening " << tmp_body_file_name << "\n";
 		tmp_body_file.open(tmp_body_file_name.c_str(), std::istream::binary);
 	}
 	try
@@ -516,6 +545,50 @@ int Request::readTransferEncodingBody(std::string token)
 	return 0;
 }
 
+int Request::ignoreTransferEncodingBody(std::string token)
+{
+	size_t line;
+	tmp_body += token;
+
+	while (tmp_body.length())
+	{
+		line = tmp_body.find("\r\n");
+		if (line == std::string::npos)
+			return 0;
+		if (line == 0)
+		{
+			tmp_body = tmp_body.substr(2);
+			continue;
+		}
+		if (chunk_length == 0)
+		{
+			setChunkLength(tmp_body.substr(0, line));
+			if (chunk_length == -1)
+				return 1;
+			if (chunk_length == -2)
+			{
+				setResponseCode("408");
+				return -1;
+			}
+			tmp_body = tmp_body.substr(line + 2);
+		}
+		else
+		{
+			if (chunk_length > (int)tmp_body.length())
+			{
+				chunk_length -= tmp_body.length();
+				tmp_body.clear();
+			}
+			else
+			{
+				tmp_body = tmp_body.substr(chunk_length);
+				chunk_length = 0;
+			}
+			bodyCount += tmp_body.length();
+		}
+	}
+	return 0;
+}
 /*
  * @Description : check the type of that body and performe any needed cleanup
  * @param void 

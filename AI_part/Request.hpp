@@ -44,6 +44,8 @@ class Request {
 		std::string getCookie() const;
 		std::string getQueryString() const;
 
+		std::string getSession() const;
+
 		long long getBodyLength();
 		std::string getBodyFile() const;
 
@@ -77,12 +79,14 @@ class Request {
 		const std::string &getHost();
 		size_t getBodyCount() const;
 
+		bool	getSessionId();
 
 		void closeTmpBody();
 
 	private:
 		void setBodyLength(std::string &);
 		int readTransferEncodingBody(std::string);
+		int ignoreTransferEncodingBody(std::string);
 
 	private:
 		int request_code;			// the code that the parsing return
@@ -125,6 +129,10 @@ class Request {
 		std::string cookie;
 		std::string query_string;
 
+	//session id attribute
+	private:
+		std::string SessionId;
+		bool isSessionIdSet;
 	
 
 };

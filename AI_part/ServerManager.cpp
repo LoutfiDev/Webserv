@@ -223,7 +223,7 @@ void ServerManager::multiplixer()
 						ev.data.fd = epl_evt[i].data.fd;
 						ev.events = EPOLLOUT;
 						epoll_ctl(epoll_fd, EPOLL_CTL_MOD, epl_evt[i].data.fd, &ev);
-						worker.intResponse(epl_evt[i].data.fd);
+						worker.initResponse(epl_evt[i].data.fd);
 					}
 
 				}

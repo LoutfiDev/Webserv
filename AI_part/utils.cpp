@@ -58,14 +58,15 @@ char randomChar(int old)
 	return (charset[character %= 54]);
 }
 
-std::string generateFileName()
+std::string generateFileName(int gen)
 {
 	std::string name;
 	int len = generateNum() % 20 + 10;
 	for (int i = 1; i <= len; i++) {
 		name.append(1, randomChar(i));
 	}
-	name.insert(0, "gen_");
+	if (gen == 1)
+		name.insert(0, "gen_");
 	return name;	
 }
 
@@ -141,6 +142,7 @@ int Response::processPostResponse()
 {
 	char buff[1024];
 
+	std::cout << "ON post\n";
 	memset(buff, '\0', 1023);
 	if (method != "POST")
 		return (postState = END, 1);
@@ -219,7 +221,7 @@ void Response::Post()
 	outfile.open(pathname.c_str(), std::ofstream::binary);
 	postState = SENDING;
 	status_code = "201";
-	processPostResponse();
+	// processPostResponse();
 
 	// i think in case of a regular file that can pass throught CGI we need to call GET method (arabic : dakchi li galina youssef l2ostora)
 }

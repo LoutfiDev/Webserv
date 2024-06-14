@@ -151,7 +151,10 @@ void Client::readBuffer(char *buf, int size)
 			if (request.addBody(buffer) == -1)
 			{
 				if (request.getMethodName() == "POST")
+				{
+					std::cout << "getMethod Clinet\n";
 					response->responseBody = request.getBodyFile();
+				}
 				return setState(WRITE);
 			}
 			if (request.getBodyLength() < 0)

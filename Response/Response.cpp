@@ -3,21 +3,25 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/13 23:46:41 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/14 10:23:08 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
+#include <cstddef>
+#include <fstream>
 #include <iostream>
 #include <netdb.h>
+#include <sstream>
 #include <string>
 
 
 Response::Response() : STAGE(0), index(0), HEADERISWRITTEN(0), status(-1)
 {
+	isSessionIdSend = false;
 	status_code = "200";
 	http_v = "HTTP/1.1";
 	postState = PROCESSING;
@@ -368,11 +372,17 @@ std::string Response::getPath( void )
 
 int Response::send_response()
 {
+	// std::string line, key, value;
+	// size_t found;
+
 	if (!cgiOut.empty() && STAGE == HEADER_PROCESSING)
 	{
+		std::cout << "On CFGI\n";
 		path = cgiOut;
+		std::ifstream file(path.c_str());
 		if (extension == ".php")
 			STAGE += 1;
+
 		response += http_v + " " + status_code + " " + getMessage(status_code) + "\r\n";
 		write(socket, response.c_str() , response.size());
 	}
@@ -393,6 +403,11 @@ int Response::send_response()
 			}
 			path = getPath();
 		}
+		// if (isSessionIdSend == false)
+		// {
+		// 	response += "Set-Cookie: SID=" + generateFileName(0) + "\r\n";
+		// 	isSessionIdSend = true;
+		// }
 		if (!path.empty())
 		{
 			if (path[path.size() - 1] == '/')
@@ -406,84 +421,84 @@ int Response::send_response()
 		}
 		else
 			response += "Content-Type: text/html\r\n\r\n";
-		
+
 		write(socket, response.c_str() , response.size());
-			
+
 		STAGE += 1;
 	}
 	else if (STAGE == BODY_PROCESSING)
 	{			
-			DIR *directory;
-			memset(buffer, 0, 1024);
+		DIR *directory;
+		memset(buffer, 0, 1024);
 
-			if((directory=opendir(path.c_str())))
+		if((directory=opendir(path.c_str())))
+		{
+			int portion = 1;
+			struct dirent *dent;
+			if (!HEADERISWRITTEN)
 			{
-				int portion = 1;
-				struct dirent *dent;
-				if (!HEADERISWRITTEN)
-				{
-					dir = directory;
-					response.clear();
-					response += "<html><head><title>Index of /</title></head><body><h1>Index of /</h1><hr><pre>";
-					HEADERISWRITTEN++;
-				}
-				while((portion % 4) && (dent=readdir(dir)))
-				{
-					struct stat st_buf;
-					stat (std::string(path + "/" + dent->d_name).c_str(), &st_buf);
-					if (std::string(dent->d_name) == ".." || std::string(dent->d_name) == ".")
-						continue;
-					if (S_ISDIR (st_buf.st_mode))
-						response += "<a href=\"" + std::string(dent->d_name) + "/\">" + std::string(dent->d_name) + "/</a></br>";
-					else if (S_ISREG (st_buf.st_mode))
-						response += "<a href=\"" + std::string(dent->d_name) + "\">" + std::string(dent->d_name) + "</a></br>";
-					portion++;
-				}
-				if(!dent)
-				{
-					response += "</pre><hr></body></html>";
-					write(socket, response.c_str() , response.size());
-					response.clear();
-					closedir(directory);
-					STAGE += 1;
-					return -1;
-				}
+				dir = directory;
+				response.clear();
+				response += "<html><head><title>Index of /</title></head><body><h1>Index of /</h1><hr><pre>";
+				HEADERISWRITTEN++;
+			}
+			while((portion % 4) && (dent=readdir(dir)))
+			{
+				struct stat st_buf;
+				stat (std::string(path + "/" + dent->d_name).c_str(), &st_buf);
+				if (std::string(dent->d_name) == ".." || std::string(dent->d_name) == ".")
+					continue;
+				if (S_ISDIR (st_buf.st_mode))
+					response += "<a href=\"" + std::string(dent->d_name) + "/\">" + std::string(dent->d_name) + "/</a></br>";
+				else if (S_ISREG (st_buf.st_mode))
+					response += "<a href=\"" + std::string(dent->d_name) + "\">" + std::string(dent->d_name) + "</a></br>";
+				portion++;
+			}
+			if(!dent)
+			{
+				response += "</pre><hr></body></html>";
 				write(socket, response.c_str() , response.size());
 				response.clear();
+				closedir(directory);
+				STAGE += 1;
+				return -1;
 			}
-			else
+			write(socket, response.c_str() , response.size());
+			response.clear();
+		}
+		else
+		{
+			if (postState != END && processPostResponse() == 0)
+				return 0;
+			std::ifstream is (path.c_str(), std::ifstream::binary);
+			if (is) 
 			{
-				if (postState != END && processPostResponse() == 0)
-					return 0;
-				std::ifstream is (path.c_str(), std::ifstream::binary);
-				if (is) 
+				// std::cout << "index :" << index << "|" << getContentLenght(path) << "\n";
+				is.seekg (index, is.beg);
+				is.read (buffer,1024);
+				if (is)
 				{
-					std::cout << "index :" << index << "\n";
-					is.seekg (index, is.beg);
-					is.read (buffer,1024);
-					if (is)
-					{
-						write(socket, buffer , 1024);
-						index += 1024;
-					}
-					else
-					{
-						if (is.gcount() == 0)
-						{
-							STAGE += 1;
-							return -1;
-						}
-						write(socket, buffer , is.gcount());
-						index += is.gcount();
-					}	
-					is.close();
+					write(socket, buffer , 1024);
+					index += 1024;
 				}
 				else
 				{
-					STAGE += 1;
-					return -1;
-				}
+					if (is.gcount() == 0)
+					{
+						STAGE += 1;
+						return -1;
+					}
+					write(socket, buffer , is.gcount());
+					index += is.gcount();
+				}	
+				is.close();
 			}
+			else
+			{
+				STAGE += 1;
+				return -1;
+			}
+		}
 	}
 	return 0;
 }

@@ -30,6 +30,7 @@ Worker &Worker::operator=(const Worker& obj)
 	clients = obj.clients;
 	return (*this);
 }
+
 /*
  * @Description : read request (header + body) from client
  * @param fd int the fd to read from
@@ -106,10 +107,12 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 		response_result = (*client)->getResponse()->send_response();
 		if (response_result == -1)
 		{
+			std::cout << "all send\n";
 			(*client)->setIgnoreTimer(true);
 			return true;
 		}
 	}
+	// std::cout << "NOT YET " << cout++ << "\n";
 	return false;
 }
 
@@ -117,12 +120,13 @@ void Worker::dropClientConnection(std::vector<Client *>::iterator client)
 {
 	close((*client)->getFd());
 	clients.erase(client);
-	// delete *client;
+	delete (*client);
 }
 
 void Worker::add(int connection, std::vector<Server *> &prerquisite)
 {
 	Client *tmpCli = new Client(connection, prerquisite);
+	// tmpCli->getResponse()->SessionId = generateFileName(0);
 	clients.push_back(tmpCli);
 }
 
@@ -158,7 +162,7 @@ int Worker::serve(int fd)
 	return NOTHING;
 }
 
-void Worker::intResponse(int clientFd)
+void Worker::initResponse(int clientFd)
 {
 	size_t max_body_size = 100000000;
 	int tmp;
@@ -170,7 +174,11 @@ void Worker::intResponse(int clientFd)
 				return ;
 			if (clients[i]->getRequest().getHost().length() == 0)
 				return clients[i]->setState(ERROR);
-
+			if (clients[i]->getRequest().getSessionId())
+			{
+				clients[i]->getResponse()->SessionId = clients[i]->getRequest().getSession();
+				clients[i]->getResponse()->isSessionIdSend = true;
+			}
 			clients[i]->getResponse()->path = clients[i]->getRequest().getPath();
 			clients[i]->getResponse()->status_code = clients[i]->getRequest().getResponseCode();
 			clients[i]->getResponse()->location = clients[i]->getRequest().getRequestedLocation();
