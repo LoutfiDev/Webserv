@@ -402,7 +402,8 @@ int Request::addBody(std::string &token)
 		return ignoreBody(token);
 	if (!tmp_body_file.is_open())
 	{
-		tmp_body_file_name = "/nfs/sgoinfre/goinfre/Perso/anaji/tmp/" + generateFileName() + "." + getExtension(getContentType());
+		tmp_body_file_name = "/nfs/sgoinfre/goinfre/Perso/anaji/tmp/" + generateFileName();
+		// tmp_body_file_name = "/nfs/sgoinfre/goinfre/Perso/anaji/tmp/" + generateFileName() + "." + getExtension(getContentType());
 		// std::cout << "opening " << tmp_body_file_name << "\n";
 		tmp_body_file.open(tmp_body_file_name.c_str(), std::istream::binary);
 	}
