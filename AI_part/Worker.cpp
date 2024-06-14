@@ -39,26 +39,31 @@ Worker &Worker::operator=(const Worker& obj)
  * @return int state of the read (done, error, not yet)
  *
  */
-
+long long read_S = 0;
 int Worker::readFromClient(int fd, std::vector<Client *>::iterator client)
 {
 	int read_size;
-	int READBUFFER = 1000;
+	int READBUFFER = 1024;
 
 	(*client)->resetTimer();
 	char buf[READBUFFER];
-	std::memset(buf, '\0', READBUFFER - 1);
-	read_size = read(fd, buf, READBUFFER - 2);
-	buf[READBUFFER - 1] = '\0';
+	std::memset(buf, '\0', READBUFFER);
+	read_size = read(fd, buf, READBUFFER - 1);
+	// std::cout << read_size << "\n";
+	read_S += read_size;
 	if (read_size == -1)
 	{
 		std::cerr << "Connection Closed by peer\n";
 		clients.erase(client);
 		return CONNECTIONCLOSED;
 	}
-	if (read_size == 0)
-		return READINGISDONE;
 	(*client)->readBuffer(buf, read_size);
+	// std::cerr << "REad Toatal :" << read_S << "\n";
+	if (read_size == 0)
+	{
+		std::cout << "raed 0\n";
+		return READINGISDONE;
+	}
 	if ((*client)->getState() == ERROR)
 	{
 		std::cout << "error in the request\n";

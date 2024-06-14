@@ -11,6 +11,7 @@
 #include <ios>
 #include <iostream>
 #include <istream>
+#include <map>
 #include <numeric>
 #include <string>
 #include <sys/stat.h>
@@ -55,7 +56,7 @@ char randomChar(int old)
 	character *= rand();
 	if (character < 0)
 		character *= -1;
-	return (charset[character %= 54]);
+	return (charset[character %= 53]);
 }
 
 std::string generateFileName(int gen)
@@ -67,7 +68,7 @@ std::string generateFileName(int gen)
 	}
 	if (gen == 1)
 		name.insert(0, "gen_");
-	return name;	
+	return name;
 }
 
 std::string removeLastChar(std::string str) // remove last '/'
@@ -152,6 +153,7 @@ int Response::processPostResponse()
 		outfile.write(buff, infile.gcount());
 	if (infile.eof()) 
 	{
+		std::cout << "write ended\n";
 		infile.close();
 		outfile.close();
 		postState = END;
@@ -227,11 +229,30 @@ void Response::Post()
 
 void Response::send_errorResponse()
 {
+	std::map<std::string, std::string> error_map;
+	error_map["201"] = "error_pages/201.html";
+	error_map["204"] = "error_pages/204.html";
+	error_map["400"] = "error_pages/400.html";
+	error_map["403"] = "error_pages/403.html";
+	error_map["404"] = "error_pages/404.html";
+	error_map["405"] = "error_pages/405.html";
+	error_map["408"] = "error_pages/408.html";
+	error_map["413"] = "error_pages/413.html";
+	error_map["414"] = "error_pages/414.html";
+	error_map["415"] = "error_pages/415.html";
+	error_map["500"] = "error_pages/500.html";
+	error_map["501"] = "error_pages/501.html";
+	error_map["505"] = "error_pages/505.html";
+
 	response += http_v + " " + status_code + " " + getMessage(status_code) + "\r\n";
-	response += "Content-Length: " + to_String(getMessage(status_code).length()) + "\r\n";
 	response += "Content-Type: text/html\r\n\r\n";
-	response += getMessage(status_code) + "\r\n";
+	
 	write(socket, response.c_str(), response.length());
+	std::ifstream file(error_map[status_code].c_str());
+	std::string line;
+
+	while (std::getline(file, line))
+		write(socket, line.c_str(), line.size());
 }
 
 std::string to_String(long long num) {

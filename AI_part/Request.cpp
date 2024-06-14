@@ -20,7 +20,6 @@
 #include <vector>
 
 Request::Request() {
-	isSessionIdSet = false;
 	had_request_line = false;
 	request_code = 0;
 	bodyLength = 0;
@@ -132,33 +131,6 @@ void Request::setPath(std::string uri)
 
 }
 
-std::string Request::getSession() const
-{
-	return SessionId;
-}
-
-bool Request::getSessionId()
-{
-	std::stringstream ckie;
-	std::string part;
-	size_t pos;
-
-	if (cookie.length() == 0)
-		return false;
-	ckie << cookie;
-
-	while (std::getline(ckie, part, ';'))
-	{
-		pos = part.find("SID=");
-		if (pos != std::string::npos)
-		{
-			SessionId = part.substr(pos + 4);
-			std::cout << SessionId << "\n";
-			return true;
-		}
-	}
-	return false;
-}
 
 std::string  Request::getHttpVersion() const
 {
@@ -340,8 +312,11 @@ void Request::processRequestLine(std::string token)
  * @return int 0 : succes | 1 : if host haeder is exist
  */
 
+long long count = 0;
 int Request::addHeader(std::string token)
 {
+	// count += token.size();
+	// std::cerr << "header count =>"<< count << "\n";
 	size_t found;
 	std::string key, value;
 
@@ -359,12 +334,13 @@ int Request::addHeader(std::string token)
 		value = trim(token.substr(found + 1));
 		if (key.length() == 0 || value.length() == 0)
 		{
-			std::cout << '"' << token  << "\"\n";
+			// std::cout << '"' << token  << "\"\n";
 			setResponseCode("400");
 			return 0;
 		}
 		toLower(key);
 		toLower(value);
+		// std::cout << "key =>" << key << " value =>" << value << "\n";
 		headers[key] = value;
 		if (key == "content-length")
 			setBodyLength(value);
@@ -404,8 +380,9 @@ int Request::ignoreBody(std::string &token)
 				getContentLength();
 				contentLengthCheck = true;
 			}
-			bodyLength_CPY -= token.length();
-			bodyCount += token.length();
+			bodyLength_CPY -= token.size();
+			bodyCount += token.size();
+			std::cout << bodyLength_CPY << "\n";
 			if (bodyLength_CPY <= 0)
 				return -1;
 		}
@@ -459,13 +436,16 @@ int Request::addBody(std::string &token)
 		try
 		{
 			if (!contentLengthCheck)
-				 getContentLength();
+				 std::cout << getContentLength() << "\n";
 			contentLengthCheck = true;
-			tmp_body_file.write(token.c_str(), token.length());
-			bodyLength_CPY -= token.length();
-			bodyCount += token.length();
+			tmp_body_file.write(token.c_str(), token.size());
+			bodyLength_CPY -= token.size();
+			bodyCount += token.size();
 			if (bodyLength_CPY <= 0)
+			{
+				std::cout << "END\n";
 				return (tmp_body_file.close(), -1);
+			}
 		}
 		catch (int)
 		{
@@ -518,12 +498,11 @@ int Request::readTransferEncodingBody(std::string token)
 			if (chunk_length == -1)
 			{
 				tmp_body_file << "\r\n";
-				return 1;
+				return -1;
 			}
 			if (chunk_length == -2)
 			{
 				setResponseCode("408");
-				tmp_body_file.close();
 				return -1;
 			}
 			tmp_body = tmp_body.substr(line + 2);
@@ -568,7 +547,7 @@ int Request::ignoreTransferEncodingBody(std::string token)
 		{
 			setChunkLength(tmp_body.substr(0, line));
 			if (chunk_length == -1)
-				return 1;
+				return -1;
 			if (chunk_length == -2)
 			{
 				setResponseCode("408");

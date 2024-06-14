@@ -59,7 +59,6 @@ class Request {
 		int  addBody(std::string &);
 		int  ignoreBody(std::string &);
 
-
 		void showHeaders();
 		
 		void processRequestLine(std::string);
@@ -78,8 +77,6 @@ class Request {
 		const std::string getContentType();
 		const std::string &getHost();
 		size_t getBodyCount() const;
-
-		bool	getSessionId();
 
 		void closeTmpBody();
 
@@ -129,11 +126,6 @@ class Request {
 		std::string cookie;
 		std::string query_string;
 
-	//session id attribute
-	private:
-		std::string SessionId;
-		bool isSessionIdSet;
-	
 
 };
 
