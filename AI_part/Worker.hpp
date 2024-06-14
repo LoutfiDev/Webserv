@@ -44,6 +44,7 @@ class Worker {
 
 	private:
 		std::vector<Client *> clients;
+		std::vector<Client *> old_clients;
 
 };
 

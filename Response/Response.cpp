@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/14 20:30:44 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/15 00:00:10 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -396,7 +396,6 @@ int Response::send_response()
 				status_code = "500";
 				return 2;
 			}	
-				
 		}
 	}
 	if (STAGE == HEADER_PROCESSING)

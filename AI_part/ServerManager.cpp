@@ -76,7 +76,7 @@ void ServerManager::init_server(const char *port)
 	}
 	freeaddrinfo(servinfo);
 	int flags = fcntl(tmp_socket_fd, F_GETFL, 0);
-	fcntl(tmp_socket_fd, F_SETFL, flags | O_NONBLOCK);
+	fcntl(tmp_socket_fd, F_SETFL, flags | O_NONBLOCK, FD_CLOEXEC);
 	res = setsockopt(tmp_socket_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&reuse, sizeof(reuse));
 	if (res == -1)
 		handleError("setsockopt", errno);
@@ -235,7 +235,7 @@ void ServerManager::multiplixer()
 					close_and_exit(nginx);
 			}
 		}
-		// worker.checkClientTimeout();
+		worker.checkClientTimeout();
 	}
 }
 

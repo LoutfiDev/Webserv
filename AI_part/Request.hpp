@@ -79,6 +79,9 @@ class Request {
 		size_t getBodyCount() const;
 
 		void closeTmpBody();
+		
+		std::string tmp_body_file_name;
+
 
 	private:
 		void setBodyLength(std::string &);
@@ -104,7 +107,6 @@ class Request {
 		int chunk_length;
 		std::string tmp_body;
 		std::ofstream tmp_body_file;
-		std::string tmp_body_file_name;
 
 
 		size_t bodyCount;				// to check if it is more then max_size
@@ -125,8 +127,6 @@ class Request {
 	private:
 		std::string cookie;
 		std::string query_string;
-
-
 };
 
 

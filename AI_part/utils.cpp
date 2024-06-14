@@ -131,10 +131,7 @@ std::string getExtension(const std::string &file)
 	{
 		pos = tmp.find(file);
 		if (pos != std::string::npos)
-		{
-			std::cout << trim(tmp.substr(pos + file.length()), " ;,") << "\n";
 			return (trim(tmp.substr(pos + file.length()), " ;,"));
-		}
 	}
 	return ("");
 }
@@ -153,9 +150,9 @@ int Response::processPostResponse()
 		outfile.write(buff, infile.gcount());
 	if (infile.eof()) 
 	{
-		std::cout << "write ended\n";
 		infile.close();
 		outfile.close();
+		remove(responseBody.c_str());
 		postState = END;
 		return 1;
 	}

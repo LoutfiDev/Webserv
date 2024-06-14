@@ -39,7 +39,7 @@ Worker &Worker::operator=(const Worker& obj)
  * @return int state of the read (done, error, not yet)
  *
  */
-long long read_S = 0;
+
 int Worker::readFromClient(int fd, std::vector<Client *>::iterator client)
 {
 	int read_size;
@@ -49,8 +49,6 @@ int Worker::readFromClient(int fd, std::vector<Client *>::iterator client)
 	char buf[READBUFFER];
 	std::memset(buf, '\0', READBUFFER);
 	read_size = read(fd, buf, READBUFFER - 1);
-	// std::cout << read_size << "\n";
-	read_S += read_size;
 	if (read_size == -1)
 	{
 		std::cerr << "Connection Closed by peer\n";
@@ -58,17 +56,10 @@ int Worker::readFromClient(int fd, std::vector<Client *>::iterator client)
 		return CONNECTIONCLOSED;
 	}
 	(*client)->readBuffer(buf, read_size);
-	// std::cerr << "REad Toatal :" << read_S << "\n";
 	if (read_size == 0)
-	{
-		std::cout << "raed 0\n";
 		return READINGISDONE;
-	}
 	if ((*client)->getState() == ERROR)
-	{
-		std::cout << "error in the request\n";
 		return ERRORINREADING;
-	}
 	if ((*client)->getState() == WRITE)
 		return READINGISDONE; // move to write data to that client fd
 	return NOTHING;
@@ -83,7 +74,6 @@ int Worker::readFromClient(int fd, std::vector<Client *>::iterator client)
  *
  */
 
-int cout = 0;
 bool Worker::writeToClient(std::vector<Client *>::iterator client)
 {
 	int response_result;
@@ -131,7 +121,6 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 			return true;
 		}
 	}
-	// std::cout << "NOT YET " << cout++ << "\n";
 	return false;
 }
 
@@ -139,13 +128,12 @@ void Worker::dropClientConnection(std::vector<Client *>::iterator client)
 {
 	close((*client)->getFd());
 	clients.erase(client);
-	delete (*client);
+	old_clients.push_back(*client);
 }
 
 void Worker::add(int connection, std::vector<Server *> &prerquisite)
 {
 	Client *tmpCli = new Client(connection, prerquisite);
-	// tmpCli->getResponse()->SessionId = generateFileName(0);
 	clients.push_back(tmpCli);
 }
 
@@ -170,7 +158,6 @@ int Worker::serve(int fd)
 			}
 			else
 			{
-				std::cout << "error " << (*cli)->getResponse()->status_code << "\n";
 				(*cli)->getResponse()->send_errorResponse();
 				dropClientConnection(cli);
 				break;
@@ -194,11 +181,8 @@ void Worker::initResponse(int clientFd)
 			if (clients[i]->getRequest().getHost().length() == 0)
 				return clients[i]->setState(ERROR);
 			
-			if (clients[i]->getRequest().getSessionId())
-			{
-				clients[i]->getResponse()->SessionId = clients[i]->getRequest().getSession();
-				clients[i]->getResponse()->isSessionIdSend = true;
-			}
+
+			clients[i]->getResponse()->request_tmp_file_name = clients[i]->getRequest().tmp_body_file_name;
 			clients[i]->getResponse()->path = clients[i]->getRequest().getPath();
 			clients[i]->getResponse()->status_code = clients[i]->getRequest().getResponseCode();
 			clients[i]->getResponse()->location = clients[i]->getRequest().getRequestedLocation();
@@ -232,9 +216,6 @@ void Worker::checkClientTimeout()
 	{
 		if ((*client)->istimeOut())
 		{
-			std::cout << "TimeOut\n";
-			// kill((*client)->getResponse()->pid, SIGKILL);
-			// std::cout << "c_timer = " << (*client)->c_timer_start << " | time = " << time(0) << "\n";
 			(*client)->getResponse()->send_errorResponse();
 			dropClientConnection(client);
 			break;
@@ -246,12 +227,12 @@ void Worker::checkClientTimeout()
 Worker::~Worker() 
 {
 	size_t i = 0;
-	std::vector<Client *>::iterator it = clients.begin();
+	std::vector<Client *>::iterator it = old_clients.begin();
 
-	while (i < clients.size())
+	while (i < old_clients.size())
 	{
-		delete clients[i];
-		clients.erase(it);
+		delete old_clients[i];
+		old_clients.erase(it);
 		i++;
 		it++;
 	}

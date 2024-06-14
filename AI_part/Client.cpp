@@ -158,14 +158,14 @@ void Client::readBuffer(char *buf, int size)
 			}
 			if (request.getBodyLength() < 0)
 			{
-				std::cout << "Lengh = "<< request.getBodyLength() << "\n";
+				// std::cout << "Lengh = "<< request.getBodyLength() << "\n";
 				return setState(ERROR);
 			}
 			buffer.clear();
 		}
 		if (request.getRequestCode())
 		{
-			std::cout << "pass to the response with <" << request.getRequestCode() << ">\n";
+			// std::cout << "pass to the response with <" << request.getRequestCode() << ">\n";
 			return setState(ERROR);
 		}
 	}
