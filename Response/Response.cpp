@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/14 10:48:45 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/14 12:01:46 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@ Response::Response() : STAGE(0), index(0), HEADERISWRITTEN(0), status(-1)
 	postState = PROCESSING;
 	server = NULL;
 	location = NULL;
+	in = NULL;
+	out = NULL;
 	fill_messages();
 }
 
@@ -277,9 +279,9 @@ int Response::execute_cgi( void )
 				cgiOut = generateFileName();
 				if ((pid = fork()) == 0)
 				{
-					freopen (cgiOut.c_str(),"w",stdout);
+					out = freopen (cgiOut.c_str(),"w",stdout);
 					if (method == "POST")
-						freopen (responseBody.c_str(),"r",stdin);
+						in = freopen (responseBody.c_str(),"r",stdin);
 					if (execve(argv[0], argv, env) == -1)
 						exit(1);
 				}
@@ -300,9 +302,7 @@ int Response::execute_cgi( void )
 			{
 				kill(pid, SIGKILL);
 				status_code = "408";
-				std::cout << "STAGE =>" <<STAGE << "\n";
 				STAGE += 1;
-				std::cout << "STAGE =>" <<STAGE << "\n";
 				return 2;
 			}
 		}
@@ -475,7 +475,6 @@ int Response::send_response()
 				std::ifstream is (path.c_str(), std::ifstream::binary);
 				if (is) 
 				{
-					std::cout << "index :" << index << "\n";
 					is.seekg (index, is.beg);
 					is.read (buffer,1024);
 					if (is)

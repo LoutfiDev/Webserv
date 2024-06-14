@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:42 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/14 10:18:11 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/14 11:20:29 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,8 @@ class Response
 		std::map<std::string, std::string>cgi_headers;
 		
 		pid_t pid;
+		FILE* in;
+		FILE* out;
 		int status;
 		char **env;
 		char **argv;
