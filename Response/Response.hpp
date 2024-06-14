@@ -6,7 +6,7 @@
 /*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:42 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/14 09:39:37 by anaji            ###   ########.fr       */
+/*   Updated: 2024/06/14 11:04:39 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,7 @@ class Response
 		std::string http_cookie;
 		std::string SessionId;
 		bool		isSessionIdSend;
+		std::map<std::string, std::string>cgi_headers;
 		
 		pid_t pid;
 		int status;
@@ -129,9 +130,6 @@ class Response
 
 		// to send an error response
 		void send_errorResponse();
-
-		std::map<std::string, std::string> response_map;
-
 
 };
 

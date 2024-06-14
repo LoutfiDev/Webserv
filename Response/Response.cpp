@@ -6,7 +6,7 @@
 /*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/14 10:23:08 by anaji            ###   ########.fr       */
+/*   Updated: 2024/06/14 11:04:13 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -278,7 +278,7 @@ int Response::execute_cgi( void )
 				strcpy(argv[1], cgiFile.c_str());
 				argv[2] = NULL;
 				formEnv();
-				cgiOut = generateFileName() + ".html";
+				cgiOut = generateFileName();
 				if ((pid = fork()) == 0)
 				{
 					freopen (cgiOut.c_str(),"w",stdout);
@@ -377,13 +377,27 @@ int Response::send_response()
 
 	if (!cgiOut.empty() && STAGE == HEADER_PROCESSING)
 	{
-		std::cout << "On CFGI\n";
-		path = cgiOut;
-		std::ifstream file(path.c_str());
-		if (extension == ".php")
-			STAGE += 1;
-
-		response += http_v + " " + status_code + " " + getMessage(status_code) + "\r\n";
+        path = cgiOut;
+        std::ifstream file(path.c_str());
+		std::string line;
+        if (extension == ".php")
+            STAGE += 1;
+        while (std::getline(file, line))
+        {
+            if (line == "\r")
+                break;
+			std::string key, value;
+			size_t found;
+            found = line.find(":");
+            key = trim(line.substr(0, found));
+            value = trim(line.substr(found + 1));
+            cgi_headers[key] = value.erase(value.length() -1, 1);
+        }
+		response += http_v + " ";
+		if (cgi_headers.find("Status") != cgi_headers.end())
+			response += cgi_headers["Status"] + "\r\n";
+		else
+			response += status_code + " " + getMessage(status_code) + "\r\n";
 		write(socket, response.c_str() , response.size());
 	}
 	if (STAGE == HEADER_PROCESSING)
