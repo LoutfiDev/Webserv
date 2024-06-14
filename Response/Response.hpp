@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:42 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/14 12:12:31 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/14 20:15:37 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,8 +79,6 @@ class Response
 		std::string cgiPath;
 		std::string query;
 		std::string http_cookie;
-		std::string SessionId;
-		bool		isSessionIdSend;
 		std::map<std::string, std::string>cgi_headers;
 		
 		pid_t pid;

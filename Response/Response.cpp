@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/14 12:12:38 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/14 20:15:24 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@
 
 Response::Response() : STAGE(0), index(0), HEADERISWRITTEN(0), status(-1)
 {
-	isSessionIdSend = false;
 	status_code = "200";
 	http_v = "HTTP/1.1";
 	postState = PROCESSING;
@@ -414,11 +413,6 @@ int Response::send_response()
 			}
 			path = getPath();
 		}
-		// if (isSessionIdSend == false)
-		// {
-		// 	response += "Set-Cookie: SID=" + generateFileName(0) + "\r\n";
-		// 	isSessionIdSend = true;
-		// }
 		if (!path.empty())
 		{
 			if (path[path.size() - 1] == '/')
