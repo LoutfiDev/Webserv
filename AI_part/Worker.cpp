@@ -95,10 +95,18 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 		int error = (*client)->getResponse()->execute_cgi();
 		if (error == ERROR)
 		{
+			if ((*client)->getResponse()->in)
+				fclose((*client)->getResponse()->in);
+			if ((*client)->getResponse()->out)
+				fclose((*client)->getResponse()->out);
 			(*client)->getResponse()->send_response();
 			if ((*client)->getResponse()->STAGE > BODY_PROCESSING)
 				return true;
 		}
+		if ((*client)->getResponse()->in)
+			fclose((*client)->getResponse()->in);
+		if ((*client)->getResponse()->out)
+			fclose((*client)->getResponse()->out);
 	}
 	else
 	{

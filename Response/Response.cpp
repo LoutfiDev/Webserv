@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
+/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/14 12:04:41 by anaji            ###   ########.fr       */
+/*   Updated: 2024/06/14 12:12:38 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ Response::Response() : STAGE(0), index(0), HEADERISWRITTEN(0), status(-1)
 	postState = PROCESSING;
 	server = NULL;
 	location = NULL;
+	in = NULL;
+	out = NULL;
 	fill_messages();
 }
 
@@ -281,9 +283,9 @@ int Response::execute_cgi( void )
 				cgiOut = generateFileName();
 				if ((pid = fork()) == 0)
 				{
-					freopen (cgiOut.c_str(),"w",stdout);
+					out = freopen (cgiOut.c_str(),"w",stdout);
 					if (method == "POST")
-						freopen (responseBody.c_str(),"r",stdin);
+						in = freopen (responseBody.c_str(),"r",stdin);
 					if (execve(argv[0], argv, env) == -1)
 						exit(1);
 				}
@@ -304,9 +306,7 @@ int Response::execute_cgi( void )
 			{
 				kill(pid, SIGKILL);
 				status_code = "408";
-				std::cout << "STAGE =>" <<STAGE << "\n";
 				STAGE += 1;
-				std::cout << "STAGE =>" <<STAGE << "\n";
 				return 2;
 			}
 		}
@@ -489,8 +489,24 @@ int Response::send_response()
 				is.read (buffer,1024);
 				if (is)
 				{
-					write(socket, buffer , 1024);
-					index += 1024;
+					is.seekg (index, is.beg);
+					is.read (buffer,1024);
+					if (is)
+					{
+						write(socket, buffer , 1024);
+						index += 1024;
+					}
+					else
+					{
+						if (is.gcount() == 0)
+						{
+							STAGE += 1;
+							return -1;
+						}
+						write(socket, buffer , is.gcount());
+						index += is.gcount();
+					}	
+					is.close();
 				}
 				else
 				{
