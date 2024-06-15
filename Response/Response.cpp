@@ -6,7 +6,7 @@
 /*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/15 00:49:05 by anaji            ###   ########.fr       */
+/*   Updated: 2024/06/15 01:22:40 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ Response::Response() : STAGE(0), index(0), HEADERISWRITTEN(0), status(-1)
 	location = NULL;
 	in = NULL;
 	out = NULL;
+	err = NULL;
 	fill_messages();
 }
 
@@ -282,9 +283,11 @@ int Response::execute_cgi( void )
 				formEnv();
 				cgiOut = generateFileName();
 				cgiOut.append(".html");
+				cgiErr = generateFileName();
 				if ((pid = fork()) == 0)
 				{
 					out = freopen (cgiOut.c_str(),"w",stdout);
+					err = freopen (cgiErr.c_str(),"w",stderr);
 					if (method == "POST")
 						in = freopen (responseBody.c_str(),"r",stdin);
 					if (execve(argv[0], argv, env) == -1)

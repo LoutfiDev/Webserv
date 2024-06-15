@@ -85,6 +85,7 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 		if ((*client)->getResponse()->STAGE > BODY_PROCESSING)
 		{
 			remove((*client)->getResponse()->cgiOut.c_str());
+			remove((*client)->getResponse()->cgiErr.c_str());
 			return true;
 		}
 	}
@@ -97,10 +98,13 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 				fclose((*client)->getResponse()->in);
 			if ((*client)->getResponse()->out)
 				fclose((*client)->getResponse()->out);
+			if ((*client)->getResponse()->err)
+				fclose((*client)->getResponse()->err);
 			(*client)->getResponse()->send_response();
 			if ((*client)->getResponse()->STAGE > BODY_PROCESSING)
 			{
 				remove((*client)->getResponse()->cgiOut.c_str());
+				remove((*client)->getResponse()->cgiErr.c_str());
 				return true;
 			}
 		}
@@ -108,6 +112,8 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 			fclose((*client)->getResponse()->in);
 		if ((*client)->getResponse()->out)
 			fclose((*client)->getResponse()->out);
+		if ((*client)->getResponse()->err)
+			fclose((*client)->getResponse()->err);
 	}
 	else
 	{
@@ -118,6 +124,7 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 		{
 			(*client)->setIgnoreTimer(true);
 			remove((*client)->getResponse()->cgiOut.c_str());
+			remove((*client)->getResponse()->cgiErr.c_str());
 			return true;
 		}
 	}
@@ -181,7 +188,6 @@ void Worker::initResponse(int clientFd)
 			if (clients[i]->getRequest().getHost().length() == 0)
 				return clients[i]->setState(ERROR);
 			
-
 			clients[i]->getResponse()->path = clients[i]->getRequest().getPath();
 			clients[i]->getResponse()->status_code = clients[i]->getRequest().getResponseCode();
 			clients[i]->getResponse()->location = clients[i]->getRequest().getRequestedLocation();
