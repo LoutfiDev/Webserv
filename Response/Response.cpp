@@ -6,7 +6,7 @@
 /*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/15 01:22:40 by anaji            ###   ########.fr       */
+/*   Updated: 2024/06/15 01:29:46 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -268,7 +268,6 @@ bool Response::istimeOut()
 int Response::execute_cgi( void )
 {
 		cgiFile = path;
-		// std::cout << location << "\n";
 		if (location && location->cgi.size() && !is_cgi())
 		{
 			if (STAGE == EXEC_CGI)

@@ -1,3 +1,6 @@
 <?php
- header("Location: http://www.google.com/");
+while (true == true) {
+	# code...
+}
 ?>
+
