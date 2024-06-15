@@ -1,4 +1,6 @@
 <?php
- header("Location: http://www.google.com/");
+
+echo "Request sent successfully";
+
 ?>
 
