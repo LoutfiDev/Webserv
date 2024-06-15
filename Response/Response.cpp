@@ -6,7 +6,7 @@
 /*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/15 00:00:10 by anaji            ###   ########.fr       */
+/*   Updated: 2024/06/15 00:49:05 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -267,7 +267,8 @@ bool Response::istimeOut()
 int Response::execute_cgi( void )
 {
 		cgiFile = path;
-		if (location->cgi.size() && !is_cgi())
+		// std::cout << location << "\n";
+		if (location && location->cgi.size() && !is_cgi())
 		{
 			if (STAGE == EXEC_CGI)
 			{
@@ -585,7 +586,7 @@ void Response::pick_method()
 	{
 		if (methods[i] == method)
 		{
-			if (std::find(location->allow_methods.begin(), location->allow_methods.end(), tmp_method) != location->allow_methods.end())
+			if (location && std::find(location->allow_methods.begin(), location->allow_methods.end(), tmp_method) != location->allow_methods.end())
 				return ((this->*(ptr[i]))());
 			status_code = "405";
 		}

@@ -62,6 +62,9 @@ void ServerManager::init_server(const char *port)
 		handleError("getaddrinfo", errno);
 	for (st_res = servinfo; st_res != NULL; st_res = st_res->ai_next) {
 		tmp_socket_fd = socket(st_res->ai_family, st_res->ai_socktype, st_res->ai_protocol);
+		res = setsockopt(tmp_socket_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&reuse, sizeof(reuse));
+		if (res == -1)
+			handleError("setsockopt", errno);
 		if (tmp_socket_fd == -1)
 			continue ;
 		res = bind(tmp_socket_fd, st_res->ai_addr, st_res->ai_addrlen);
@@ -77,9 +80,6 @@ void ServerManager::init_server(const char *port)
 	freeaddrinfo(servinfo);
 	int flags = fcntl(tmp_socket_fd, F_GETFL, 0);
 	fcntl(tmp_socket_fd, F_SETFL, flags | O_NONBLOCK, FD_CLOEXEC);
-	res = setsockopt(tmp_socket_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&reuse, sizeof(reuse));
-	if (res == -1)
-		handleError("setsockopt", errno);
 	// fcntl(tmp_socket_fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 	makeListen();
 	std::cout << "Listening on port: " << port << "....\n";

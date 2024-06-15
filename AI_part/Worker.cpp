@@ -182,7 +182,6 @@ void Worker::initResponse(int clientFd)
 				return clients[i]->setState(ERROR);
 			
 
-			clients[i]->getResponse()->request_tmp_file_name = clients[i]->getRequest().tmp_body_file_name;
 			clients[i]->getResponse()->path = clients[i]->getRequest().getPath();
 			clients[i]->getResponse()->status_code = clients[i]->getRequest().getResponseCode();
 			clients[i]->getResponse()->location = clients[i]->getRequest().getRequestedLocation();
@@ -195,6 +194,7 @@ void Worker::initResponse(int clientFd)
 				max_body_size = tmp;
 			if (clients[i]->getRequest().getBodyCount() > max_body_size)
 			{
+				remove(clients[i]->getRequest().tmp_body_file_name.c_str());
 				clients[i]->setState(ERROR);
 				clients[i]->getResponse()->status_code = "413";
 			}

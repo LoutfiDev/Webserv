@@ -1,7 +1,9 @@
 #include "Client.hpp"
 #include "Request.hpp"
 #include "Worker.hpp"
+#include <algorithm>
 #include <cstddef>
+#include <cstdio>
 #include <cstring>
 #include <ctime>
 #include <exception>
@@ -158,6 +160,8 @@ void Client::readBuffer(char *buf, int size)
 			}
 			if (request.getBodyLength() < 0)
 			{
+				if (request.tmp_body_file_name.size())
+					remove(request.tmp_body_file_name.c_str());
 				// std::cout << "Lengh = "<< request.getBodyLength() << "\n";
 				return setState(ERROR);
 			}
@@ -165,6 +169,8 @@ void Client::readBuffer(char *buf, int size)
 		}
 		if (request.getRequestCode())
 		{
+			if (request.tmp_body_file_name.size())
+				remove(request.tmp_body_file_name.c_str());
 			// std::cout << "pass to the response with <" << request.getRequestCode() << ">\n";
 			return setState(ERROR);
 		}
