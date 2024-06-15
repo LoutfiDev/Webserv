@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
+/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:42 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/15 00:00:05 by anaji            ###   ########.fr       */
+/*   Updated: 2024/06/15 00:24:18 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,7 @@ class Response
 		
 		std::string cgiFile;
 		std::string cgiOut;
+		std::string cgiErr;
 		std::string extension;
 		std::string cgiPath;
 		std::string query;
@@ -83,6 +84,7 @@ class Response
 		pid_t pid;
 		FILE* in;
 		FILE* out;
+		FILE* err;
 		int status;
 		char **env;
 		char **argv;
