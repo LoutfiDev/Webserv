@@ -6,7 +6,7 @@
 /*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/15 01:29:46 by anaji            ###   ########.fr       */
+/*   Updated: 2024/07/01 19:55:56 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -308,6 +308,7 @@ int Response::execute_cgi( void )
 			else if (istimeOut())
 			{
 				kill(pid, SIGKILL);
+				waitpid(pid, NULL, 0);
 				status_code = "504";
 				STAGE += 1;
 				return 2;
@@ -315,7 +316,7 @@ int Response::execute_cgi( void )
 		}
 		else
 			STAGE = CGI_PROCESSING + 1;
-	return 1;
+		return 1;
 }
 
 std::string Response::getMessage(std::string code)
@@ -372,10 +373,9 @@ int Response::send_response()
 {
 	if (!cgiOut.empty() && STAGE == HEADER_PROCESSING)
 	{
-        path = cgiOut;
-        if (extension == ".php")
+		path = cgiOut;
+		if (extension == ".php")
 		{
-			STAGE += 1;
 			std::ifstream file(path.c_str());
 			std::string line;
 			while (std::getline(file, line))
@@ -399,6 +399,8 @@ int Response::send_response()
 				status_code = "500";
 				return 2;
 			}	
+			if (cgi_headers.size())
+				STAGE++;
 		}
 	}
 	if (STAGE == HEADER_PROCESSING)
@@ -437,7 +439,7 @@ int Response::send_response()
 			status_code = "500";
 			return 2;
 		}	
-			
+
 
 		STAGE += 1;
 	}
@@ -483,7 +485,7 @@ int Response::send_response()
 				status_code = "500";
 				return 2;
 			}	
-				
+
 			response.clear();
 		}
 		else
@@ -506,7 +508,7 @@ int Response::send_response()
 							status_code = "500";
 							return 2;
 						}	
-							
+
 						index += 1024;
 					}
 					else
@@ -521,7 +523,7 @@ int Response::send_response()
 							status_code = "500";
 							return 2;
 						}	
-							
+
 						index += is.gcount();
 					}	
 					is.close();
@@ -538,7 +540,7 @@ int Response::send_response()
 						status_code = "500";
 						return 2;
 					}	
-						
+
 					index += is.gcount();
 				}	
 				is.close();

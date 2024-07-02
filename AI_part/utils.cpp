@@ -17,6 +17,12 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+void see(std::string str)
+{
+	size_t len = str.length();
+
+	std::cout << str.c_str() << " | " << len <<"\n";
+}
 
 void handleError(const char *errorName, int errorCode)
 {
@@ -56,13 +62,13 @@ char randomChar(int old)
 	character *= rand();
 	if (character < 0)
 		character *= -1;
-	return (charset[character %= 53]);
+	return (charset[character % 52]);
 }
 
 std::string generateFileName(int gen)
 {
 	std::string name;
-	int len = generateNum() % 20 + 10;
+	int len = generateNum() % 20 + 5;
 	for (int i = 1; i <= len; i++) {
 		name.append(1, randomChar(i));
 	}
@@ -190,7 +196,7 @@ void Response::Post()
 			return;
 		}
 		path_dir = removeLastChar(location->upload_dir);
-		pathname = path_dir + '/' + generateFileName();
+		pathname = path_dir + '/' + generateFileName() + fileExtension;
 	}
 	else if (location->root.length())
 	{
@@ -207,7 +213,7 @@ void Response::Post()
 			return;
 		}
 		path_dir = removeLastChar(location->root);
-		pathname = path_dir + '/' + generateFileName();
+		pathname = path_dir + '/' + generateFileName() + fileExtension;
 	}
 	else
 	{

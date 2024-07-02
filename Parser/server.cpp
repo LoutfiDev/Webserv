@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:19:40 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/14 20:27:28 by soulang          ###   ########.fr       */
+/*   Updated: 2024/06/23 15:23:07 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,10 @@ Server::Server(std::string& rest)
 {
 	int open_brace = 0, close_brace = 0;
 
+	set_default_error_pages();
 	while (!rest.empty())
 	{
-	    if (rest[0] == ' ')
+		if (rest[0] == ' ')
 		{
 			rest.erase(0,1);
 			continue;
@@ -37,7 +38,7 @@ Server::Server(std::string& rest)
 			return ;
 		}
 		else if (open_brace)
-		    pick_directive(rest);
+			pick_directive(rest);
 		else
 			throw "directive \"server\" has no opening \"{\"";
 	}

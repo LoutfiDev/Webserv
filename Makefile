@@ -6,13 +6,13 @@
 #    By: anaji <marvin@42.fr>                       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/23 11:42:24 by soulang           #+#    #+#              #
-#    Updated: 2024/06/15 01:22:08 by anaji            ###   ########.fr        #
+#    Updated: 2024/07/02 04:01:08 by anaji            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = Webserv
-CPPFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g3
-CXX = c++
+CPPFLAGS = -Wall -Wextra -Werror -std=c++98 -fstandalone-debug -fsanitize=address -g3
+CXX = clang++
 
 SRCS = main.cpp Parser/parser.cpp Parser/server.cpp \
 	Parser/location.cpp Parser/Sed/SedIsLoser.cpp \

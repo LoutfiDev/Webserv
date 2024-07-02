@@ -6,16 +6,18 @@
 /*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 08:53:41 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/14 18:26:59 by anaji            ###   ########.fr       */
+/*   Updated: 2024/06/22 23:46:38 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "AI_part/utils.hpp"
 #include "Parser/parser.hpp"
 #include "Response/Response.hpp"
 #include "./AI_part/ServerManager.hpp"
 #include <csignal>
 #include <cstdio>
 #include <cstdlib>
+#include <iostream>
 
 // NOTE: if double free occure then check Client.cpp:14 (copy vector Server) Client.cpp:152 (delete Server)
 // NOTE: the closing of sockets when user press CTR-C (swl kamal ila ban lik)
@@ -31,9 +33,16 @@ int main (int ac, char **av)
 	{
 		if (av[1])
 			fileName = av[1];
-		Parser parser(fileName);
-		ServerManager server;
-		server.start(parser);
+		try {
+			Parser parser(fileName);
+			ServerManager server;
+			server.start(parser);
+		}
+		catch (char *str)
+		{
+			std::cout << str << "\n";
+			std::exit(1);
+		}
 	}
 	else
 	{

@@ -77,10 +77,13 @@ class Request {
 		const std::string getContentType();
 		const std::string &getHost();
 		size_t getBodyCount() const;
+		void setFileExtension(std::string &);
+		std::string getFileExtension() const;
 
 		void closeTmpBody();
 		
 		std::string tmp_body_file_name;
+		std::string tmp_body_file_extension;
 
 
 	private:

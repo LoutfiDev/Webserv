@@ -6,6 +6,7 @@
 
 #define NAMELENGTH 10
 
+void see(std::string);
 void handleError(const char *, int);
 std::string trim(const std::string& str, std::string toTrim =" \t\n\r");
 std::string generateFileName(int gen=1);
