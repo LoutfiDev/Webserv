@@ -6,7 +6,7 @@
 /*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/01 19:55:56 by anaji            ###   ########.fr       */
+/*   Updated: 2024/07/03 03:12:46 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -389,18 +389,20 @@ int Response::send_response()
 				value = trim(line.substr(found + 1));
 				cgi_headers[key] = value.erase(value.length() -1, 1);
 			}
-			response += http_v + " ";
-			if (cgi_headers.find("Status") != cgi_headers.end())
-				response += cgi_headers["Status"] + "\r\n";
-			else
-				response += status_code + " " + getMessage(status_code) + "\r\n";
-			if (write(socket, response.c_str() , response.size()) == -1)
-			{
-				status_code = "500";
-				return 2;
-			}	
 			if (cgi_headers.size())
-				STAGE++;
+			{
+				response += http_v + " ";
+				if (cgi_headers.find("Status") != cgi_headers.end())
+					response += cgi_headers["Status"] + "\r\n";
+				else
+					response += status_code + " " + getMessage(status_code) + "\r\n";
+				if (write(socket, response.c_str() , response.size()) == -1)
+				{
+					status_code = "500";
+					return 2;
+				}
+				STAGE += 1;
+			}
 		}
 	}
 	if (STAGE == HEADER_PROCESSING)
