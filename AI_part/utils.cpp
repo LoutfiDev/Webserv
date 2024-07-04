@@ -156,9 +156,9 @@ int Response::processPostResponse()
 		outfile.write(buff, infile.gcount());
 	if (infile.eof()) 
 	{
+		std::cout << "POST DONE\n";
 		infile.close();
 		outfile.close();
-		remove(responseBody.c_str());
 		postState = END;
 		return 1;
 	}

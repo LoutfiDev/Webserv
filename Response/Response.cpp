@@ -6,7 +6,7 @@
 /*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/03 03:12:46 by anaji            ###   ########.fr       */
+/*   Updated: 2024/07/04 17:06:27 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -508,7 +508,7 @@ int Response::send_response()
 						if (write(socket, buffer , 1024) == -1)
 						{
 							status_code = "500";
-							return 2;
+							return -1;
 						}	
 
 						index += 1024;
@@ -540,7 +540,7 @@ int Response::send_response()
 					if (write(socket, buffer , is.gcount()) == -1)
 					{
 						status_code = "500";
-						return 2;
+						return -1;
 					}	
 
 					index += is.gcount();
