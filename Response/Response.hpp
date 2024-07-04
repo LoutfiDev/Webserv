@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
+/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:42 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/02 03:57:20 by anaji            ###   ########.fr       */
+/*   Updated: 2024/07/03 15:15:33 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <fstream>
-#include <sstream>
 #include <cstdlib>
 #include <limits>
 #include <string>
@@ -33,6 +32,9 @@
 #include <map>
 #include <vector>
 #include <sys/stat.h>
+#include <cstddef>
+#include <netdb.h>
+#include <sstream>
 
 
 #include "../Parser/parser.hpp"

@@ -3,20 +3,21 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: anaji <marvin@42.fr>                       +#+  +:+       +#+         #
+#    By: soulang <soulang@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/23 11:42:24 by soulang           #+#    #+#              #
-#    Updated: 2024/07/02 04:01:08 by anaji            ###   ########.fr        #
+#    Updated: 2024/07/03 16:13:15 by soulang          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = Webserv
-CPPFLAGS = -Wall -Wextra -Werror -std=c++98 -fstandalone-debug -fsanitize=address -g3
-CXX = clang++
+CPPFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g3 #-fstandalone-debug
+CXX = c++
 
 SRCS = main.cpp Parser/parser.cpp Parser/server.cpp \
 	Parser/location.cpp Parser/Sed/SedIsLoser.cpp \
-	Response/Response.cpp AI_part/Request.cpp \
+	Response/Response.cpp  Response/Get.cpp Response/Delete.cpp \
+	Response/Cgi.cpp AI_part/Request.cpp \
 	AI_part/Worker.cpp AI_part/Client.cpp AI_part/ServerManager.cpp \
 	AI_part/utils.cpp
 
