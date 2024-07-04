@@ -83,37 +83,17 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 	{
 		(*client)->getResponse()->send_response();
 		if ((*client)->getResponse()->STAGE > BODY_PROCESSING)
-		{
-			remove((*client)->getResponse()->cgiOut.c_str());
-			remove((*client)->getResponse()->cgiErr.c_str());
 			return true;
-		}
 	}
 	if ((*client)->getResponse()->STAGE <= CGI_PROCESSING)
 	{
 		int error = (*client)->getResponse()->execute_cgi();
 		if (error == ERROR)
 		{
-			if ((*client)->getResponse()->in)
-				fclose((*client)->getResponse()->in);
-			if ((*client)->getResponse()->out)
-				fclose((*client)->getResponse()->out);
-			if ((*client)->getResponse()->err)
-				fclose((*client)->getResponse()->err);
 			(*client)->getResponse()->send_response();
 			if ((*client)->getResponse()->STAGE > BODY_PROCESSING)
-			{
-				remove((*client)->getResponse()->cgiOut.c_str());
-				remove((*client)->getResponse()->cgiErr.c_str());
 				return true;
-			}
 		}
-		if ((*client)->getResponse()->in)
-			fclose((*client)->getResponse()->in);
-		if ((*client)->getResponse()->out)
-			fclose((*client)->getResponse()->out);
-		if ((*client)->getResponse()->err)
-			fclose((*client)->getResponse()->err);
 	}
 	else
 	{
@@ -123,8 +103,6 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 		if (response_result == -1)
 		{
 			(*client)->setIgnoreTimer(true);
-			remove((*client)->getResponse()->cgiOut.c_str());
-			remove((*client)->getResponse()->cgiErr.c_str());
 			return true;
 		}
 	}
@@ -133,6 +111,18 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 
 void Worker::dropClientConnection(std::vector<Client *>::iterator client)
 {
+	if ((*client)->getResponse()->in)
+		fclose((*client)->getResponse()->in);
+	if ((*client)->getResponse()->out)
+		fclose((*client)->getResponse()->out);
+	if ((*client)->getResponse()->err)
+		fclose((*client)->getResponse()->err);
+	if (access((*client)->getResponse()->cgiOut.c_str(), F_OK) == 0)
+		remove((*client)->getResponse()->cgiOut.c_str());
+	if (access((*client)->getResponse()->cgiErr.c_str(), F_OK) == 0)
+		remove((*client)->getResponse()->cgiErr.c_str());
+	if (access((*client)->getResponse()->responseBody.c_str(), F_OK) == 0)
+		remove((*client)->getResponse()->responseBody.c_str());
 	close((*client)->getFd());
 	clients.erase(client);
 	old_clients.push_back(*client);
