@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:42 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/03 15:15:33 by soulang          ###   ########.fr       */
+/*   Updated: 2024/07/06 22:17:21 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,7 @@ class Response
 		std::string cgiErr;
 		std::string extension;
 		std::string cgiPath;
+		std::string contentType;
 		std::string query;
 		std::string http_cookie;
 		std::map<std::string, std::string>cgi_headers;

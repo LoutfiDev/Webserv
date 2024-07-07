@@ -186,6 +186,7 @@ void Worker::initResponse(int clientFd)
 			clients[i]->getResponse()->http_cookie = clients[i]->getRequest().getCookie();
 			clients[i]->getResponse()->query = clients[i]->getRequest().getQueryString();
 			clients[i]->getResponse()->fileExtension = clients[i]->getRequest().getFileExtension();
+			clients[i]->getResponse()->contentType = clients[i]->getRequest().getContentType();
 			tmp = strtod(clients[i]->getResponse()->server->max_body_size.c_str(), &s);
 
 			if (tmp)

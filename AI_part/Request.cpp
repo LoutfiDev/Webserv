@@ -295,18 +295,19 @@ int Request::addHeader(std::string token) {
 			setResponseCode("400");
 			return 0;
 		}
-		toLower(key);
-		toLower(value);
+		if (key == "Cookie")
+			cookie = value;
+		// toLower(key);
+		// toLower(value);
 		headers[key] = value;
-		if (key == "content-length")
+		if (key == "Content-Length")
 			setBodyLength(value);
-		if (key == "content-type")
+		if (key == "Content-Type")
 			setFileExtension(value);
-		else if (key == "host") {
+		else if (key == "Host") {
 			host = value;
 			return HOST_EXIST;
-		} else if (key == "cookie")
-			cookie = value;
+		}
 	}
 	return 0;
 }
@@ -537,7 +538,7 @@ void Request::removeBoundary(std::string boundary) {
 const std::string &Request::getContentLength() {
 	std::map<std::string, std::string>::iterator value;
 
-	value = headers.find("content-length");
+	value = headers.find("Content-Length");
 	if (value == headers.end())
 		throw NOTEXIST;
 	return (value->second);
@@ -546,7 +547,7 @@ const std::string &Request::getContentLength() {
 const std::string Request::getContentType() {
 	std::map<std::string, std::string>::iterator value;
 
-	value = headers.find("content-type");
+	value = headers.find("Content-Type");
 	if (value == headers.end())
 		return "";
 	return (value->second);
@@ -555,7 +556,7 @@ const std::string Request::getContentType() {
 const std::string &Request::getTransferEncoding() {
 	std::map<std::string, std::string>::iterator value;
 
-	value = headers.find("transfer-encoding");
+	value = headers.find("Transfer-Encoding");
 	if (value == headers.end())
 		throw NOTEXIST;
 	try {

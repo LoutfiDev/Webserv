@@ -1,6 +1,5 @@
 <?php
-// $endpointURL = 'http://localhost:4342/index.php';
-$url = 'http://localhost:4342/index.php';
+$endpointURL = 'http://localhost:4342/index.php';
 $data = array('key' => 'value'); 
 
 function sendPostRequest($url, $data) {
@@ -22,14 +21,12 @@ function sendPostRequest($url, $data) {
     curl_close($ch);
 }
 
-// function sendMultipleRequests($url, $data, $count) {
-//     for ($i = 0; $i < $count; $i++) {
+function sendMultipleRequests($url, $data, $count) {
+    for ($i = 0; $i < $count; $i++) {
         sendPostRequest($url, $data);
-//     }
+    }
+    echo "done";
+}
 
-//     echo "done";
-// }
-
-// sendMultipleRequests($endpointURL, $data, 700000);
-print("hello");
+sendMultipleRequests($endpointURL, $data, 700000);
 ?>
