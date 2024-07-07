@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:42 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/06 22:17:21 by soulang          ###   ########.fr       */
+/*   Updated: 2024/07/07 12:58:08 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,7 @@ class Response
 		std::string contentType;
 		std::string query;
 		std::string http_cookie;
-		std::map<std::string, std::string>cgi_headers;
+		std::multimap<std::string, std::string>cgi_headers;
 		
 		pid_t pid;
 		FILE* in;

@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/03 10:10:08 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/07 10:56:13 by soulang          ###   ########.fr       */
+/*   Updated: 2024/07/07 13:37:38 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,25 +14,9 @@
 
 void Response::formEnv( void )
 {
-	env = new char*[8];
-
-
-	memset(env, 0, (8 * sizeof(char *)));
+	env = new char*[9];
+	memset(env, 0, (9 * sizeof(char *)));
 	
-
-	// _env["GATEWAY_INTERFACE"] = "CGI/1.1";
-    // _env["SCRIPT_NAME"] = request.getPath(); 
-    // _env["SCRIPT_FILENAME"] = request.getTarget();
-    // _env["PATH_INFO"] = _env["SCRIPT_NAME"]; 
-    // _env["PATH_TRANSLATED"] = _env["SCRIPT_FILENAME"];
-    // _env["QUERY_STRING"] = request.query_string;
-    // _env["REQUEST_URI"] = request.getTarget();
-    // _env["SERVER_PORT"] = server.getPort(); 
-    // _env["REQUEST_METHOD"] = request.getMethod();
-    // _env["SERVER_PROTOCOL"] = "HTTP/1.1";
-    // _env["REDIRECT_STATUS"] = "200";
-    // _env["SERVER_SOFTWARE"] = "Weebserv/1.0";
-
 	env[0] = new char[std::string(std::string("REQUEST_METHOD") + "=" + method).size() + 1];
 	strcpy(env[0], std::string(std::string("REQUEST_METHOD") + "=" + method).c_str());
 	
@@ -56,7 +40,7 @@ void Response::formEnv( void )
 		env[6] = new char[std::string(std::string("CONTENT_LENGTH") + "=" + getContentLenght(responseBody)).size() + 1];
 		strcpy(env[6], std::string(std::string("CONTENT_LENGTH") + "=" + getContentLenght(responseBody)).c_str());
 	}
-
+	
 }
 
 int Response::isValid( void )

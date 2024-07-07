@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/04 18:17:46 by soulang          ###   ########.fr       */
+/*   Updated: 2024/07/07 13:42:26 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,6 @@ std::string Response::getContentType(std::string file)
 }
 std::string Response::getPath( void )
 {
-
 	if (server && server->error_pages.find(status_code) != server->error_pages.end())
 		return server->error_pages[status_code];
 	return "";
@@ -103,19 +102,19 @@ int Response::send_response()
 			found = line.find(":");
 			key = trim(line.substr(0, found));
 			value = trim(line.substr(found + 1));
-			cgi_headers[key] = value.erase(value.length(), 1);
+			cgi_headers.insert(std::make_pair(key, value.erase(value.length(), 1)));
 		}
+		std::multimap<std::string, std::string>::iterator it = cgi_headers.begin();
 		if (cgi_headers.size())
 		{
 			response += http_v + " ";
-			if (cgi_headers.find("Status") != cgi_headers.end())
-				response += cgi_headers["Status"] + "\r\n";
+			if ((it = cgi_headers.find("Status")) != cgi_headers.end())
+				response += it->second + "\r\n";
 			else
 				response += status_code + " " + getMessage(status_code) + "\r\n";
 			if (write(socket, response.c_str() , response.size()) == -1)
 				return -1;
-			std::map<std::string, std::string>::iterator it = cgi_headers.begin();
-			for (; it != cgi_headers.end(); ++it)
+			for (it == cgi_headers.begin(); it != cgi_headers.end(); ++it)
 			{
 				std::string tmp;
 				if (it->first == cgi_headers.rbegin()->first)

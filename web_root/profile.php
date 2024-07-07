@@ -21,7 +21,7 @@ if (!isset($_COOKIE["name"]) || !isset($_COOKIE["email"]) || !isset($_COOKIE["pr
   <div class="card">
     <div class="card__header">
       <div class="card__profile">
-        <img src="<?php echo "http://127.0.0.1:8080/imgs/" . $_COOKIE["profile"] ?>" alt="A man smiling" />
+        <img src="<?php echo "" . $_COOKIE["profile"] ?>" alt="A man smiling" />
       </div>
       <div class="card__name">
         <h2><?php echo $_COOKIE["name"] ?></h2>

@@ -10,7 +10,7 @@ if (isset($_COOKIE["name"]) && isset($_COOKIE["email"]) && isset($_COOKIE["profi
 if (isset($_POST["submit"])) {
     setcookie("name", $_POST["name"], time() + (60 * 60 * 24), "/");
     setcookie("email", $_POST["email"], time() + (60 * 60 * 24), "/");
-    $uploadDir = "../uploads/";
+    $uploadDir = "./";
     if (!file_exists($uploadDir))
         mkdir($uploadDir, 0777, true);
     $uploadedFiles = [];
