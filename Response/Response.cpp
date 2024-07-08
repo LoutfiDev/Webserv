@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/07 13:42:26 by soulang          ###   ########.fr       */
+/*   Updated: 2024/07/08 13:18:26 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ Response::Response() : STAGE(0), index(0), HEADERISWRITTEN(0), status(-1)
 	postState = PROCESSING;
 	server = NULL;
 	location = NULL;
+	dir = NULL;
 	in = NULL;
 	out = NULL;
 	err = NULL;
@@ -114,7 +115,7 @@ int Response::send_response()
 				response += status_code + " " + getMessage(status_code) + "\r\n";
 			if (write(socket, response.c_str() , response.size()) == -1)
 				return -1;
-			for (it == cgi_headers.begin(); it != cgi_headers.end(); ++it)
+			for (it = cgi_headers.begin(); it != cgi_headers.end(); ++it)
 			{
 				std::string tmp;
 				if (it->first == cgi_headers.rbegin()->first)
@@ -179,6 +180,8 @@ int Response::send_response()
 				response += "<html><head><title>Index of /</title></head><body><h1>Index of /</h1><hr><pre>";
 				HEADERISWRITTEN++;
 			}
+			else
+				closedir(directory);
 			while((portion % 4) && (dent=readdir(dir)))
 			{
 				struct stat st_buf;
@@ -196,7 +199,7 @@ int Response::send_response()
 				response += "</pre><hr></body></html>";
 				write(socket, response.c_str() , response.size());
 				response.clear();
-				closedir(directory);
+				// closedir(directory);
 				STAGE += 1;
 				return -1;
 			}

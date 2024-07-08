@@ -117,6 +117,8 @@ void Worker::dropClientConnection(std::vector<Client *>::iterator client)
 		fclose((*client)->getResponse()->out);
 	if ((*client)->getResponse()->err)
 		fclose((*client)->getResponse()->err);
+	if ((*client)->getResponse()->dir)
+		closedir((*client)->getResponse()->dir);
 	if (access((*client)->getResponse()->cgiOut.c_str(), F_OK) == 0)
 		remove((*client)->getResponse()->cgiOut.c_str());
 	if (access((*client)->getResponse()->cgiErr.c_str(), F_OK) == 0)
@@ -124,6 +126,7 @@ void Worker::dropClientConnection(std::vector<Client *>::iterator client)
 	if (access((*client)->getResponse()->responseBody.c_str(), F_OK) == 0)
 		remove((*client)->getResponse()->responseBody.c_str());
 	close((*client)->getFd());
+	delete(*client);
 	clients.erase(client);
 	old_clients.push_back(*client);
 }
