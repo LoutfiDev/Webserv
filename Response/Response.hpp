@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
+/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:42 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/09 10:13:24 by anaji            ###   ########.fr       */
+/*   Updated: 2024/07/09 10:43:36 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,9 +131,6 @@ class Response
 		std::string getMessage(std::string code);
 		std::string getContentLenght(std::string file);
 		std::string getContentType(std::string file);
-
-		bool Head_method;
-
 
 		// to send an error response
 		void send_errorResponse();

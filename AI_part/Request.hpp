@@ -35,7 +35,6 @@ class Request {
 		std::map<std::string, std::string>& getHeaders() const;
 
 		bool getIsSet() const;
-		bool getIsHeadMethod() const;
 		std::string getMethodName() const;
 		std::string getPath() const;
 		std::string getResponseUri() const;
@@ -111,7 +110,6 @@ class Request {
 		int chunk_length;
 		std::string tmp_body;
 		std::ofstream tmp_body_file;
-		bool isHeadMethod;
 
 
 		size_t bodyCount;				// to check if it is more then max_size

@@ -251,11 +251,14 @@ void Response::send_errorResponse()
 	response += "Content-Type: text/html\r\n\r\n";
 	
 	write(socket, response.c_str(), response.length());
-	std::ifstream file(error_map[status_code].c_str());
-	std::string line;
+	if (method != "HEAD")
+	{
+		std::ifstream file(error_map[status_code].c_str());
+		std::string line;
 
-	while (std::getline(file, line))
-		write(socket, line.c_str(), line.size());
+		while (std::getline(file, line))
+			write(socket, line.c_str(), line.size());
+	}
 }
 
 std::string to_String(long long num) {

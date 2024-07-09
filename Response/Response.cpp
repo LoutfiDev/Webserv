@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/08 16:02:13 by soulang          ###   ########.fr       */
+/*   Updated: 2024/07/09 10:32:19 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,13 @@ std::string Response::getPath( void )
 
 int Response::send_response()
 {
+	if (method == "HEAD")
+	{
+		std::cout << "hello\n";
+		response += http_v + " " + status_code + " " + getMessage(status_code) + "\r\n\r\n";
+		if (write(socket, response.c_str() , response.size()) == -1)
+			return -1;
+	}
 	if (!cgiOut.empty() && STAGE == HEADER_PROCESSING)
 	{
 		path = cgiOut;
