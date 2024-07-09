@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/09 10:32:19 by soulang          ###   ########.fr       */
+/*   Updated: 2024/07/09 12:15:26 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,21 @@ Response& Response::operator=(const Response& src)
 	return (*this);
 }
 
-Response::~Response() {}
+Response::~Response() {
+	int i = 0;
+	while (env[i])
+	{
+		delete[] env[i];
+		i++;
+	}
+	delete[] env;
+	i = 0;
+	while (argv[i]) {
+		delete[] argv[i];
+		i++;
+	}
+	delete[] argv;
+}
 
 
 std::string Response::getMessage(std::string code)
