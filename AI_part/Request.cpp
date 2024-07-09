@@ -21,6 +21,7 @@
 #include <vector>
 
 Request::Request() {
+	isHeadMethod = false;
 	had_request_line = false;
 	request_code = 0;
 	bodyLength = 0;
@@ -44,6 +45,7 @@ Request::Request(const Request &obj) { *this = obj; }
 Request &Request::operator=(const Request &obj) {
 	if (this == &obj)
 		return (*this);
+	isHeadMethod = obj.isHeadMethod;
 	isSet = obj.isSet;
 	request_code = obj.request_code;
 	response_code = obj.response_code;
@@ -88,6 +90,7 @@ void Request::setResponseCode(std::string code) {
 bool Request::getIsSet() const { return isSet; }
 
 std::string Request::getMethodName() const { return method_name; }
+bool Request::getIsHeadMethod() const { return isHeadMethod; }
 
 std::string Request::getPath() const { return path; }
 
@@ -247,7 +250,11 @@ void Request::checkRequestLine(std::vector<std::string> &attrs) {
 	http_version = attrs[2];
 
 	if (method_name != "GET" && method_name != "POST" && method_name != "DELETE")
+	{
+		if (method_name == "HEAD")
+			isHeadMethod = true;
 		setResponseCode("405");
+	}
 	else if (http_version.compare("HTTP/1.1"))
 		setResponseCode("505");
 }

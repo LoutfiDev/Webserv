@@ -190,6 +190,7 @@ void Worker::initResponse(int clientFd)
 			clients[i]->getResponse()->query = clients[i]->getRequest().getQueryString();
 			clients[i]->getResponse()->fileExtension = clients[i]->getRequest().getFileExtension();
 			clients[i]->getResponse()->contentType = clients[i]->getRequest().getContentType();
+			clients[i]->getResponse()->Head_method = clients[i]->getRequest().getIsHeadMethod();
 			tmp = strtod(clients[i]->getResponse()->server->max_body_size.c_str(), &s);
 
 			if (tmp)
