@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/08 13:18:26 by soulang          ###   ########.fr       */
+/*   Updated: 2024/07/08 16:02:13 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,7 +199,6 @@ int Response::send_response()
 				response += "</pre><hr></body></html>";
 				write(socket, response.c_str() , response.size());
 				response.clear();
-				// closedir(directory);
 				STAGE += 1;
 				return -1;
 			}
@@ -277,3 +276,8 @@ void Response::pick_method()
 		}
 	}
 }
+
+
+
+
+

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
+/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 08:53:41 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/22 23:46:38 by anaji            ###   ########.fr       */
+/*   Updated: 2024/07/08 16:32:16 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ int main (int ac, char **av)
 			ServerManager server;
 			server.start(parser);
 		}
-		catch (char *str)
+		catch (char const *str)
 		{
 			std::cout << str << "\n";
 			std::exit(1);

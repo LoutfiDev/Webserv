@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/03 10:10:08 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/07 13:37:38 by soulang          ###   ########.fr       */
+/*   Updated: 2024/07/08 16:27:38 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,7 @@ int Response::is_cgi()
 	
 	if ((directory = opendir(cgiFile.c_str())))
 	{
+		closedir(directory);
 		if (location->index.size())
 		{
 			std::string tmp;
@@ -91,7 +92,6 @@ int Response::is_cgi()
 		}
 		else
 			return 1;
-		closedir(directory);
 	}
 	else
 	{
