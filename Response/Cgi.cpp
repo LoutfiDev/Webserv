@@ -6,7 +6,7 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/03 10:10:08 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/08 16:27:38 by soulang          ###   ########.fr       */
+/*   Updated: 2024/07/09 16:26:29 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,18 +125,18 @@ int Response::execute_cgi( void )
 		if (STAGE == EXEC_CGI)
 		{
 			resetTimer();
-			argv = new char*[3];
-			argv[0] = new char[cgiPath.size() + 1];
-			strcpy(argv[0], cgiPath.c_str());
-			argv[1] = new char[cgiFile.size() + 1];
-			strcpy(argv[1], cgiFile.c_str());
-			argv[2] = NULL;
-			formEnv();
 			cgiOut = generateFileName();
 			cgiOut.append(".html");
 			cgiErr = generateFileName();
 			if ((pid = fork()) == 0)
 			{
+				argv = new char*[3];
+				argv[0] = new char[cgiPath.size() + 1];
+				strcpy(argv[0], cgiPath.c_str());
+				argv[1] = new char[cgiFile.size() + 1];
+				strcpy(argv[1], cgiFile.c_str());
+				argv[2] = NULL;
+				formEnv();
 				out = freopen (cgiOut.c_str(),"w",stdout);
 				err = freopen (cgiErr.c_str(),"w",stderr);
 				if (method == "POST")

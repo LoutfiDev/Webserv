@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
+/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/09 12:15:26 by anaji            ###   ########.fr       */
+/*   Updated: 2024/07/09 16:27:09 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,21 +35,7 @@ Response& Response::operator=(const Response& src)
 	return (*this);
 }
 
-Response::~Response() {
-	int i = 0;
-	while (env[i])
-	{
-		delete[] env[i];
-		i++;
-	}
-	delete[] env;
-	i = 0;
-	while (argv[i]) {
-		delete[] argv[i];
-		i++;
-	}
-	delete[] argv;
-}
+Response::~Response() {}
 
 
 std::string Response::getMessage(std::string code)
@@ -103,13 +89,6 @@ std::string Response::getPath( void )
 
 int Response::send_response()
 {
-	if (method == "HEAD")
-	{
-		std::cout << "hello\n";
-		response += http_v + " " + status_code + " " + getMessage(status_code) + "\r\n\r\n";
-		if (write(socket, response.c_str() , response.size()) == -1)
-			return -1;
-	}
 	if (!cgiOut.empty() && STAGE == HEADER_PROCESSING)
 	{
 		path = cgiOut;
@@ -139,7 +118,7 @@ int Response::send_response()
 			for (it = cgi_headers.begin(); it != cgi_headers.end(); ++it)
 			{
 				std::string tmp;
-				if (it->first == cgi_headers.rbegin()->first)
+				if (it->second == cgi_headers.rbegin()->second)
 					tmp = it->first + ":" + it->second + "\r\n\r\n";
 				else
 					tmp = it->first + ":" + it->second + "\r\n";
