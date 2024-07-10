@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/03 10:10:08 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/09 16:26:29 by soulang          ###   ########.fr       */
+/*   Updated: 2024/07/09 19:30:38 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,7 +161,7 @@ int Response::execute_cgi( void )
 		{
 			kill(pid, SIGKILL);
 			waitpid(pid, NULL, 0);
-			status_code = "504";
+			status_code = "500";
 			STAGE += 1;
 			return 2;
 		}
