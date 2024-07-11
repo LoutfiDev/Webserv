@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
+/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/03 10:10:08 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/09 19:30:38 by anaji            ###   ########.fr       */
+/*   Updated: 2024/07/10 20:09:09 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ void Response::formEnv( void )
 
 int Response::isValid( void )
 {
-	std::stringstream ss(cgiFile);
+	std::stringstream ss(path);
 	while (getline(ss, extension, '.'))
 		continue;
 	extension.insert (0, 1, '.');
@@ -65,7 +65,7 @@ int Response::is_cgi()
 {
 	DIR *directory;
 	
-	if ((directory = opendir(cgiFile.c_str())))
+	if ((directory = opendir(path.c_str())))
 	{
 		closedir(directory);
 		if (location->index.size())
@@ -74,14 +74,14 @@ int Response::is_cgi()
 			std::vector<std::string>::iterator it = location->index.begin();
 			for (; it != location->index.end(); ++it)
 			{
-				tmp = cgiFile + *it;
+				tmp = path + *it;
 				if (access(tmp.c_str(), F_OK) == 0)
 				{
 					if (access(tmp.c_str(), W_OK) != 0)
 						return 1;
 					else
 					{
-						cgiFile.append(*it);
+						path.append(*it);
 						if (isValid())
 							return 1;
 						return 0;
@@ -95,9 +95,9 @@ int Response::is_cgi()
 	}
 	else
 	{
-		if (access(cgiFile.c_str(), F_OK) == 0)
+		if (access(path.c_str(), F_OK) == 0)
 		{
-			if (access(cgiFile.c_str(), W_OK) != 0 || isValid())
+			if (access(path.c_str(), W_OK) != 0 || isValid())
 				return 1;			
 		}
 		else
@@ -115,13 +115,31 @@ bool Response::istimeOut()
 	if (time(0) - timespan > CGITIMEOUT)
 		return true;
 	return false;
-} 
+}
+
+std::string getRelativePath()
+{
+	char temp[MAXPATHLEN];
+   	return ( getcwd(temp, sizeof(temp)) ? std::string( temp ) : std::string("") );
+}
+
+std::string getScriptName(std::string str)
+{
+	int len = (int)str.size() - 1;
+	while (len >= 0)
+	{
+		if (str[len] == '/')
+			break;
+		len--;
+	}
+	return (str.substr(len + 1));
+}
 
 int Response::execute_cgi( void )
 {
-	cgiFile = path;
 	if (location && location->cgi.size() && !is_cgi())
 	{
+		cgiFile = getScriptName(path);
 		if (STAGE == EXEC_CGI)
 		{
 			resetTimer();
@@ -138,9 +156,12 @@ int Response::execute_cgi( void )
 				argv[2] = NULL;
 				formEnv();
 				out = freopen (cgiOut.c_str(),"w",stdout);
-				err = freopen (cgiErr.c_str(),"w",stderr);
+				// err = freopen (cgiErr.c_str(),"w",stderr);
 				if (method == "POST")
 					in = freopen (responseBody.c_str(),"r",stdin);
+				if (chdir((getRelativePath() + "/" + location->root).c_str()) == -1)
+					exit(1);
+				std::cerr << getRelativePath() + "/" + location->root << " | " << cgiFile << "\n";
 				if (execve(argv[0], argv, env) == -1)
 					exit(1);
 			}
@@ -161,7 +182,7 @@ int Response::execute_cgi( void )
 		{
 			kill(pid, SIGKILL);
 			waitpid(pid, NULL, 0);
-			status_code = "500";
+			status_code = "504";
 			STAGE += 1;
 			return 2;
 		}

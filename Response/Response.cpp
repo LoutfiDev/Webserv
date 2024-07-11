@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
+/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/09 19:27:04 by anaji            ###   ########.fr       */
+/*   Updated: 2024/07/10 11:40:00 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,8 +126,6 @@ int Response::send_response()
 				if (write(socket, tmp.c_str() , tmp.size()) == -1)
 					return -1;
 			}
-			if (status_code != "200")
-				path = getPath();
 			STAGE += 1;
 		}
 	}

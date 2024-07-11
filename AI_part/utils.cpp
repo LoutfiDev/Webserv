@@ -245,11 +245,30 @@ void Response::send_errorResponse()
 	error_map["415"] = "error_pages/415.html";
 	error_map["500"] = "error_pages/500.html";
 	error_map["501"] = "error_pages/501.html";
+	error_map["504"] = "error_pages/504.html";
 	error_map["505"] = "error_pages/505.html";
 
-	response += http_v + " " + status_code + " " + getMessage(status_code) + "\r\n";
-	response += "Content-Type: text/html\r\n\r\n";
-	
+
+	if (!cgiOut.empty())
+	{
+		std::ifstream file(cgiOut.c_str());
+		std::string line;
+		response += http_v + " ";
+		while (std::getline(file, line))
+		{
+			if (line == "\r")
+				break;
+			response += line;
+			std::cout << line;
+		}
+		response += "\r\n";
+	}
+	else
+	{
+		response += http_v + " " + status_code + " " + getMessage(status_code) + "\r\n";
+		response += "Content-Type: text/html\r\n\r\n";
+	}
+
 	write(socket, response.c_str(), response.length());
 	if (method != "HEAD")
 	{

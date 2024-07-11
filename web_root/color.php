@@ -16,6 +16,7 @@ if (isset($_POST['btn']))
         echo $p=$col;
     }
     else
+    {
         echo $p="#ffffff";
     }
 }
