@@ -1,2 +1,2 @@
 #!/bin/sh
-ls
+echo "Status: 404 Not Found"
