@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/03 10:10:08 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/10 20:09:09 by soulang          ###   ########.fr       */
+/*   Updated: 2024/07/11 12:38:49 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,8 @@ void Response::formEnv( void )
 	env[2] = new char[std::string(std::string("REDIRECT_STATUS") + "=" + "200").size() + 2];
 	strcpy(env[2], std::string(std::string("REDIRECT_STATUS") + "=" + "200").c_str());
 	
-	env[3] = new char[std::string(std::string("SCRIPT_FILENAME") + "=" + path).size() + 1];
-	strcpy(env[3], std::string(std::string("SCRIPT_FILENAME") + "=" + path).c_str());
+	env[3] = new char[std::string(std::string("SCRIPT_FILENAME") + "=" + cgiFile).size() + 1];
+	strcpy(env[3], std::string(std::string("SCRIPT_FILENAME") + "=" + cgiFile).c_str());
 	
 	env[4] = new char[std::string(std::string("HTTP_COOKIE") + "=" + http_cookie).size() + 1];
 	strcpy(env[4], std::string(std::string("HTTP_COOKIE") + "=" + http_cookie).c_str());
@@ -139,7 +139,8 @@ int Response::execute_cgi( void )
 {
 	if (location && location->cgi.size() && !is_cgi())
 	{
-		cgiFile = getScriptName(path);
+		cgiFile = getRelativePath() + "/" + location->root + "/" \
+						  + getScriptName(path);
 		if (STAGE == EXEC_CGI)
 		{
 			resetTimer();
@@ -156,12 +157,11 @@ int Response::execute_cgi( void )
 				argv[2] = NULL;
 				formEnv();
 				out = freopen (cgiOut.c_str(),"w",stdout);
-				// err = freopen (cgiErr.c_str(),"w",stderr);
+				err = freopen (cgiErr.c_str(),"w",stderr);
 				if (method == "POST")
 					in = freopen (responseBody.c_str(),"r",stdin);
 				if (chdir((getRelativePath() + "/" + location->root).c_str()) == -1)
 					exit(1);
-				std::cerr << getRelativePath() + "/" + location->root << " | " << cgiFile << "\n";
 				if (execve(argv[0], argv, env) == -1)
 					exit(1);
 			}

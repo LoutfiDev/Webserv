@@ -90,6 +90,7 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 		int error = (*client)->getResponse()->execute_cgi();
 		if (error == ERROR)
 		{
+			std::cout << "error " << (*client)->getResponse()->status_code << "\n";
 			(*client)->getResponse()->send_errorResponse();
 			return true;
 		}
@@ -118,8 +119,8 @@ void Worker::dropClientConnection(std::vector<Client *>::iterator client)
 		fclose((*client)->getResponse()->err);
 	if ((*client)->getResponse()->dir)
 		closedir((*client)->getResponse()->dir);
-	// if (access((*client)->getResponse()->cgiOut.c_str(), F_OK) == 0)
-	// 	remove((*client)->getResponse()->cgiOut.c_str());
+	if (access((*client)->getResponse()->cgiOut.c_str(), F_OK) == 0)
+		remove((*client)->getResponse()->cgiOut.c_str());
 	if (access((*client)->getResponse()->cgiErr.c_str(), F_OK) == 0)
 		remove((*client)->getResponse()->cgiErr.c_str());
 	if (access((*client)->getResponse()->responseBody.c_str(), F_OK) == 0)

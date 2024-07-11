@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/10 11:40:00 by soulang          ###   ########.fr       */
+/*   Updated: 2024/07/11 12:22:05 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 #include "../AI_part/utils.hpp"
+#include <string>
 
 Response::Response() : STAGE(0), index(0), HEADERISWRITTEN(0), status(-1)
 {
@@ -101,9 +102,12 @@ int Response::send_response()
 			std::string key, value;
 			size_t found;
 			found = line.find(":");
-			key = trim(line.substr(0, found));
-			value = trim(line.substr(found + 1));
-			cgi_headers.insert(std::make_pair(key, value.erase(value.length(), 1)));
+			if (found != std::string::npos)
+			{
+				key = trim(line.substr(0, found));
+				value = trim(line.substr(found + 1));
+				cgi_headers.insert(std::make_pair(key, value.erase(value.length(), 1)));
+			}
 		}
 		std::multimap<std::string, std::string>::iterator it = cgi_headers.begin();
 		if (cgi_headers.size())

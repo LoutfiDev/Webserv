@@ -230,6 +230,7 @@ void Response::Post()
 	// i think in case of a regular file that can pass throught CGI we need to call GET method (arabic : dakchi li galina youssef l2ostora)
 }
 
+int c = 0;
 void Response::send_errorResponse()
 {
 	std::map<std::string, std::string> error_map;
@@ -248,8 +249,9 @@ void Response::send_errorResponse()
 	error_map["504"] = "error_pages/504.html";
 	error_map["505"] = "error_pages/505.html";
 
-
-	if (!cgiOut.empty())
+	size_t found;
+	std::string key, value;
+	if (getContentLenght(cgiOut) != "0")
 	{
 		std::ifstream file(cgiOut.c_str());
 		std::string line;
@@ -258,10 +260,20 @@ void Response::send_errorResponse()
 		{
 			if (line == "\r")
 				break;
-			response += line;
-			std::cout << line;
+			found = line.find(":");
+			key = trim(line.substr(0, found));
+			value = trim(line.substr(found + 1));
+			if (key  == "Status")
+			{
+				status_code = value.substr(0, 3);
+				std::cout << status_code << "\n";
+				response += value + "\n";
+			}
+			else
+				response += line + "\n";
 		}
 		response += "\r\n";
+		std::cout << response << "\n";
 	}
 	else
 	{
