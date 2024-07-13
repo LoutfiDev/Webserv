@@ -6,11 +6,13 @@
 /*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/03 10:10:08 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/13 19:03:51 by soulang          ###   ########.fr       */
+/*   Updated: 2024/07/13 20:10:19 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
+#include <cstdlib>
+#include <iostream>
 
 void Response::formEnv( void )
 {
@@ -157,7 +159,7 @@ int Response::execute_cgi( void )
 				argv[2] = NULL;
 				formEnv();
 				out = freopen (cgiOut.c_str(),"w",stdout);
-				err = freopen (cgiErr.c_str(),"w",stderr);
+				// err = freopen (cgiErr.c_str(),"w",stderr);
 				if (method == "POST")
 					in = freopen (responseBody.c_str(),"r",stdin);
 				if (chdir((getRelativePath() + "/" + location->root).c_str()) == -1)
