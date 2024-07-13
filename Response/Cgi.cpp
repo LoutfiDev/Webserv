@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
+/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/03 10:10:08 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/11 12:38:49 by anaji            ###   ########.fr       */
+/*   Updated: 2024/07/13 19:03:51 by soulang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,16 +161,16 @@ int Response::execute_cgi( void )
 				if (method == "POST")
 					in = freopen (responseBody.c_str(),"r",stdin);
 				if (chdir((getRelativePath() + "/" + location->root).c_str()) == -1)
-					exit(1);
+					kill(getpid(), SIGKILL);
 				if (execve(argv[0], argv, env) == -1)
-					exit(1);
+					kill(getpid(), SIGKILL);
 			}
 			STAGE += 1;
 		}
 		waitpid(pid, &status, WNOHANG);
 		if (status != -1)
 		{
-			if (status != 0)
+			if (WIFSIGNALED(status))
 			{
 				status_code = "500";
 				STAGE += 1;

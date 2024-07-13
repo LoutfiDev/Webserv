@@ -90,7 +90,6 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 		int error = (*client)->getResponse()->execute_cgi();
 		if (error == ERROR)
 		{
-			std::cout << "error " << (*client)->getResponse()->status_code << "\n";
 			(*client)->getResponse()->send_errorResponse();
 			return true;
 		}

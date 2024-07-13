@@ -1,3 +1,2 @@
-while True :
-	pass
-	
+print("ghjkl")
+exit(10)

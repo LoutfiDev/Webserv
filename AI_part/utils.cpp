@@ -266,14 +266,12 @@ void Response::send_errorResponse()
 			if (key  == "Status")
 			{
 				status_code = value.substr(0, 3);
-				std::cout << status_code << "\n";
 				response += value + "\n";
 			}
 			else
 				response += line + "\n";
 		}
 		response += "\r\n";
-		std::cout << response << "\n";
 	}
 	else
 	{
