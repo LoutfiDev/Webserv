@@ -1,5 +1,5 @@
 <?php
-$endpointURL = 'http://localhost:4342/index.php';
+$endpointURL = 'http://localhost:4342';
 $data = array('key' => 'value'); 
 
 function sendPostRequest($url, $data) {
@@ -9,7 +9,7 @@ function sendPostRequest($url, $data) {
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
     curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: video/mp4'));
 
-	sleep(5);
+	// sleep(5);
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
@@ -29,5 +29,5 @@ function sendMultipleRequests($url, $data, $count) {
     echo "done";
 }
 
-sendMultipleRequests($endpointURL, $data, 1);
+sendMultipleRequests($endpointURL, $data, 10);
 ?>

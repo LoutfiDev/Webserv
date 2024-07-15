@@ -117,6 +117,7 @@ void ServerManager::init_epoll()
 	std::map<int, std::vector<Server *> >::iterator beg = nginx.begin();
 
 	epoll_fd = epoll_create(1);
+	worker.epoll_fd = this->epoll_fd;
 	if (epoll_fd == -1)
 	{
 		this->~ServerManager();	

@@ -197,7 +197,8 @@ void Client::showrequest()
 Client::~Client() 
 {
 	size_t i = 0;
-	std::cout << "Drope Client " << fd << " with num " << id <<" with ststaus code " << response->status_code << " Method = " << response->method << "\n";
+	std::cout << "Drope Client\n";
+	// std::cout << "Drope Client " << fd << " with num " << id <<" with ststaus code " << response->status_code << " Method = " << response->method << "\n";
 	std::vector<Server *>::iterator it = dataServer.begin();
 	while (i < dataServer.size()) {
 		dataServer.erase(it);

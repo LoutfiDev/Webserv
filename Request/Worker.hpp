@@ -7,7 +7,7 @@
 
 #include "Client.hpp"
 
-#define NUMCONNECTION 10
+#define NUMCONNECTION 1024
 
 // macros for reading from the client fd
 #define CONNECTIONCLOSED -1		// connection closed
@@ -34,6 +34,8 @@ class Worker {
 		void checkClientTimeout();
 
 		void dropClientConnection(std::vector<Client *>::iterator );
+
+		int epoll_fd;
 
 		~Worker();
 	

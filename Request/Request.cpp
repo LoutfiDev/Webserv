@@ -33,8 +33,8 @@ Request::Request() {
 	host = "";
 	cookie = "";
 	query_string = "";
-	requestedServer = NULL;
-	requested_location = NULL;
+	requestedServer = new Server();
+	requested_location = new Location();
 	tmp_body_file_extension = "";
 	isSet = false;
 }
@@ -165,10 +165,10 @@ void Request::setBodyLength(std::string &number) {
 
 void Request::setRequestedServer(std::vector<Server *> servers) {
 	if (servers.size())
-		requestedServer = servers[0];
+		*requestedServer = *servers[0];
 	for (size_t i = 0; i < servers.size(); i++) {
 		if (servers[i]->host == host) {
-			requestedServer = servers[i];
+			*requestedServer = *servers[i];
 			break;
 		}
 	}
@@ -215,7 +215,7 @@ void Request::setRequestedLocation() {
 	uri = path;
 	for (beg = l->begin(); beg != l->end(); beg++) {
 		if (uri.compare(0, beg->first.length(), beg->first) == 0) {
-			requested_location = new Location(*beg->second);
+			*requested_location = *beg->second;
 			location_name = beg->first;
 		}
 	}
@@ -580,7 +580,6 @@ const std::string &Request::getTransferEncoding() {
 }
 
 Request::~Request() {
-	std::cout << "Request Distructor \n";
 	if (requested_location)
 		delete requested_location;
 	if (requestedServer)

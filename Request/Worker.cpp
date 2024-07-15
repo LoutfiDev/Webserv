@@ -10,6 +10,7 @@
 #include <iostream>
 #include <string>
 #include <cstring>
+#include <sys/epoll.h>
 #include <unistd.h>
 #include <vector>
 
@@ -128,6 +129,8 @@ void Worker::dropClientConnection(std::vector<Client *>::iterator client)
 		remove((*client)->getResponse()->responseBody.c_str());
 	if (access((*client)->getRequest().tmp_body_file_name.c_str(), F_OK) == 0)
 		remove((*client)->getRequest().tmp_body_file_name.c_str());
+	if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, (*client)->getFd(), NULL) == -1)
+		handleError("epoll_ctl", errno);
 	close((*client)->getFd());
 	delete(*client);
 	clients.erase(client);
@@ -172,13 +175,12 @@ int Worker::serve(int fd)
 
 void Worker::initResponse(int clientFd)
 {
-	size_t tmp, max_body_size;
+	size_t tmp, max_body_size = 1000000;
 	char *s;
 
 	for (size_t i = 0; i < clients.size(); i++) {
 		if (clients[i]->getFd() == clientFd)
 		{
-			std::cout << clients[i]->id << "\n";
 			if (clients[i]->getResponse()->status_code != "200")
 				return ;
 			if (clients[i]->getRequest().getHost().length() == 0)
@@ -230,14 +232,14 @@ void Worker::checkClientTimeout()
 
 Worker::~Worker() 
 {
-	size_t i = 0;
-	std::vector<Client *>::iterator it = clients.begin();
-
-	while (i < clients.size())
-	{
-		delete clients[i];
-		clients.erase(it);
-		i++;
-		it++;
-	}
+	// size_t i = 0;
+	// std::vector<Client *>::iterator it = clients.begin();
+	//
+	// while (i < clients.size())
+	// {
+	// 	delete clients[i];
+	// 	clients.erase(it);
+	// 	i++;
+	// 	it++;
+	// }
 }

@@ -6,7 +6,7 @@
 /*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/03 10:10:08 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/15 09:53:12 by anaji            ###   ########.fr       */
+/*   Updated: 2024/07/15 12:37:26 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,12 +119,6 @@ bool Response::istimeOut()
 	return false;
 }
 
-std::string getRelativePath()
-{
-	char temp[MAXPATHLEN];
-   	return ( getcwd(temp, sizeof(temp)) ? std::string( temp ) : std::string("") );
-}
-
 std::string getScriptName(std::string str)
 {
 	int len = (int)str.size() - 1;
@@ -141,8 +135,7 @@ int Response::execute_cgi( void )
 {
 	if (location && location->cgi.size() && !is_cgi())
 	{
-		cgiFile = getRelativePath() + "/" + location->root + "/" \
-						  + getScriptName(path);
+		cgiFile = getScriptName(path);
 		if (STAGE == EXEC_CGI)
 		{
 			resetTimer();
@@ -162,7 +155,7 @@ int Response::execute_cgi( void )
 				// err = freopen (cgiErr.c_str(),"w",stderr);
 				if (method == "POST")
 					in = freopen (responseBody.c_str(),"r",stdin);
-				if (chdir((getRelativePath() + "/" + location->root).c_str()) == -1)
+				if (chdir((location->root).c_str()) == -1)
 					kill(getpid(), SIGKILL);
 				if (execve(argv[0], argv, env) == -1)
 					kill(getpid(), SIGKILL);
