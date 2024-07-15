@@ -6,13 +6,15 @@
 /*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/11 20:01:49 by anaji            ###   ########.fr       */
+/*   Updated: 2024/07/15 08:10:51 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
-#include "../AI_part/utils.hpp"
+#include "../Request/utils.hpp"
+#include <cstddef>
 #include <string>
+#include <vector>
 
 Response::Response() : STAGE(0), index(0), HEADERISWRITTEN(0), status(-1)
 {
@@ -51,6 +53,8 @@ std::string Response::getContentLenght(std::string file)
 {
 	std::string size;
 	struct stat st;
+	if (file.size() == 0)
+		return "0";
 	stat(file.c_str(), &st);
 	long nb = st.st_size;
 	std::stringstream ss;  
@@ -274,6 +278,11 @@ void Response::pick_method()
 	{
 		if (methods[i] == method)
 		{
+			// std::cout << location->allow_methods[0] << "\n";
+			// for (size_t j = 0; j < location->allow_methods.size() ; j++) {
+			// 	if (location->allow_methods[j] == tmp_method)
+			// 		return ((this->*(ptr[i]))());
+			// }
 			if (location && std::find(location->allow_methods.begin(), location->allow_methods.end(), tmp_method) != location->allow_methods.end())
 				return ((this->*(ptr[i]))());
 			status_code = "405";

@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 08:53:41 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/08 16:32:16 by soulang          ###   ########.fr       */
+/*   Updated: 2024/07/15 06:36:48 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "AI_part/utils.hpp"
+#include "Request/utils.hpp"
 #include "Parser/parser.hpp"
 #include "Response/Response.hpp"
-#include "./AI_part/ServerManager.hpp"
+#include "./Request/ServerManager.hpp"
 #include <csignal>
 #include <cstdio>
 #include <cstdlib>

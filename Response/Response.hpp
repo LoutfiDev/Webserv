@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: soulang <soulang@student.42.fr>            +#+  +:+       +#+        */
+/*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:42 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/10 12:30:57 by soulang          ###   ########.fr       */
+/*   Updated: 2024/07/15 10:48:18 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@
 
 
 #include "../Parser/parser.hpp"
-#include "../AI_part/utils.hpp"
+#include "../Request/utils.hpp"
 
 #define EXEC_CGI 0
 #define CGI_PROCESSING 1

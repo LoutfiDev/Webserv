@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: soulang <soulang@student.42.fr>            +#+  +:+       +#+         #
+#    By: anaji <marvin@42.fr>                       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/23 11:42:24 by soulang           #+#    #+#              #
-#    Updated: 2024/07/09 16:36:00 by soulang          ###   ########.fr        #
+#    Updated: 2024/07/15 06:35:49 by anaji            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,9 +17,9 @@ CXX = c++
 SRCS = main.cpp Parser/parser.cpp Parser/server.cpp \
 	Parser/location.cpp Parser/Sed/SedIsLoser.cpp \
 	Response/Response.cpp  Response/Get.cpp Response/Delete.cpp \
-	Response/Cgi.cpp AI_part/Request.cpp \
-	AI_part/Worker.cpp AI_part/Client.cpp AI_part/ServerManager.cpp \
-	AI_part/utils.cpp
+	Response/Cgi.cpp Response/Post.cpp Request/Request.cpp \
+	Request/Worker.cpp Request/Client.cpp Request/ServerManager.cpp \
+	Request/utils.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 
