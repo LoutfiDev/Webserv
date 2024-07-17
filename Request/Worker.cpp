@@ -232,14 +232,14 @@ void Worker::checkClientTimeout()
 
 Worker::~Worker() 
 {
-	// size_t i = 0;
-	// std::vector<Client *>::iterator it = clients.begin();
-	//
-	// while (i < clients.size())
-	// {
-	// 	delete clients[i];
-	// 	clients.erase(it);
-	// 	i++;
-	// 	it++;
-	// }
+	size_t i = 0;
+	std::vector<Client *>::iterator it = clients.begin();
+
+	while (i < clients.size())
+	{
+		delete clients[i];
+		clients.erase(it);
+		i++;
+		it++;
+	}
 }

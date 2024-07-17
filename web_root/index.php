@@ -1,5 +1,5 @@
 <?php
-$endpointURL = 'http://localhost:4342';
+$endpointURL = 'http://localhost:4342/index.php';
 $data = array('key' => 'value'); 
 
 function sendPostRequest($url, $data) {

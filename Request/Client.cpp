@@ -26,7 +26,7 @@ Client::Client(int _fd, std::vector<Server *> data)
 	c_timer_start = time(0);
 	requestLine = 0;
 	ignoretimer = false;
-	std::cout << "new Client Created " << fd << " with num " << id << "\n";
+	std::cout << "new Client Created " << id << "\n";
 }
 
 Client::Client(const Client& obj) {

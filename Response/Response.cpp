@@ -6,7 +6,7 @@
 /*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/15 08:10:51 by anaji            ###   ########.fr       */
+/*   Updated: 2024/07/17 12:25:50 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ Response& Response::operator=(const Response& src)
 	return (*this);
 }
 
-Response::~Response() {}
+Response::~Response() {delete location;}
 
 
 std::string Response::getMessage(std::string code)
