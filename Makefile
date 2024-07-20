@@ -6,12 +6,12 @@
 #    By: anaji <marvin@42.fr>                       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/23 11:42:24 by soulang           #+#    #+#              #
-#    Updated: 2024/07/15 11:45:31 by anaji            ###   ########.fr        #
+#    Updated: 2024/07/20 16:59:14 by anaji            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = Webserv
-CPPFLAGS = -Wall -Wextra -Werror -std=c++98 -g #-fsanitize=address -g3 #-fstandalone-debug
+CPPFLAGS = -Wall -Wextra -Werror -std=c++98 -g -fsanitize=address -g3 #-fstandalone-debug
 CXX = c++
 
 SRCS = main.cpp Parser/parser.cpp Parser/server.cpp \

@@ -201,7 +201,7 @@ void ServerManager::multiplixer()
 
 	while (1)
 	{
-		num_event = epoll_wait(epoll_fd, epl_evt, NUMCONNECTION, 10000);
+		num_event = epoll_wait(epoll_fd, epl_evt, NUMCONNECTION, 5000);
 		if (num_event == -1)
 		{
 			this->~ServerManager();
@@ -216,8 +216,8 @@ void ServerManager::multiplixer()
 					state = worker.serve(epl_evt[i].data.fd);
 					if (state == CONNECTIONCLOSED)
 					{
-						std::cerr << "error while reading request\n";
 						close(epl_evt[i].data.fd);
+						epoll_ctl(epoll_fd, EPOLL_CTL_DEL, epl_evt[i].data.fd, NULL);
 					}
 					else if (state == READINGISDONE  || state == ERRORINREADING)
 					{
@@ -233,7 +233,10 @@ void ServerManager::multiplixer()
 					worker.serve(epl_evt[i].data.fd);
 				}
 				else if (epl_evt[i].events & EPOLLHUP || epl_evt[i].events & EPOLLRDHUP)
+				{
+					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, epl_evt[i].data.fd, NULL);
 					close_and_exit(nginx);
+				}
 			}
 		}
 		worker.checkClientTimeout();

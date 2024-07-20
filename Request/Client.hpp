@@ -14,10 +14,8 @@
 #define ERROR 2
 
 #define TIMEOUT 10
-extern int cnt;
 class Client {
 	public:
-		int id;
 		Client(int, std::vector<Server *>);
 		Client(const Client &);
 		Client &operator=(const Client &);
@@ -59,8 +57,7 @@ class Client {
 		std::string buffer;
 
 		int isHeaderPartDone;   // to check if the haeders id done
-		// bool canParseBody;		// if method is POST then go and parse body else don't 
-		// int bodyLength;
+
 		std::vector<Server *> dataServer;
 
 	private:

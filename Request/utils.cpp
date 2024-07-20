@@ -189,7 +189,8 @@ void Response::send_errorResponse()
 	else
 	{
 		response += http_v + " " + status_code + " " + getMessage(status_code) + "\r\n";
-		response += "Content-Type: text/html\r\n\r\n";
+		response += "Content-Type: text/html\r\n";
+		response += "Content-Legth: "+getContentLenght(error_map[status_code])+"\r\n\r\n";
 	}
 
 	wrt = write(socket, response.c_str(), response.length());

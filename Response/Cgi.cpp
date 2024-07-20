@@ -6,7 +6,7 @@
 /*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/03 10:10:08 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/15 12:37:26 by anaji            ###   ########.fr       */
+/*   Updated: 2024/07/20 14:32:01 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,7 +152,7 @@ int Response::execute_cgi( void )
 				argv[2] = NULL;
 				formEnv();
 				out = freopen (cgiOut.c_str(),"w",stdout);
-				// err = freopen (cgiErr.c_str(),"w",stderr);
+				err = freopen (cgiErr.c_str(),"w",stderr);
 				if (method == "POST")
 					in = freopen (responseBody.c_str(),"r",stdin);
 				if (chdir((location->root).c_str()) == -1)

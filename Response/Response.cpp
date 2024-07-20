@@ -6,7 +6,7 @@
 /*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 09:30:45 by soulang           #+#    #+#             */
-/*   Updated: 2024/07/17 12:25:50 by anaji            ###   ########.fr       */
+/*   Updated: 2024/07/20 14:32:27 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -278,11 +278,6 @@ void Response::pick_method()
 	{
 		if (methods[i] == method)
 		{
-			// std::cout << location->allow_methods[0] << "\n";
-			// for (size_t j = 0; j < location->allow_methods.size() ; j++) {
-			// 	if (location->allow_methods[j] == tmp_method)
-			// 		return ((this->*(ptr[i]))());
-			// }
 			if (location && std::find(location->allow_methods.begin(), location->allow_methods.end(), tmp_method) != location->allow_methods.end())
 				return ((this->*(ptr[i]))());
 			status_code = "405";

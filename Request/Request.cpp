@@ -33,7 +33,6 @@ Request::Request() {
 	host = "";
 	cookie = "";
 	query_string = "";
-	requestedServer = new Server();
 	requested_location = new Location();
 	tmp_body_file_extension = "";
 	isSet = false;
@@ -42,7 +41,6 @@ Request::Request() {
 Request::Request(const Request &obj)
 {
 	requested_location = new Location();
-	requestedServer = new Server();
 	*this = obj;
 }
 
@@ -72,7 +70,7 @@ Request &Request::operator=(const Request &obj) {
 	contentTypeCheck = obj.contentTypeCheck;
 
 	*requested_location = *obj.requested_location;
-	*requestedServer = *obj.requestedServer;
+	requestedServer = obj.requestedServer;
 	tmp_body_file_extension = obj.tmp_body_file_extension;
 	return (*this);
 }
@@ -164,12 +162,29 @@ void Request::setBodyLength(std::string &number) {
 
 
 void Request::setRequestedServer(std::vector<Server *> servers) {
+	bool test = 0;
+
 	if (servers.size())
-		*requestedServer = *servers[0];
+		requestedServer = servers[0];
 	for (size_t i = 0; i < servers.size(); i++) {
 		if (servers[i]->host == host) {
-			*requestedServer = *servers[i];
-			break;
+			{
+				requestedServer = servers[i];
+				test = 1;
+				break;
+			}
+		}
+	}
+	if (test)
+		return;
+	for (size_t i = 0; i < servers.size(); i++) {
+		for (size_t j = 0; j < servers[i]->server_names.size(); j++) {
+			if (servers[i]->server_names[j] == host) {
+				{
+					requestedServer = servers[i];
+					break;
+				}
+			}
 		}
 	}
 }
@@ -252,10 +267,7 @@ void Request::checkRequestLine(std::vector<std::string> &attrs) {
 	http_version = attrs[2];
 
 	if (method_name != "GET" && method_name != "POST" && method_name != "DELETE")
-	{
-		std::cout << method_name<< " i set\n";
 		setResponseCode("405");
-	}
 	else if (http_version.compare("HTTP/1.1"))
 		setResponseCode("505");
 }
@@ -582,7 +594,7 @@ const std::string &Request::getTransferEncoding() {
 Request::~Request() {
 	if (requested_location)
 		delete requested_location;
-	if (requestedServer)
-		delete requestedServer;
+	// if (requestedServer)
+	// 	delete requestedServer;
 	tmp_body_file.close();
 }

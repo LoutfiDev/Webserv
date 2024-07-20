@@ -53,6 +53,7 @@ int Worker::readFromClient(int fd, std::vector<Client *>::iterator client)
 	if (read_size == -1)
 	{
 		std::cerr << "Connection Closed by peer\n";
+		delete *client;
 		clients.erase(client);
 		return CONNECTIONCLOSED;
 	}
@@ -79,7 +80,6 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 {
 	int response_result;
 
-	// std::cout << "Client " << (*client)->id << " Stage => "<< (*client)->getResponse()->STAGE << "\n";
 	(*client)->resetTimer();
 	if ((*client)->getState() == ERROR)
 	{
@@ -98,7 +98,6 @@ bool Worker::writeToClient(std::vector<Client *>::iterator client)
 	}
 	else
 	{
-		// std::cout << "Client " << (*client)->id << " in pick_method with " << (*client)->getResponse()->location->allow_methods.size() << "\n";
 		if ((*client)->getResponse()->STAGE == HEADER_PROCESSING)
 			(*client)->getResponse()->pick_method();
 		response_result = (*client)->getResponse()->send_response();
@@ -175,7 +174,7 @@ int Worker::serve(int fd)
 
 void Worker::initResponse(int clientFd)
 {
-	size_t tmp, max_body_size = 1000000;
+	size_t tmp, max_body_size = 100000000000;
 	char *s;
 
 	for (size_t i = 0; i < clients.size(); i++) {

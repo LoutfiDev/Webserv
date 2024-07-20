@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <ctime>
 #include <exception>
@@ -16,17 +17,17 @@
 int cnt = 0;
 Client::Client(int _fd, std::vector<Server *> data)
 {
-	id = cnt++;
 	response = new Response();
 	fd = _fd;
-	init_dataServer(data);
+	dataServer = data;
+	// init_dataServer(data);
 	isHeaderPartDone = 0;
 	response->socket = _fd;
 	state = READ;
 	c_timer_start = time(0);
 	requestLine = 0;
 	ignoretimer = false;
-	std::cout << "new Client Created " << id << "\n";
+	std::cout << "new Client Created \n";
 }
 
 Client::Client(const Client& obj) {
@@ -57,7 +58,7 @@ void Client::init_dataServer(const std::vector<Server *> &_server)
 
 	while (i < _server.size())
 	{
-		dataServer.push_back(new Server(*_server[i]));
+		dataServer.push_back(_server[i]);
 		i++;
 	}
 }
@@ -196,15 +197,6 @@ void Client::showrequest()
 
 Client::~Client() 
 {
-	size_t i = 0;
 	std::cout << "Drope Client\n";
-	// std::cout << "Drope Client " << fd << " with num " << id <<" with ststaus code " << response->status_code << " Method = " << response->method << "\n";
-	std::vector<Server *>::iterator it = dataServer.begin();
-	while (i < dataServer.size()) {
-		dataServer.erase(it);
-		delete it[i];
-		it++;
-		i++;
-	}
 	delete response;
 }

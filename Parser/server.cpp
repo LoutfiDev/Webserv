@@ -6,11 +6,15 @@
 /*   By: anaji <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:19:40 by soulang           #+#    #+#             */
-/*   Updated: 2024/06/23 15:23:07 by anaji            ###   ########.fr       */
+/*   Updated: 2024/07/20 16:44:02 by anaji            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "server.hpp"
+#include "location.hpp"
+#include <cstddef>
+#include <map>
+#include <string>
 
 Server::Server() {}
 
@@ -63,6 +67,14 @@ Server& Server::operator=(const Server& src)
 }
 
 Server::~Server() {
+	std::map<std::string, Location *>::iterator it = locations.begin();
+
+	while (it != locations.end())
+	{
+		delete it->second;
+		break;
+		it++;
+	}
 }
 
 void Server::set_default_error_pages( void ){
